@@ -26,15 +26,19 @@
                      
    In terms of the above classification and the variables g, a, b, c, d,
 
-      Which variables are in DATA? ______________________________________
-      Which variables are in BSS ? ______________________________________
+      Which variables are in DATA? 
+        initialized global and initialized static local variables
+      Which variables are in BSS?
+        uninitialized global and uninitialized static local variables
 
    2. In terms of the TEXT, DATA and BSS sections,
-      Which sections are in a.out, which section is NOT in a.out?
-      WHY?______________________________________________________
+      Which sections are in a.out, which section is NOT in a.out? WHY?
+        DATA since this is where initalized variables go at runtime since they're not needed at compile
 
   (B). For each case, use   cc -m32 -static t.c   to generate a.out.
        Record the sizes again and compare them with the sizes in (A).
-       WHAT DO YOU SEE?_________________________________________________
-
-       WHY?______________________________________________________________
+       WHAT DO YOU SEE?
+        The file is much bigger than when compiled without the static flag
+       WHY?
+        This is because it's using a static library where all the libraries and dependencies
+        are in one file, a.out, rather than being spread out in other files.

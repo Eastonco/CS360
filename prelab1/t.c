@@ -16,6 +16,7 @@ int main(int argc, char *argv[ ], char *env[ ])
   printf("&a=%8x &b=%8x &c=%8x\n", &a, &b, &c);
 
 //(1). Write C code to print values of argc and argv[] entries
+  printf("argc=%x argv=%x\n", argc, &*argv);
 
   a=1; b=2; c=3;
   A(a,b);
@@ -27,6 +28,9 @@ int A(int x, int y)
   int d,e,f;
   printf("enter A\n");
   // write C code to PRINT ADDRESS OF d, e, f
+  printf("d=%x e=%x f=%x\n", &d, &e, &f);
+
+
   d=4; e=5; f=6;
   B(d,e);
   printf("exit A\n");
