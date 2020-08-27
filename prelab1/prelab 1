@@ -1,0 +1,40 @@
+
+          Case  | a.out |  TEXT  |  DATA  |  BSS   |
+        --------------------------------------------
+          (1)   | 15596 |  1679  |  304   |   8    |
+        --------------------------------------------  
+          (2)   | 15600 |  1679  |  308   |   4    |
+        --------------------------------------------
+          (3)   | 15596 |  1679  |  304   | 40032  |
+        --------------------------------------------
+          (4)   | 55620 |  1679  |  40328 |   4    |
+        --------------------------------------------
+          (5)   | 15680 |  1927  |  308   |   8    |
+        --------------------------------------------        
+          (6)   | 15688 |  1695  |  304   | 40068  |
+        --------------------------------------------
+        
+
+   1. Variables in C may be classified as
+
+          globals ---|--- UNINITIALIZED  globals;
+                     |---   INITIALIZED  globals;
+
+          locals  ---|--- AUTOMATIC locals;
+                     |--- STATIC    locals;
+
+                     
+   In terms of the above classification and the variables g, a, b, c, d,
+
+      Which variables are in DATA? ______________________________________
+      Which variables are in BSS ? ______________________________________
+
+   2. In terms of the TEXT, DATA and BSS sections,
+      Which sections are in a.out, which section is NOT in a.out?
+      WHY?______________________________________________________
+
+  (B). For each case, use   cc -m32 -static t.c   to generate a.out.
+       Record the sizes again and compare them with the sizes in (A).
+       WHAT DO YOU SEE?_________________________________________________
+
+       WHY?______________________________________________________________
