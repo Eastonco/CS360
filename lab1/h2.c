@@ -39,7 +39,7 @@ int main()
   p->gender = 'M';
   
   fd = open("disk", O_WRONLY);  // open disk file for WRITE
-  printf("fd = %d\n", fd);      // show file descriptor number
+  printf("fd = %s\n", fd);      // show file descriptor number
 
   bzero(buf, 512);              // clear buf[ ] to 0's 
   memset(buf, 0, 512);          // set buf[ ] to 0's
