@@ -24,8 +24,8 @@ ffc658e8	5
 ffc658ec	de7a0200
 ffc658f0	ffc659d0
 ffc658f4	565d5fcc
-ffc658f8	ffc65928
-ffc658fc	565d341a
+ffc658f8	ffc65928    FP = *Fp
+ffc658fc	565d341a    retPC
 ffc65900	7
 ffc65904	8
 ffc65908	ffc65914
@@ -36,8 +36,8 @@ ffc65918	9           i = 9
 ffc6591c	de7a0200
 ffc65920	ffc659d0
 ffc65924	565d5fcc
-ffc65928	ffc65958
-ffc6592c	565d337b
+ffc65928	ffc65958    FP *Fp
+ffc6592c	565d337b    retPC
 ffc65930	4
 ffc65934	5
 ffc65938	ffc65944
@@ -48,8 +48,8 @@ ffc65948	6           f = 6
 ffc6594c	de7a0200
 ffc65950	ffc659d0
 ffc65954	565d5fcc
-ffc65958	ffc659b8
-ffc6595c	565d32d2
+ffc65958	ffc659b8    FP *Fp
+ffc6595c	565d32d2    retPC
 ffc65960	1
 ffc65964	2
 ffc65968	ffc66174
@@ -72,13 +72,13 @@ ffc659a8	ffc65a6c
 ffc659ac	ffc659d0
 ffc659b0	0
 ffc659b4	f7ec9000
-ffc659b8	0
+ffc659b8	0           FP *Fp
 ffc659bc	f7d00ee5
 ffc659c0	f7ec9000
 ffc659c4	f7ec9000
 ffc659c8	0
 ffc659cc	f7d00ee5
-ffc659d0	1
+ffc659d0	1           argc = 1
 ffc659d4	ffc65a64
 ffc659d8	ffc65a6c
 ffc659dc	ffc659f4
@@ -115,9 +115,9 @@ ffc65a54	f7ef62d0
 ffc65a58	ffc65a5c
 ffc65a5c	1c
 ffc65a60	1
-ffc65a64	ffc66174
+ffc65a64	ffc66174    argv location
 ffc65a68	0
-ffc65a6c	ffc6617c
+ffc65a6c	ffc6617c    env location
 ffc65a70	ffc6618c
 ffc65a74	ffc661de
 ffc65a78	ffc661f1
