@@ -25,34 +25,69 @@ typedef struct partition {
 	u32 nr_sectors;       /* number of of sectors in partition */
 }Partition;
 
-
+int MBR = 0x1BE;
 
 void main(int argc, char* argv[]){
-	int MBR = 0x1BE;
 	int disk;
 	char buf[512];
 	Partition *p;
 
     disk = open("vdisk", O_RDONLY);
+	if (disk == -1){
+		printf("ERROR: failed to open disk, Aborting...\n");
+		return;
+	}
+	printf("Disk opened successfully\nReading...\n");
 	read_sector(disk, 0, buf);
 
+
 	p = (Partition *) &buf[MBR];
-	p++;
+	printPartition(p, disk);
+	p += 3;
+	printExtendedPartition(p, disk);
 
-	int end_sector = p->start_sector + p->nr_sectors - 1;
-
-	printf("\e[1mDevice\tBoot Start\tEnd\tSectors\tId\tType\n\e[0m");
-	printf("vdisk\t\t");
-	printf("%d\t", p->start_sector);
-	printf("%d\t", end_sector);
-	printf("%d\t", p->nr_sectors);
-	printf("%d", p->sys_type);
-
-	printf("\n\n");
 };
 
+void printPartition(Partition *p, int disk){
+	printf("\e[1mDevice\tBoot Start\tEnd\tSectors\tId\n\e[0m");
 
-int read_sector(int disk, int sector, char *buf){
+	for(int i = 0; i<4; i++){
+		printf("vdisk%d\t", i+1);
+		printf("%d\t\t", p->start_sector);
+		printf("%d\t", calculateEndAddress(p,0));
+		printf("%d\t", p->nr_sectors);
+		printf("%d\n", p->sys_type);
+		p++;
+	}
+   // p->localMBR
+}
+
+void printExtendedPartition(Partition *p, int disk){
+	char buf[512];
+	int p4StartSector = p->start_sector;
+	int partitionCount = 4;
+	int offset = p4StartSector;
+
+	while(p->nr_sectors != 0){
+		read_sector(disk, offset, buf);
+		p = (Partition *)&buf[MBR]; 
+		printf("vdisk%d\t", partitionCount);
+		printf("%d\t\t", p->start_sector + offset);
+		printf("%d\t", calculateEndAddress(p,offset));
+		printf("%d\t", p->nr_sectors);
+		printf("%d\n", p->sys_type);
+		partitionCount++;
+		p++;
+		offset = p4StartSector + p->start_sector;
+	}
+}
+
+int calculateEndAddress(Partition *p, int offset){
+	return p->start_sector + p->nr_sectors - 1 + offset;
+}
+
+
+void read_sector(int disk, int sector, char *buf){
 	lseek(disk, sector*512, SEEK_SET);
 	read(disk, buf, 512);
 };
