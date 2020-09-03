@@ -46,6 +46,8 @@ void main(int argc, char* argv[]){
 	p += 3;
 	printExtendedPartition(p, disk);
 
+	close(disk);
+
 };
 
 void printPartition(Partition *p, int disk){
