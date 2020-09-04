@@ -51,11 +51,12 @@ void myprintf(char *format, ...){
                 printx(*ip);
                 ip++;
                 break;
+            default:
+                printf("ERROR");
+                break;
             };
             cp++;
-            
         }
-
         else{
             putchar(*cp);
             cp++;

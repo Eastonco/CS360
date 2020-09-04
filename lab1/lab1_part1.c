@@ -61,13 +61,12 @@ void printPartition(Partition *p, int disk){
 		printf("%d\n", p->sys_type);
 		p++;
 	}
-   // p->localMBR
 }
 
 void printExtendedPartition(Partition *p, int disk){
 	char buf[512];
 	int p4StartSector = p->start_sector;
-	int partitionCount = 4;
+	int partitionCount = 5;
 	int offset = p4StartSector;
 
 	while(p->nr_sectors != 0){
