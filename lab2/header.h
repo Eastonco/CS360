@@ -11,8 +11,10 @@
 #include <unistd.h>
 
 
-#define DIRECTORY 'D'
-#define FILE 'F'
+#define DIRECTORY_TYPE 'D'
+#define FILE_TYPE 'F'
+#define SET_TEXT_BLUE "\033[1;36m"
+#define RESET_TEXT "\033[0m;"
 
 typedef struct node {
 
@@ -28,7 +30,10 @@ NODE *root, *cwd;
 char line[128], command[16], pathname[64],dname[64], bname[64];
 
 void initialize(void);
-NODE *newNode(char *name, char type);
+int find_command(char *command);
+NODE *new_node(char *name, char type);
 void dbname(char *pathname);
+void print_dir(char *dirname);
+void save(FILE *fname);
 
 #endif
