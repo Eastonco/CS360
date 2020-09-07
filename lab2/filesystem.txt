@@ -1,0 +1,5 @@
+type	pathname
+
+D	/
+D	/test
+F	/test/maybe

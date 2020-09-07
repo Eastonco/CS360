@@ -3,40 +3,58 @@
 
 int main(int argc, char* argv[], char* env[]){
     int index;
-
-
-    
-    
+    debug = true;
 
     initialize(); //initialize root node of the file system tree
+    char myPath[] = "test";
+
+/*
+    char hello[] = "child1";
+    char test[] = "adopted";
+    char this[] = "child2";
+
+    char goal[] = "child2";
+
+
+
+    // "/ // hello // test
+    NODE *child1 = insert_node(root, hello, DIRECTORY_TYPE);
+    NODE *child2 = insert_node(child1, test, DIRECTORY_TYPE);
+    NODE *child3 = insert_node(root, this, DIRECTORY_TYPE);
+
+    NODE *target = find_node(root, goal);
+    printf("%s\n\n", target->name);
+*/
+    mkdir(myPath);
+
 
     while(1){
-        printf("input a commad line : ");
+        memset(pathname, 0, sizeof pathname);
+        memset(command, 0, sizeof command);
+
+        printf("$ ");
         fgets(line,128,stdin); 
         line[strlen(line)-1] = 0;
         sscanf(line, "%s %s", command, pathname); 
         index = find_command(command);
         switch(index){
             case 0: 
-                //mkdir(pathname);
-                printf("\nMAKEDIR CALLED\n");
+                mkdir(pathname);
                 break;
             case 1: 
-                //rmdir(pathname);
-                printf("\nRMDIR CALLED\n");
+                removedir(pathname);
                 break;
             case 2: 
-                printf("\nLS CALLED\n"); 
-                //ls(pathname);
+                ls(pathname);
                 break; 
             case 3:
-                //cd();
+                cd(pathname);
                 break;
             case 4:
-                //pwd();
+                pwd();
                 break;
             case 5:
-                //creat();
+                create(pathname);
                 break;
             case 6:
                 //rm();
@@ -45,7 +63,7 @@ int main(int argc, char* argv[], char* env[]){
                 //reload();
                 break;
             case 8:
-                //save();
+                save();
                 break;
             case 9:
                 //menu();

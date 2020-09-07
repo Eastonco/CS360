@@ -9,12 +9,15 @@
 #include <fcntl.h>
 #include <sys/types.h>
 #include <unistd.h>
+#include <stdbool.h>
+
 
 
 #define DIRECTORY_TYPE 'D'
 #define FILE_TYPE 'F'
 #define SET_TEXT_BLUE "\033[1;36m"
-#define RESET_TEXT "\033[0m;"
+#define RESET_TEXT "\033[0m"
+
 
 typedef struct node {
 
@@ -29,11 +32,39 @@ typedef struct node {
 NODE *root, *cwd;
 char line[128], command[16], pathname[64],dname[64], bname[64];
 
+bool debug;
+
+// pathname = "/this/that/hello"
+// dname = "/this/that"
+// bname = "hello"
+
 void initialize(void);
 int find_command(char *command);
 NODE *new_node(char *name, char type);
 void dbname(char *pathname);
-void print_dir(char *dirname);
-void save(FILE *fname);
+void print_node(NODE *pcur);
+void save();
+void pwd();
+void pwdhelper(NODE * pcur);
+
+void mkdir(char *pathname);
+NODE *insert_node(NODE *parent, char *name, char type);
+NODE *find_node(NODE *pcur, char *pathname);
+NODE *find_helper(NODE *pcur, char *target);
+
+void rprint(NODE * pcur, FILE *fd);
+void print_filesystem(FILE * fd);
+void fpwd(NODE *pcur, FILE * fd);
+
+void ls(char * pathname);
+
+NODE * parse_pathname(char *pathname);
+
+void create(char * pathname);
+void cd(char *pathname);
+
+void delete_node(NODE *pcur);
+void removedir(char *pathname);
+
 
 #endif
