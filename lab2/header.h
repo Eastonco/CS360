@@ -30,7 +30,7 @@ typedef struct node {
 }NODE;
 
 NODE *root, *cwd;
-char line[128], command[16], pathname[64],dname[64], bname[64];
+char line[128], command[16], pathname[64],dname[64], bname[64], savefile[64];
 
 bool debug;
 
@@ -43,20 +43,22 @@ int find_command(char *command);
 NODE *new_node(char *name, char type);
 void dbname(char *pathname);
 void print_node(NODE *pcur);
-void save();
+void save(char *filename);
 void pwd();
 void pwdhelper(NODE * pcur);
+void quit();
 
 void mkdir(char *pathname);
 NODE *insert_node(NODE *parent, char *name, char type);
 NODE *find_node(NODE *pcur, char *pathname);
-NODE *find_helper(NODE *pcur, char *target);
+NODE *find_helper(NODE *pcur, char *target, char file_type);
 
 void rprint(NODE * pcur, FILE *fd);
 void print_filesystem(FILE * fd);
 void fpwd(NODE *pcur, FILE * fd);
 
 void ls(char * pathname);
+void rm(char * pathname);
 
 NODE * parse_pathname(char *pathname);
 

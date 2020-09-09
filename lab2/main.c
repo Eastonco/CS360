@@ -57,20 +57,20 @@ int main(int argc, char* argv[], char* env[]){
                 create(pathname);
                 break;
             case 6:
-                //rm();
+                rm(pathname);
                 break;
             case 7:
-                //reload();
+                reload(pathname);
                 break;
             case 8:
-                save();
+                save(pathname);
                 break;
             case 9:
                 //menu();
                 break;
             case 10:
-                //quit();
-                break;
+                quit();
+                return;
             default: 
                 printf("invalid command %s\n", command);
         }

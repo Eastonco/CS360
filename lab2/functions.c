@@ -7,10 +7,28 @@ void initialize(void){
     printf("Initialized OK...\n");
 }
 
-void save(){ //TODO: make this iterate
-    FILE *fp = fopen("filesystem.txt", "w+");
+void save(char *filename){ 
+    char file[64];
+
+    if(!strcmp(filename, "")) {
+        if(!strcmp(savefile, "")){
+            strcpy(file, "filesystem.txt");
+        } else {
+            strcpy(file, savefile);
+        }
+    } else {
+        strcpy(file, filename);
+        strcpy(savefile, file);
+    }
+
+    (debug) ? printf("Saving to %s\n", file) : NULL;
+
+
+    FILE *fp = fopen(file, "w+");
     print_filesystem(fp);
     fclose(fp);
+
+    (debug) ? printf("Saved.\n") : NULL;
 }
 
 int find_command(char *command){
@@ -65,7 +83,7 @@ void pwd(){
 }
 
 
-void mkdir(char *pathname){ //TODO: implement a traversal function
+void mkdir(char *pathname){ 
     dbname(pathname);
     NODE * location = parse_pathname(pathname);
     NODE * dupe_search = location->childPtr;
@@ -103,7 +121,7 @@ NODE *find_node(NODE *pcur, char *pathname){ //pcur is start directory
     s = strtok(pathname, "/"); // first call to strtok() 
     if(strcmp(s, ".")){
         while(s){
-            pcur = find_helper(pcur->childPtr, s);
+            pcur = find_helper(pcur->childPtr, s, DIRECTORY_TYPE);
             if(pcur== NULL){
                 printf("ERROR IN FINDNODE\n");
                 break;
@@ -114,18 +132,18 @@ NODE *find_node(NODE *pcur, char *pathname){ //pcur is start directory
     return pcur;
 }
 
-NODE *find_helper(NODE *pcur, char *target){
+NODE *find_helper(NODE *pcur, char *target, char file_type){
     if(pcur == NULL){
         (debug) ? printf("NODE NOT FOUND\n") : NULL;
         return pcur;
     }
-    else if(!strcmp(pcur->name, target) && pcur->type == DIRECTORY_TYPE){
+    else if(!strcmp(pcur->name, target) && pcur->type == file_type){
         (debug) ? printf("%s == %s\n", pcur->name, target) : NULL;
         return pcur;
     }
     else{
         (debug) ? printf("%s != %s\n", pcur->name, target) : NULL;
-        return find_helper(pcur->siblingPtr, target);
+        return find_helper(pcur->siblingPtr, target, file_type);
     }
 } 
 
@@ -236,8 +254,11 @@ void cd(char *pathname){
                 temp = temp->parentPtr;
             }
         }
+        else if(!strcmp(bname, "/")){
+
+        }
         else{
-            temp = find_helper(temp->childPtr, bname);
+            temp = find_helper(temp->childPtr, bname, DIRECTORY_TYPE);
         }
     }
     else{
@@ -304,7 +325,7 @@ void removedir(char *pathname){
         printf("Please provide a valid filename\n");
         return;
     }
-    location = find_helper(location->childPtr, bname);
+    location = find_helper(location->childPtr, bname, DIRECTORY_TYPE);
     if(location->childPtr != NULL ){
         printf("Error: Can't remote a non empty dir\n");
         return;
@@ -314,4 +335,65 @@ void removedir(char *pathname){
         return;
     }
     delete_node(location);
+}
+
+void rm(char * pathname){
+    (debug) ? printf("rm called\n") : NULL ;
+    dbname(pathname);
+    NODE * location = parse_pathname(pathname);
+    if(!strcmp(bname, ".")){
+        printf("Please provide a valid filename\n");
+        return;
+    }
+    location = find_helper(location->childPtr, bname, FILE_TYPE);
+    if(location == NULL){
+        printf("Error: File not found\n");
+        return;
+    }
+    if(location->type != FILE_TYPE){
+        printf("Error: %s is not a file\n", bname);
+        return;
+    }
+    delete_node(location);
+}
+
+void quit(){
+    save(NULL);
+    printf("Goodbye\n");
+}
+
+void reload(char *filename){ //TODO: fixme
+    char save[64], buf[128], path[128], type;
+
+    if(!strcmp(filename, "")) {
+        if(!strcmp(savefile, "")){
+            printf("Please provide a save file to load\n");
+            return;
+        } else {
+            strcpy(save, savefile);
+        }
+    } else {
+        strcpy(save, filename);
+    }
+
+    FILE *fp = fopen(save, "r");
+    fgets(buf,128,fp); 
+    fgets(buf,128,fp); 
+    while(fgets(buf, 128, fp)){
+        buf[strlen(buf)-1] = 0;
+        sscanf(buf, "%c\t%s", &type, &path);
+        (debug) ? printf("%c %s", type, path) : NULL;
+        switch (type)
+        {
+        case DIRECTORY_TYPE:
+            mkdir(path);
+            break;
+        case FILE_TYPE:
+            create(path);
+        default:
+            printf("ERROR reading file");
+            break;
+        }
+    }
+    fclose(fp);
 }
