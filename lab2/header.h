@@ -47,6 +47,7 @@ void save(char *filename);
 void pwd();
 void pwdhelper(NODE * pcur);
 void quit();
+void menu();
 
 void mkdir(char *pathname);
 NODE *insert_node(NODE *parent, char *name, char type);

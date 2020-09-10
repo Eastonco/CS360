@@ -66,7 +66,7 @@ int main(int argc, char* argv[], char* env[]){
                 save(pathname);
                 break;
             case 9:
-                //menu();
+                menu();
                 break;
             case 10:
                 quit();

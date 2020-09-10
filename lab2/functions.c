@@ -358,8 +358,12 @@ void rm(char * pathname){
 }
 
 void quit(){
-    save(NULL);
+    save("");
     printf("Goodbye\n");
+}
+
+void menu(){
+    printf("valid commands include: ls, pwd, menu, mkdir, rmdir, rm, creat, save, reload, & quit\n");
 }
 
 void reload(char *filename){ //TODO: fixme
@@ -397,3 +401,4 @@ void reload(char *filename){ //TODO: fixme
     }
     fclose(fp);
 }
+

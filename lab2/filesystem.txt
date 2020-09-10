@@ -2,4 +2,3 @@ type	pathname
 
 D	/
 D	/test
-D	/yes
