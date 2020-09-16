@@ -6,27 +6,6 @@ int main(int argc, char* argv[], char* env[]){
     debug = true;
 
     initialize(); //initialize root node of the file system tree
-    char myPath[] = "test";
-
-/*
-    char hello[] = "child1";
-    char test[] = "adopted";
-    char this[] = "child2";
-
-    char goal[] = "child2";
-
-
-
-    // "/ // hello // test
-    NODE *child1 = insert_node(root, hello, DIRECTORY_TYPE);
-    NODE *child2 = insert_node(child1, test, DIRECTORY_TYPE);
-    NODE *child3 = insert_node(root, this, DIRECTORY_TYPE);
-
-    NODE *target = find_node(root, goal);
-    printf("%s\n\n", target->name);
-*/
-    mkdir(myPath);
-
 
     while(1){
         memset(pathname, 0, sizeof pathname);

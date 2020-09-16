@@ -86,6 +86,9 @@ void pwd(){
 void mkdir(char *pathname){ 
     dbname(pathname);
     NODE * location = parse_pathname(pathname);
+    if(location == NULL){
+        return;
+    }
     NODE * dupe_search = location->childPtr;
     while(dupe_search){
         if(!strcmp(dupe_search->name, bname) && (dupe_search->type == DIRECTORY_TYPE)){
@@ -123,7 +126,7 @@ NODE *find_node(NODE *pcur, char *pathname){ //pcur is start directory
         while(s){
             pcur = find_helper(pcur->childPtr, s, DIRECTORY_TYPE);
             if(pcur== NULL){
-                printf("ERROR IN FINDNODE\n");
+                (debug) ? printf("ERROR IN FINDNODE\n") : NULL;
                 break;
             }
             s = strtok(0, "/"); // call strtok() until it returns NULL 
@@ -134,7 +137,13 @@ NODE *find_node(NODE *pcur, char *pathname){ //pcur is start directory
 
 NODE *find_helper(NODE *pcur, char *target, char file_type){
     if(pcur == NULL){
-        (debug) ? printf("NODE NOT FOUND\n") : NULL;
+        printf("Invalid path: ");
+        if(file_type == DIRECTORY_TYPE){
+            printf("Directory %s not found\n", target);
+        }
+        else{
+            printf("File %s not found\n", target);
+        }
         return pcur;
     }
     else if(!strcmp(pcur->name, target) && pcur->type == file_type){
@@ -203,8 +212,9 @@ void ls(char * pathname){
     else{
         dbname(pathname);
         temp = parse_pathname(pathname);
+        temp = find_helper(temp->childPtr, bname, DIRECTORY_TYPE);
     }
-    
+
     temp = temp->childPtr;
     while(temp){
         print_node(temp);
@@ -382,10 +392,13 @@ void reload(char *filename){ //TODO: fixme
 
     FILE *fp = fopen(save, "r");
     fgets(buf,128,fp); 
+    fgets(buf,128,fp);
     fgets(buf,128,fp); 
+    
     while(fgets(buf, 128, fp)){
         buf[strlen(buf)-1] = 0;
         sscanf(buf, "%c\t%s", &type, &path);
+
         (debug) ? printf("%c %s", type, path) : NULL;
         switch (type)
         {
