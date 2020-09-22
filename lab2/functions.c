@@ -407,11 +407,14 @@ void reload(char *filename){ //TODO: fixme
             break;
         case FILE_TYPE:
             create(path);
+            break;
         default:
-            printf("ERROR reading file");
+            printf("ERROR reading file\n");
             break;
         }
     }
+
+    printf("System Reloaded successfully\n");
     fclose(fp);
 }
 

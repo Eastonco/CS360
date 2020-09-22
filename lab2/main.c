@@ -3,7 +3,7 @@
 
 int main(int argc, char* argv[], char* env[]){
     int index;
-    debug = true;
+    debug = false;
 
     initialize(); //initialize root node of the file system tree
 

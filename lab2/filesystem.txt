@@ -1,7 +1,7 @@
 type	pathname
 
 D	/
-F	/f1
 D	/d2
 D	/d2/d4
 D	/d3
+F	/f1
