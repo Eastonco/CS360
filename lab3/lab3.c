@@ -76,7 +76,7 @@ int main(int argc, char *argv[], char *env[])
 
   while (1)
   {
-    printf("kcsh $: ");
+    printf("\nkcsh $: ");
     fgets(line, 128, stdin);
     line[strlen(line) - 1] = 0; // fgets() has \n at end
 
@@ -187,6 +187,14 @@ int doCommand(char *cmdLine)
   tokenizeLine(cmdLine);
   ioRedirection();
   char cmd[64];
+  if(name[0][0] == '.' && name[0][1] =='/'){
+    char temp[MAX];
+    getcwd(temp, MAX);
+    strcat(temp, "/");
+    strcat(temp, name[0]);
+
+    execve(temp,name, __environ);
+  }
   for (int i = 0; i < ndir; i++)
   {
 
@@ -233,18 +241,21 @@ void ioRedirection()
       name[i] = 0;
       close(1);
       int fd = open(name[i + 1], O_WRONLY | O_CREAT);
+      dup2(fd, 1);
     }
     else if (strcmp(name[i], ">>") == 0)
     {
       name[i] = 0;
       close(1);
       int fd = open(name[i + 1], O_WRONLY | O_CREAT | O_APPEND);
+      dup2(fd, 1);
     }
     else if (strcmp(name[i], "<") == 0)
     {
       name[i] = 0;
       close(0);
       int fd = open(name[i + 1], O_RDONLY);
+      dup2(fd, 0);
     }
   }
 }
