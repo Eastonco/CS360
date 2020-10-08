@@ -1,0 +1,170 @@
+CLOSE book, notes, laptop, iphone
+
+LAB1pre Part1: C variables in a.out file: READ Chapter 2.3.1, 2.3.2
+ Given a C program with GLOBAL variable, LOCAL variables, which variables are
+ in the a.out file? initialized globals and initialized static locals WHY? (beyond stack memory) because they have a larger scope that main in main
+
+LAB1pre Part 2: Stack contents: READ Chapter 2.4.1, 2.4.2, 2.4.3
+ Given main(int argc, char *argv[]){ 
+ 	int a=1,b=2; A(a,b);
+ 	 }
+       int A(int x, int y){ 
+       	int u, v; HERE:  
+        }
+ Draw a diagram of stack contents from HERE: to argv of main()
+ Identify the STACK FRAME of A() function. 
+
+LAB1 Part 1: Partition table: READ LAB1 Assignment AND YOUR LAB1 work
+ How did you get MBR of a diskimage into char buf[512]? open file for reading, lseek into sector 0, read.
+ 
+ How did you print the type of the 4 partitions? call p->sector_type
+
+
+LAB1 Part 2: myprintf(char *fmt, . . .){ char *cp; int *ip; ....}
+ Given print(u32 x), How did you write printd(int x)? check the sign, if neg, add a -, prinu32
+ Write code to let cp point at the fmt string: cp = fmt
+ Write code to let ip point at the first item to be printed on stack: ip = &fmt+1
+
+
+LAB#2:
+  Write C statements to define a node structure for
+          name   : array of 16 chars
+          child  : pointer to first child node
+          sibling: pointer to next sibling
+          
+          
+          typedef stuct node{
+          	char[16] name;
+          	struct node * child;
+          	strcut node * sibling;
+          }Node;
+
+  Given a GENERAL tree, redraw it as a BINARY tree by child, sibling pointers.
+       
+Assume: node pointer p points at a node A in a BINARY tree, q points at a new node, "name" is a string 
+  
+  Write C code to 
+        ADD q as a child of A: a->child = q
+        print names of ALL child of A:
+        
+        p = a->child
+        while(p != NULL){
+        	print(p)
+        	p = p->sibling;
+        
+        
+        
+        search for a child of A with name; return pointer to the node or NULL
+        
+        
+        
+        
+
+LAB#3: sh simulator <========== VERY VERY IMPORTANT
+
+  READ Chapter 3.8.1: fork()
+       Chapter 3.8.3: Process termination
+       Chpater 3.8.4: pid = wait(int *status)
+       Chapter 3.8.6: execve()
+       Chapter 3.9  : I/O redirection
+       Chapter 3.10.2: Pipe command processing
+      
+  For any Linux command, how does the Linux sh find the command? loops through env PATH trying to execute the command.
+  
+  How did you tokenize PATH into dir[0],dir[1],...? 
+  
+  s = strtok(path, ";");
+  while(s){
+  strtok(NULL, ';')
+  {
+  How did you tokenize a command line cmd a b c > out into token strings?
+  i.e. WRITE CODE to show me how to tokenize !!!!!!!!!!
+  
+
+  YOUR main sh's logic:
+       while(1){
+         get a command line;
+         tokenize the command line;
+         for non-trivial command:
+             fork a child; HOW? int parent = fork()
+             if (parent){ wait for child to die: HOW: pid = wait(&status);
+                          continue;
+                        }
+             else{ 
+                 // YOUR child sh do the command line
+             }
+       }
+   ----------------------------------------------------------------
+
+   CHILD sh: for a command line = CMD a b c d > outfile
+     Write code to do > outfile close(1);
+     				 int fd open("outfile", O_WRONLY | O_CREAT)
+     				
+               MAY be < 
+               		close(0);
+               		int fd = open("outfile, O_RDONLY)
+               
+     Create a pathname = dir[i]/cmd      HOW: char * path; = 
+     						strcpy(path, dir[i]);
+     						strcat(path, "/cmd");
+     						
+     Create myargv[ ]:
+     
+     char * myargv[];
+     
+     
+        What are in myargv[ ]? arguments being passed into the funciton
+ 
+            int r = execve(pathname, myargv, env);
+
+     What if the execve() call fails? returns -1 moves on.
+     What if it succeeds? replaces child process with the executed program
+
+     Assume command line = cat filename | grep print
+     Write C code to do the pipe _____________________________________________
+
+
+
+READ Chapter 4 on Concurrent Programming
+
+  What are threads? Threads are independent execution units in the same address space of a process.
+  Difference between PROCESS and threads is? adresses have multiple address and threads are under all one 
+
+  How to create a threads? WRITE CODE for it!!! pthread_creat(pthread_t *pthread_id, pthread_attr_t *attr, void *(*func)(void *), void *arg)
+  
+  How does thread terminate? WRITE CODE for it!!! pthread_exit(void *status)
+
+  How to wait to a thread to terminate? Code!!! pthread_join(pthread_t thread, void **status_ptr)
+
+  What's mutex? a syncronizaiton lock that binds to a thread
+  What's a Critical Region? shared variable space
+
+  STUDY program C4.3: How to protect Critical Region by mutex? by using mutex and locking and unlocking while editing.
+
+  What's DEADLOCK? is when two threads waiting for each other to finish
+
+
+
+Solving systems of Linear Equatiions:
+        Given A*X = B, solve for X
+
+Gauss Elimination with partial pivoting: reduce [A|B] to WHAT kind of matrix? an upper-triangular form;
+What's partial pivoting?leading row has highest absolutle value. WHY? improve the accuracy of operation
+How to solve for X? for each row find a pivot and use gausian eliminaion and then back subsittue pivots to solve for x
+
+In the PARALLEL Gauss program C4.5, the pattern is:
+
+       // ALL N threads execute this code:
+       for (row=0, row < N-1; row++){
+           ONE thread do Partial Pivoting;
+   (1):    pthread_barrier_wait(&barrier); // WHY? Can't row reduce until pivioting is done.
+           Many threads do row reductions in parallel;
+   (2):    pthread_barrier_wait(&barrier); // WHY? waiting for all threads to finish for result
+       }  
+
+WHAT's a barrier? a barrier acts as a rendezvous point, rather than as a graveyard, of threads; does not destory the threads
+
+Difference between barrier and threads JOIN? join kills threads, barries doesn't
+ 
+WHY is the barrier at (1) needed? can't row reduce until piviot is done.
+WhY is the barrier at (2) needed? waiting for all threads to finish before result
