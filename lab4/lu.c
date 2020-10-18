@@ -56,7 +56,7 @@ int *lu(void *arg)
         if (k == myid)
         {
             max = 0;
-            printf("partial pivoting by row %d\n", k);
+            printf("partial pivoting by row %d on thread %d\n", k, myid);
             for (i = k; i < n; i++)
             {
 
@@ -91,7 +91,7 @@ int *lu(void *arg)
         if (k == myid)
         {
             // swap row A[k] and row A[j]
-            printf("swap row %d and row %d of A\n", k, j);
+            printf("swap row %d and row %d of A on thread %d\n", k, j, myid);
             for (m = 0; m < n; m++)
             {
                 temp = A[k][m];
@@ -130,7 +130,7 @@ int *lu(void *arg)
         // row reductions on A
         if (k == myid)
         {
-            printf("row reducations of A by row %d\n", k);
+            printf("row reducations of A by thread %d on row %d\n", myid, k);
             for (i = k + 1; i < n; i++)
             {
                 for (m = k + 1; m < n; m++)
