@@ -30,6 +30,8 @@
 // globals
 struct sockaddr_in saddr; 
 int sock, r, n;
+char *serverIP   = "127.0.0.1";
+int   serverPORT = 1234;
 char line[MAX], ans[MAX];
 
 #endif /* __LAB_5_H__ */
