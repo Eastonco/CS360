@@ -1,6 +1,18 @@
-lab5: client.c server.c
-	gcc -m32 client.c -o client.bin
-	gcc -m32 server.c -o server.bin
 
-make clean:
-	rm client.bin; rm server.bin
+GCC        	= gcc
+CFLAGS      = -g -m32 
+RM          = rm -rf
+BINDIR      = bin
+
+
+default: all
+
+all: build
+
+build: client.c server.c
+	mkdir -p $(BINDIR)
+	$(GCC) $(CFLAGS) -o $(BINDIR)/client.bin client.c
+	$(GCC) $(CFLAGS) -o $(BINDIR)/server.bin server.c 
+
+clean veryclean:
+	$(RM) $(BINDIR)
