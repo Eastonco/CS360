@@ -50,9 +50,6 @@ char data[MAX];
 
 int init()
 {
-    // set virtual root to CWD
-    int r = chroot("./");
-
     printf("Creating socket... ");
     server_sock = socket(AF_INET, SOCK_STREAM, 0);
     if (server_sock < 0)
@@ -88,6 +85,10 @@ int init()
 
 int main(int argc, char *argv[], char *env[])
 {
+    // set virtual root to CWD
+    chdir("/");
+    chroot("/");
+
     int n, length;
     char line[MAX];
     char command[16], arg[64];
