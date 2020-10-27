@@ -34,7 +34,9 @@ int find_cmd_index(char *command);
 int has_argument(char *line);
 int server_get();
 int server_put();
-int server_ls();
+int server_ls(char * pathname);
+int ls_dir(char *pathname);
+int ls_file(char *fname);
 int server_cd(char *pathname);
 int server_pwd();
 int server_mkdir();
@@ -195,9 +197,92 @@ int server_put()
     return 0;
 }
 
-int server_ls()
+int server_ls(char * pathname)
 {
-    return 0;
+    if (!strcmp(pathname, "")){
+        ls_dir("/");
+        return;
+    }
+    ls_dir(pathname);
+    return;
+}
+
+int ls_dir(char *pathname)
+{
+    struct dirent *dp;
+    DIR *mydir;
+    char fullPath[MAX * 2];
+    memset(fullPath, '\0', sizeof(fullPath));
+
+    if ((mydir = opendir(pathname)) == NULL)
+    {
+        perror("couldn't open pathname");
+        return;
+    }
+
+    do
+    {
+        if ((dp = readdir(mydir)) != NULL)
+        {
+            memset(fullPath, '\0', sizeof(fullPath));
+            strcpy(fullPath, pathname);
+            strcat(fullPath, "/");
+            strcat(fullPath, dp->d_name);
+            ls_file(fullPath);
+        }
+
+    } while (dp != NULL);
+
+    closedir(mydir);
+    return;
+}
+
+
+int ls_file(char *fname)
+{
+    char linkname[MAX];
+    char *t1 = "xwrxwrxwr-------";
+    char *t2 = "----------------";
+
+    struct stat fstat, *sp;
+    int r, i;
+    char ftime[64];
+    sp = &fstat;
+    if ((r = lstat(fname, &fstat)) < 0)
+    {
+        printf("can’t stat %s\n", fname);
+        exit(1);
+    }
+    if ((sp->st_mode & 0xF000) == 0x8000) // if (S_ISREG())
+        printf("%c", '-');
+    if ((sp->st_mode & 0xF000) == 0x4000) // if (S_ISDIR())
+        printf("%c", 'd');
+    if ((sp->st_mode & 0xF000) == 0xA000) // if (S_ISLNK())
+        printf("%c", 'l');
+    for (i = 8; i >= 0; i--)
+    {
+        if (sp->st_mode & (1 << i))
+            printf("%c", t1[i]); // print r|w|x printf("%c", t1[i]);
+        else
+            printf("%c", t2[i]); // or print -
+    }
+    printf("%4d ", sp->st_nlink); // link count
+    printf("%4d ", sp->st_gid);   // gid
+    printf("%4d ", sp->st_uid);   // uid
+    printf("%8d ", sp->st_size);  // file size
+
+    strcpy(ftime, ctime(&sp->st_ctime)); // print time in calendar form ftime[strlen(ftime)-1] = 0; // kill \n at end
+    ftime[strlen(ftime) - 1] = 0;        // removes the \n
+    printf("%s ", ftime);                // prints the time
+
+    printf("%s", basename(fname)); // print file basename // print -> linkname if symbolic file
+    if ((sp->st_mode & 0xF000) == 0xA000)
+    {
+        readlink(fname, linkname, MAX);
+        printf(" -> %s", linkname); // print linked name }
+    }
+
+    printf("\n");
 }
 
 int server_cd(char *pathname)
