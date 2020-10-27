@@ -31,10 +31,11 @@ int serverPORT = 1234;        // hardcoded server port number
 struct sockaddr_in saddr, caddr; // socket addr structs
 
 int find_cmd_index(char *command);
+int has_argument(char *line);
 int server_get();
 int server_put();
 int server_ls();
-int server_cd();
+int server_cd(char *pathname);
 int server_pwd();
 int server_mkdir();
 int server_rmdir();
@@ -44,6 +45,8 @@ int server_rm();
 char *cmd[] = {"get", "put", "ls", "cd", "pwd", "mkdir", "rmdir", "rm"};
 
 int (*fptr[])(char *) = {(int (*)())server_get, server_put, server_ls, server_cd, server_pwd, server_mkdir, server_rmdir, server_rm};
+
+char data[MAX];
 
 int init()
 {
@@ -121,24 +124,49 @@ int main(int argc, char *argv[], char *env[])
             line[n] = 0;
             printf("server: read  n=%d bytes; line=[%s]\n", n, line);
 
-            sscanf(line, "%s %s", command, arg);
+            memset(data, 0, MAX);
+
+            if(has_argument(line)) {
+                sscanf(line, "%s %s", command, arg);
+            } else {
+                strcpy(command, line);
+                strcpy(arg, "");
+            }
+            
             int index = find_cmd_index(command);
             if (index != -1)
             {
-                fptr[index](arg);
+                int r = fptr[index](arg);
+                strcat(data, line);
+                if (r != -1) {
+                    strcat(data, " OK");
+                } else {
+                    strcat(data, " FAILED");
+                }
             }
             else
             {
                 printf("invalid command %s\n", line);
             }
 
-            strcat(line, " ECHO");
-            // send the echo line to client
-            n = write(client_sock, line, MAX);
+            n = write(client_sock, data, MAX);
 
-            printf("server: wrote n=%d bytes; ECHO=[%s]\n", n, line);
+            printf("server: wrote n=%d bytes; ECHO=[%s]\n", n, data);
+
         }
     }
+}
+
+int has_argument(char *line) {
+    int size = strlen(line);
+    for (int i = 0; i < size; i++) {
+        if (line[i] == ' ') {
+            if (line[i+1] != ' ' || line[i+1] != '\0') {
+                return 1;
+            }
+        }
+    }
+    return 0;
 }
 
 int find_cmd_index(char *command)
@@ -171,27 +199,30 @@ int server_ls()
     return 0;
 }
 
-int server_cd()
+int server_cd(char *pathname)
 {
-    return 0;
+    return chdir(pathname);
 }
 
 int server_pwd()
 {
-    return 0;
+    char buf[MAX];
+    getcwd(buf, MAX);
+    printf("SERVER LOCAL: %s\n", buf);
+    strcpy(data, buf);
 }
 
-int server_mkdir()
+int server_mkdir(char *pathname)
 {
-    return 0;
+    return mkdir(pathname, 0755);
 }
 
-int server_rmdir()
+int server_rmdir(char *pathname)
 {
-    return 0;
+    return rmdir(pathname);
 }
 
-int server_rm()
+int server_rm(char *pathname)
 {
-    return 0;
+    return unlink(pathname);
 }
