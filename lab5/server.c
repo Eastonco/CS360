@@ -9,30 +9,47 @@
 #include <string.h>
 
 #include <unistd.h>
-#include <netdb.h> 
-#include <netinet/in.h> 
-#include <sys/socket.h> 
-#include <sys/types.h> 
+#include <netdb.h>
+#include <netinet/in.h>
+#include <sys/socket.h>
+#include <sys/types.h>
 #include <arpa/inet.h>
 
 #include <sys/stat.h>
 #include <fcntl.h>
 #include <dirent.h>
-#include <libgen.h>     // for dirname()/basename()
-#include <time.h> 
+#include <libgen.h> // for dirname()/basename()
+#include <time.h>
 
-#define MAX   256
-#define BLK  1024
+#define MAX 256
+#define BLK 1024
 
 int server_sock, client_sock;
-char *serverIP = "127.0.0.1";      // hardcoded server IP address
-int serverPORT = 1234;             // hardcoded server port number
+char *serverIP = "127.0.0.1"; // hardcoded server IP address
+int serverPORT = 1234;        // hardcoded server port number
 
-struct sockaddr_in saddr, caddr;   // socket addr structs
+struct sockaddr_in saddr, caddr; // socket addr structs
 
+int find_cmd_index(char *command);
+int server_get();
+int server_put();
+int server_ls();
+int server_cd();
+int server_pwd();
+int server_mkdir();
+int server_rmdir();
+int server_rm();
+
+// Command table (for function pointers)
+char *cmd[] = {"get", "put", "ls", "cd", "pwd", "mkdir", "rmdir", "rm"};
+
+int (*fptr[])(char *) = {(int (*)())server_get, server_put, server_ls, server_cd, server_pwd, server_mkdir, server_rmdir, server_rm};
 
 int init()
 {
+    // set virtual root to CWD
+    int r = chroot("./");
+
     printf("Creating socket... ");
     server_sock = socket(AF_INET, SOCK_STREAM, 0);
     if (server_sock < 0)
@@ -70,40 +87,111 @@ int main(int argc, char *argv[], char *env[])
 {
     int n, length;
     char line[MAX];
-    
-    init();  
+    char command[16], arg[64];
 
-    while(1){
-       printf("server: trying to accept a new connection...\n");
-       length = sizeof(caddr);
-       client_sock = accept(server_sock, (struct sockaddr *)&caddr, &length);
-       if (client_sock < 0){
-          printf("server: accept error\n");
-          exit(1);
-       }
- 
-       printf("server: accepted a client connection from\n");
-       printf("-----------------------------------------------\n");
-       printf("    IP=%s  port=%d\n", "127.0.0.1", ntohs(caddr.sin_port));
-       printf("-----------------------------------------------\n");
+    init();
 
-       // Processing loop
-       while(1){
-         printf("server ready for next request ....\n");
-         n = read(client_sock, line, MAX);
-         if (n==0){
-           printf("server: client died, server loops\n");
-           close(client_sock);
-           break;
-         }
-         line[n]=0;
-         printf("server: read  n=%d bytes; line=[%s]\n", n, line);
+    while (1)
+    {
+        printf("server: trying to accept a new connection...\n");
+        length = sizeof(caddr);
+        client_sock = accept(server_sock, (struct sockaddr *)&caddr, &length);
+        if (client_sock < 0)
+        {
+            printf("server: accept error\n");
+            exit(1);
+        }
 
-         strcat(line, " ECHO");
-         // send the echo line to client 
-         n = write(client_sock, line, MAX);
+        printf("server: accepted a client connection from\n");
+        printf("-----------------------------------------------\n");
+        printf("    IP=%s  port=%d\n", "127.0.0.1", ntohs(caddr.sin_port));
+        printf("-----------------------------------------------\n");
 
-         printf("server: wrote n=%d bytes; ECHO=[%s]\n", n, line);
-       }
+        // Processing loop
+        while (1)
+        {
+            printf("server ready for next request ....\n");
+            n = read(client_sock, line, MAX);
+            if (n == 0)
+            {
+                printf("server: client died, server loops\n");
+                close(client_sock);
+                break;
+            }
+            line[n] = 0;
+            printf("server: read  n=%d bytes; line=[%s]\n", n, line);
+
+            sscanf(line, "%s %s", command, arg);
+            int index = find_cmd_index(command);
+            if (index != -1)
+            {
+                fptr[index](arg);
+            }
+            else
+            {
+                printf("invalid command %s\n", line);
+            }
+
+            strcat(line, " ECHO");
+            // send the echo line to client
+            n = write(client_sock, line, MAX);
+
+            printf("server: wrote n=%d bytes; ECHO=[%s]\n", n, line);
+        }
     }
+}
+
+int find_cmd_index(char *command)
+{
+    int i = 0;
+    while (cmd[i])
+    {
+        if (!strcmp(command, cmd[i]))
+        {
+            printf("Found %s, index %d\n", command, i);
+            return i;
+        }
+        i++;
+    }
+    return -1;
+}
+
+int server_get()
+{
+    return 0;
+}
+
+int server_put()
+{
+    return 0;
+}
+
+int server_ls()
+{
+    return 0;
+}
+
+int server_cd()
+{
+    return 0;
+}
+
+int server_pwd()
+{
+    return 0;
+}
+
+int server_mkdir()
+{
+    return 0;
+}
+
+int server_rmdir()
+{
+    return 0;
+}
+
+int server_rm()
+{
+    return 0;
 }
