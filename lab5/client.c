@@ -128,8 +128,8 @@ int lcat(char *filename) {
     char buf[512];
     FILE *fd = fopen(filename, "r");
     if (fd != NULL) {
-        while (!feof(fd)) {
-            fgets(buf, 512, fd);
+        while (fgets(buf, 512, fd) != NULL) {
+            buf[strlen(buf)-1] = '\0';
             puts(buf);
         }
     } else {
