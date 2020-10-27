@@ -28,7 +28,8 @@
 #define BLK 1024
 
 // globals
-struct sockaddr_in saddr; 
+int server_sock, client_sock;
+struct sockaddr_in saddr, caddr; 
 int sock, r, n;
 char *serverIP   = "127.0.0.1";
 int   serverPORT = 1234;
