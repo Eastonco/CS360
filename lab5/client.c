@@ -86,6 +86,13 @@ int main(int argc, char *argv[], char *env[])
 
     while (1)
     {
+        memset(command, '\0', sizeof(command));
+        memset(arg, '\0', sizeof(arg));
+        memset(line,'\0', sizeof(line));
+        memset(ans,'\0', sizeof(ans));
+
+
+
         printf("input a line : ");
         fgets(line, MAX, stdin);
         line[strlen(line) - 1] = 0; // kill <CR> at end
@@ -186,6 +193,10 @@ int ls_dir(char *pathname)
 
 int lls(char * pathname)
 {
+    if (!strcmp(pathname, "")){
+        ls_dir("/");
+        return;
+    }
     ls_dir(pathname);
     return;
 }
