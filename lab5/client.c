@@ -194,7 +194,7 @@ int ls_dir(char *pathname)
 int lls(char * pathname)
 {
     if (!strcmp(pathname, "")){
-        ls_dir("/");
+        ls_dir("./");
         return;
     }
     ls_dir(pathname);

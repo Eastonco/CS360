@@ -34,7 +34,7 @@ int find_cmd_index(char *command);
 int has_argument(char *line);
 int server_get();
 int server_put();
-int server_ls(char * pathname);
+int server_ls(char *pathname);
 int ls_dir(char *pathname);
 int ls_file(char *fname);
 int server_cd(char *pathname);
@@ -116,6 +116,9 @@ int main(int argc, char *argv[], char *env[])
         // Processing loop
         while (1)
         {
+            memset(command, '\0', sizeof(command));
+            memset(arg, '\0', sizeof(arg));
+            memset(line,'\0', sizeof(line));
             printf("server ready for next request ....\n");
             n = read(client_sock, line, MAX);
             if (n == 0)
@@ -129,21 +132,27 @@ int main(int argc, char *argv[], char *env[])
 
             memset(data, 0, MAX);
 
-            if(has_argument(line)) {
+            if (has_argument(line))
+            {
                 sscanf(line, "%s %s", command, arg);
-            } else {
+            }
+            else
+            {
                 strcpy(command, line);
                 strcpy(arg, "");
             }
-            
+
             int index = find_cmd_index(command);
             if (index != -1)
             {
                 int r = fptr[index](arg);
                 strcat(data, line);
-                if (r != -1) {
+                if (r != -1)
+                {
                     strcat(data, " OK");
-                } else {
+                }
+                else
+                {
                     strcat(data, " FAILED");
                 }
             }
@@ -155,16 +164,19 @@ int main(int argc, char *argv[], char *env[])
             n = write(client_sock, data, MAX);
 
             printf("server: wrote n=%d bytes; ECHO=[%s]\n", n, data);
-
         }
     }
 }
 
-int has_argument(char *line) {
+int has_argument(char *line)
+{
     int size = strlen(line);
-    for (int i = 0; i < size; i++) {
-        if (line[i] == ' ') {
-            if (line[i+1] != ' ' || line[i+1] != '\0') {
+    for (int i = 0; i < size; i++)
+    {
+        if (line[i] == ' ')
+        {
+            if (line[i + 1] != ' ' || line[i + 1] != '\0')
+            {
                 return 1;
             }
         }
@@ -197,9 +209,10 @@ int server_put()
     return 0;
 }
 
-int server_ls(char * pathname)
+int server_ls(char *pathname)
 {
-    if (!strcmp(pathname, "")){
+    if (!strcmp(pathname, ""))
+    {
         ls_dir("/");
         return;
     }
@@ -236,7 +249,6 @@ int ls_dir(char *pathname)
     closedir(mydir);
     return;
 }
-
 
 int ls_file(char *fname)
 {
