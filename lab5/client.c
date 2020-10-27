@@ -53,6 +53,11 @@ int main(int argc, char *argv[], char *env[])
         if (line[0] == 0)           // exit if NULL line
             exit(0);
 
+        // CHeck here if the command should be executed locally
+
+        // else send to server
+ 
+
         // Send ENTIRE line to server
         n = write(sock, line, MAX);
         printf("client: wrote n=%d bytes; line=(%s)\n", n, line);
