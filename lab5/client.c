@@ -100,7 +100,7 @@ int main(int argc, char *argv[], char *env[])
             exit(0);
 
         // CHeck here if the command should be executed locally
-        if (line[0] == 'l')
+        if (find_cmd_index(line) != -1)
         { // local command-- run on client only
             sscanf(line, "%s %s", command, arg);
             int index = find_cmd_index(command);
