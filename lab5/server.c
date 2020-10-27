@@ -65,6 +65,7 @@ int init()
 
     printf("Server at IP=%s port=%d\n", serverIP, serverPORT);
 }
+
 int main(int argc, char *argv[], char *env[])
 {
     int n, length;
