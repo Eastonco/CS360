@@ -34,8 +34,8 @@ struct sockaddr_in saddr, caddr; // socket addr structs
 
 int find_cmd_index(char *command);
 int has_argument(char *line);
-int server_get();
-int server_put();
+int server_get(char *filename);
+int server_put(char *filename);
 int server_ls(char *pathname);
 int ls_dir(char *pathname);
 int ls_file(char *fname);
@@ -229,15 +229,37 @@ int server_get(char *filename)
             write(client_sock, buf, n);
             n = read(fp, buf, MAX);
         }
-        // TODO fix the above to work with the client code
     }
     close(fp);
     return 0;
 }
 
-int server_put()
+int server_put(char *filename)
 {
-    return 0;
+    // get the # of bytes that the file is
+    char buf[MAX];
+    int fd;
+    int b = read(client_sock, buf, MAX);
+    int file_size = atoi(buf);
+    memset(buf, 0, sizeof(buf));
+    // synchronize data for get, arg is filename
+    fd = open(filename, O_WRONLY|O_CREAT, 0644);
+    if (fd > 0) {
+        int bytes_read = 0; // total amount of the file read
+        int packet_size = 0; // each packet size between 0 and MAX
+        while (bytes_read < file_size) {
+            read(client_sock, buf, MAX);
+            bytes_read += MAX;
+            if(file_size < MAX){
+                write(fd, buf, file_size);
+            }
+            else{
+                write(fd, buf, MAX);
+                file_size -= MAX;
+            }
+        }
+        close(fd);
+    }
 }
 
 int server_ls(char *pathname)

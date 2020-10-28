@@ -152,6 +152,30 @@ int main(int argc, char *argv[], char *env[])
 
             } else if (!strcmp(command, "put")) {
                 // synchronize data for put, arg is filename
+                int r;
+                char buffer[MAX];
+
+                struct stat fstat, *sp;
+                sp = &fstat;
+                if ((r = lstat(arg, &fstat)) < 0) {
+                    printf("can’t stat %s\n", arg);
+                    return -1;
+                }
+                int file_size = sp->st_size;
+                sprintf(buffer, "%d", file_size);
+
+                write(sock, buffer, MAX);
+                int fp = open(arg, O_RDONLY);
+                if (fp > 0) {
+                    char buf[MAX];
+                    memset(buf, '\0', sizeof(buf));
+                    int n = read(fp, buf, MAX); // read 256 bytes from the file
+                    while(n > 0){
+                        write(sock, buf, n);
+                        n = read(fp, buf, MAX);
+                    }
+                }
+                close(fp);
             } else {
                 // Read a line from sock and show it
                 bzero(response, sizeof(response));
