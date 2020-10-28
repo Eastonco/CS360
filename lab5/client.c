@@ -27,7 +27,7 @@ struct sockaddr_in saddr;
 char *serverIP = "127.0.0.1";
 int serverPORT = 1234;
 int sock;
-int debug = 1;
+int debug = 0;
 
 // Function prototypes
 int find_cmd_index(char *command);
@@ -127,18 +127,29 @@ int main(int argc, char *argv[], char *env[])
             char buf[MAX];
             if (!strcmp(command, "get")) {
                 // get the # of bytes that the file is
-                read(sock, buf, MAX);
+                int fd;
+                int b = read(sock, buf, MAX);
                 int file_size = atoi(buf);
                 memset(buf, 0, sizeof(buf));
                 // synchronize data for get, arg is filename
-                int fd = open(arg, O_WRONLY|O_CREAT, 0644);
-                if (fd != NULL) {
-                    int bytes_read = 0;
+                fd = open(arg, O_WRONLY|O_CREAT, 0644);
+                if (fd > 0) {
+                    int bytes_read = 0; // total amount of the file read
+                    int packet_size = 0; // each packet size between 0 and MAX
                     while (bytes_read < file_size) {
-                        bytes_read += read(sock, buf, MAX);
-                        write(fd, buf, MAX);
+                        read(sock, buf, MAX);
+                        bytes_read += MAX;
+                        if(file_size < MAX){
+                            write(fd, buf, file_size);
+                        }
+                        else{
+                            write(fd, buf, MAX);
+                            file_size -= MAX;
+                        }
                     }
+                    close(fd);
                 }
+
             } else if (!strcmp(command, "put")) {
                 // synchronize data for put, arg is filename
             } else {

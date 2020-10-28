@@ -28,7 +28,7 @@
 int server_sock, client_sock;
 char *serverIP = "127.0.0.1"; // hardcoded server IP address
 int serverPORT = 1234;        // hardcoded server port number
-int debug = 1;
+int debug = 0;
 
 struct sockaddr_in saddr, caddr; // socket addr structs
 
@@ -50,7 +50,7 @@ char *cmd[] = {"get", "put", "ls", "cd", "pwd", "mkdir", "rmdir", "rm"};
 
 int (*fptr[])(char *) = {(int (*)())server_get, server_put, server_ls, server_cd, server_pwd, server_mkdir, server_rmdir, server_rm};
 
-char data[10000];
+char data[MAX];
 
 int init()
 {
@@ -90,8 +90,8 @@ int init()
 int main(int argc, char *argv[], char *env[])
 {
     // set virtual root to CWD
-    chdir("/");
-    chroot("/");
+    chdir("./");
+    chroot("./");
 
     int n, length;
     char line[MAX];
@@ -208,7 +208,6 @@ int find_cmd_index(char *command)
 int server_get(char *filename)
 {
     int r;
-    FILE * fd;
     char buffer[MAX];
 
     struct stat fstat, *sp;
@@ -218,16 +217,21 @@ int server_get(char *filename)
         return -1;
     }
     int file_size = sp->st_size;
-    sprintf(buffer, "%s", file_size);
+    sprintf(buffer, "%d", file_size);
 
     write(client_sock, buffer, MAX);
     int fp = open(filename, O_RDONLY);
-    if (fp != NULL) {
+    if (fp > 0) {
         char buf[MAX];
-        int n = read(fd, buf, MAX); // read 256 bytes from the file
-        write(client_sock, buf, MAX);
+        memset(buf, '\0', sizeof(buf));
+        int n = read(fp, buf, MAX); // read 256 bytes from the file
+        while(n > 0){
+            write(client_sock, buf, n);
+            n = read(fp, buf, MAX);
+        }
         // TODO fix the above to work with the client code
     }
+    close(fp);
     return 0;
 }
 
@@ -295,7 +299,9 @@ int ls_file(char *fname)
     if ((r = lstat(fname, &fstat)) < 0)
     {
         sprintf(fmt,"can’t stat %s\n", fname);
-        strcpy(data, fmt);
+        strcpy(buff, fmt);
+        n = write(client_sock, buff, MAX);
+        printf("server: wrote n=%d bytes; ECHO=[%s]\n", n, buff);
         exit(1);
     }
     if ((sp->st_mode & 0xF000) == 0x8000){ // if (S_ISREG())
