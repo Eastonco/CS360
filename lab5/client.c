@@ -27,6 +27,7 @@ struct sockaddr_in saddr;
 char *serverIP = "127.0.0.1";
 int serverPORT = 1234;
 int sock;
+int debug = 1;
 
 // Function prototypes
 int find_cmd_index(char *command);
@@ -95,7 +96,7 @@ int main(int argc, char *argv[], char *env[])
 
 
 
-        printf("input a line : ");
+        printf("$ ");
         fgets(line, MAX, stdin);
         line[strlen(line) - 1] = 0; // kill <CR> at end
         if (line[0] == 0)           // exit if NULL line
@@ -105,7 +106,7 @@ int main(int argc, char *argv[], char *env[])
         sscanf(line, "%s %s", command, arg);
         if (find_cmd_index(command) != -1)
         { // local command-- run on client only
-            printf("%s\n", command);
+            (debug) ? printf("%s\n", command) : NULL;
             int index = find_cmd_index(command);
             if (index != -1)
             {
@@ -120,7 +121,7 @@ int main(int argc, char *argv[], char *env[])
         { // else send to server
             // Send ENTIRE line to server
             n = write(sock, line, MAX);
-            printf("Sent: %s\n", line);
+            (debug) ? printf("Sent: %s\n", line) : NULL;
             char command[16], arg[64];
             sscanf(line, "%s %s", command, arg);
             char buf[MAX];
@@ -145,7 +146,8 @@ int main(int argc, char *argv[], char *env[])
                 bzero(response, sizeof(response));
                 n = read(sock, response, sizeof(response));
                 while(!is_end_of_tranmission(response)){
-                    printf("client read: %s", response);
+                    (debug) ? printf("client read: %s", response) : printf("%s", response);
+
                     bzero(response, sizeof(response));
                     n = read(sock, response, sizeof(response));
                 }
@@ -157,7 +159,7 @@ int main(int argc, char *argv[], char *env[])
 
 int is_end_of_tranmission(char * response){
     if(!strcmp(response, EOT)){
-        printf("End of transmission\n");
+        (debug) ? printf("End of transmission\n") : NULL;
         return 1;
     }
     return 0;
@@ -170,7 +172,7 @@ int find_cmd_index(char *command)
     {
         if (!strcmp(command, cmd[i]))
         {
-            printf("Found %s, index %d\n", command, i);
+            (debug) ?printf("Found %s, index %d\n", command, i) : NULL;
             return i;
         }
         i++;

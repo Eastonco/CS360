@@ -28,6 +28,7 @@
 int server_sock, client_sock;
 char *serverIP = "127.0.0.1"; // hardcoded server IP address
 int serverPORT = 1234;        // hardcoded server port number
+int debug = 1;
 
 struct sockaddr_in saddr, caddr; // socket addr structs
 
@@ -162,9 +163,9 @@ int main(int argc, char *argv[], char *env[])
                 printf("invalid command %s\n", line);
             }
 
-            n = write(client_sock, data, MAX);
+            (debug) ? n = write(client_sock, data, MAX) : NULL;
 
-            printf("server: wrote n=%d bytes; ECHO=[%s]\n", n, data);
+            (debug) ? printf("server: wrote n=%d bytes; ECHO=[%s]\n", n, data) : NULL;
 
             // send EOT when transmission is over
             n = write(client_sock, EOT, MAX);
@@ -361,7 +362,7 @@ int server_pwd()
     getcwd(buf, MAX-1);
     strcat(buf, "\n");
     printf("SERVER LOCAL: %s\n", buf);
-    strcpy(data, buf);
+    write(client_sock, buf, MAX);
 }
 
 int server_mkdir(char *pathname)
