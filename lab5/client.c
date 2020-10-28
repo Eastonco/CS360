@@ -121,17 +121,37 @@ int main(int argc, char *argv[], char *env[])
             // Send ENTIRE line to server
             n = write(sock, line, MAX);
             printf("client: wrote n=%d bytes; line=(%s)\n", n, line);
-
-            // Read a line from sock and show it
-            bzero(response, sizeof(response));
-            n = read(sock, response, sizeof(response));
-            while(is_end_of_tranmission(response)){
-                printf("client: read  n=%d bytes; echo=(%s)\n", n, response);
+            char command[16], arg[64];
+            sscanf(line, "%s %s", command, arg);
+            char buf[MAX];
+            if (!strcmp(command, "get")) {
+                // get the # of bytes that the file is
+                read(sock, buf, max);
+                int file_size = atoi(buf);
+                memset(buf, 0, sizeof(buf));
+                // synchronize data for get, arg is filename
+                int fd = open(arg, O_WRONLY|O_CREAT, 0644);
+                if (fd != NULL) {
+                    int bytes_read = 0;
+                    while (bytes_read < file_size) {
+                        bytes_read += read(sock, buf, MAX);
+                        write(fd, buf, MAX);
+                    }
+                }
+            } else if (!strcmp(command, "put")) {
+                // synchronize data for put, arg is filename
+            } else {
+                // Read a line from sock and show it
                 bzero(response, sizeof(response));
                 n = read(sock, response, sizeof(response));
+                while(is_end_of_tranmission(response)){
+                    printf("client: read  n=%d bytes; echo=(%s)\n", n, response);
+                    bzero(response, sizeof(response));
+                    n = read(sock, response, sizeof(response));
+                }
+                printf("client: read  n=%d bytes; echo=(%s)\n", n, response);
+                // transmission ended
             }
-            printf("client: read  n=%d bytes; echo=(%s)\n", n, response);
-            // transmission ended
         }
     }
 }
