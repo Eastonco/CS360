@@ -25,10 +25,11 @@
 #define BLK 1024
 #define EOT "\\r\\n\\r\\n"
 
+#define DEBUG 0
+
 int server_sock, client_sock;
 char *serverIP = "127.0.0.1"; // hardcoded server IP address
 int serverPORT = 1234;        // hardcoded server port number
-int debug = 0;
 
 struct sockaddr_in saddr, caddr; // socket addr structs
 
@@ -163,9 +164,14 @@ int main(int argc, char *argv[], char *env[])
                 printf("invalid command %s\n", line);
             }
 
-            (debug) ? n = write(client_sock, data, MAX) : NULL;
+            // To be tested
+            #if DEBUG
+                n = write(client_sock, data, MAX);
+            #endif
 
-            (debug) ? printf("server: wrote n=%d bytes; ECHO=[%s]\n", n, data) : NULL;
+            #if DEBUG
+                printf("server: wrote n=%d bytes; ECHO=[%s]\n", n, data);
+            #endif
 
             // send EOT when transmission is over
             n = write(client_sock, EOT, MAX);
@@ -269,10 +275,10 @@ int server_ls(char *pathname)
     if (!strcmp(pathname, ""))
     {
         ls_dir(buf);
-        return;
+        return 1;
     }
     ls_dir(pathname);
-    return;
+    return 0;
 }
 
 int ls_dir(char *pathname)
@@ -285,7 +291,7 @@ int ls_dir(char *pathname)
     if ((mydir = opendir(pathname)) == NULL)
     {
         perror("couldn't open pathname");
-        return;
+        return 1;
     }
 
     do
@@ -302,7 +308,7 @@ int ls_dir(char *pathname)
     } while (dp != NULL);
 
     closedir(mydir);
-    return;
+    return 0;
 }
 
 int ls_file(char *fname)
@@ -355,7 +361,7 @@ int ls_file(char *fname)
     strcat(buff, fmt);
     sprintf(fmt, "%4d ", sp->st_uid);   // uid
     strcat(buff, fmt);
-    sprintf(fmt, "%8d ", sp->st_size);  // file size
+    sprintf(fmt, "%8ld ", sp->st_size);  // file size
     strcat(buff, fmt);
 
     strcpy(ftime, ctime(&sp->st_ctime)); // print time in calendar form ftime[strlen(ftime)-1] = 0; // kill \n at end

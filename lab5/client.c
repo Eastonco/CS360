@@ -23,11 +23,12 @@
 #define BLK 1024
 #define EOT "\\r\\n\\r\\n"
 
+#define DEBUG 0
+
 struct sockaddr_in saddr;
 char *serverIP = "127.0.0.1";
 int serverPORT = 1234;
 int sock;
-int debug = 0;
 
 // Function prototypes
 int find_cmd_index(char *command);
@@ -107,7 +108,9 @@ int main(int argc, char *argv[], char *env[])
         sscanf(line, "%s %s", command, arg);
         if (find_cmd_index(command) != -1)
         { // local command-- run on client only
-            (debug) ? printf("%s\n", command) : NULL;
+        #if DEBUG
+            printf("%s\n", command);
+        #endif
             int index = find_cmd_index(command);
             if (index != -1)
             {
@@ -122,7 +125,9 @@ int main(int argc, char *argv[], char *env[])
         { // else send to server
             // Send ENTIRE line to server
             n = write(sock, line, MAX);
-            (debug) ? printf("Sent: %s\n", line) : NULL;
+        #if DEBUG
+            printf("Sent: %s\n", line);
+        #endif
             char command[16], arg[64];
             sscanf(line, "%s %s", command, arg);
             char buf[MAX];
@@ -180,8 +185,11 @@ int main(int argc, char *argv[], char *env[])
                 bzero(response, sizeof(response));
                 n = read(sock, response, sizeof(response));
                 while(!is_end_of_tranmission(response)){
-                    (debug) ? printf("client read: %s", response) : printf("%s", response);
-
+                    #if DEBUG
+                        printf("client read: %s", response);
+                    #else 
+                        printf("%s", response);
+                    #endif
                     bzero(response, sizeof(response));
                     n = read(sock, response, sizeof(response));
                 }
@@ -190,7 +198,11 @@ int main(int argc, char *argv[], char *env[])
                 bzero(response, sizeof(response));
                 n = read(sock, response, sizeof(response));
                 while(!is_end_of_tranmission(response)){
-                    (debug) ? printf("client read: %s", response) : printf("%s", response);
+                    #if DEBUG
+                        printf("%s", response);
+                    #else
+                        printf("client read: %s", response);
+                    #endif
 
                     bzero(response, sizeof(response));
                     n = read(sock, response, sizeof(response));
@@ -203,7 +215,9 @@ int main(int argc, char *argv[], char *env[])
 
 int is_end_of_tranmission(char * response){
     if(!strcmp(response, EOT)){
-        (debug) ? printf("End of transmission\n") : NULL;
+        #if DEBUG
+            printf("End of transmission\n");
+        #endif
         return 1;
     }
     return 0;
@@ -216,7 +230,9 @@ int find_cmd_index(char *command)
     {
         if (!strcmp(command, cmd[i]))
         {
-            (debug) ?printf("Found %s, index %d\n", command, i) : NULL;
+            #if DEBUG
+                printf("Found %s, index %d\n", command, i);
+            #endif
             return i;
         }
         i++;
@@ -246,8 +262,9 @@ int lcat(char *filename)
     else
     {
         printf("fopen failed, aborting\n");
+        return 1;
     }
-    return 1;
+    return 0;
 }
 
 int ls_dir(char *pathname)
@@ -260,7 +277,7 @@ int ls_dir(char *pathname)
     if ((mydir = opendir(pathname)) == NULL)
     {
         perror("couldn't open pathname");
-        return;
+        return 1;
     }
 
     do
@@ -277,17 +294,17 @@ int ls_dir(char *pathname)
     } while (dp != NULL);
 
     closedir(mydir);
-    return;
+    return 0;
 }
 
 int lls(char * pathname)
 {
     if (!strcmp(pathname, "")){
         ls_dir("./");
-        return;
+        return 1;
     }
     ls_dir(pathname);
-    return;
+    return 0;
 }
 
 int ls_file(char *fname)
@@ -321,7 +338,7 @@ int ls_file(char *fname)
     printf("%4d ", sp->st_nlink); // link count
     printf("%4d ", sp->st_gid);   // gid
     printf("%4d ", sp->st_uid);   // uid
-    printf("%8d ", sp->st_size);  // file size
+    printf("%8ld ", sp->st_size);  // file size
 
     strcpy(ftime, ctime(&sp->st_ctime)); // print time in calendar form ftime[strlen(ftime)-1] = 0; // kill \n at end
     ftime[strlen(ftime) - 1] = 0;        // removes the \n
@@ -335,6 +352,7 @@ int ls_file(char *fname)
     }
 
     printf("\n");
+    return 0;
 }
 
 int lcd(char *pathname)
