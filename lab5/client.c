@@ -177,6 +177,14 @@ int main(int argc, char *argv[], char *env[])
                     }
                 }
                 close(fp);
+                bzero(response, sizeof(response));
+                n = read(sock, response, sizeof(response));
+                while(!is_end_of_tranmission(response)){
+                    (debug) ? printf("client read: %s", response) : printf("%s", response);
+
+                    bzero(response, sizeof(response));
+                    n = read(sock, response, sizeof(response));
+                }
             } else {
                 // Read a line from sock and show it
                 bzero(response, sizeof(response));
