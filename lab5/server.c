@@ -49,7 +49,7 @@ char *cmd[] = {"get", "put", "ls", "cd", "pwd", "mkdir", "rmdir", "rm"};
 
 int (*fptr[])(char *) = {(int (*)())server_get, server_put, server_ls, server_cd, server_pwd, server_mkdir, server_rmdir, server_rm};
 
-char data[MAX];
+char data[10000];
 
 int init()
 {
@@ -122,7 +122,7 @@ int main(int argc, char *argv[], char *env[])
             memset(line,'\0', sizeof(line));
             printf("server ready for next request ....\n");
             n = read(client_sock, line, MAX);
-            if (n == 0)
+            if (n <= 0)
             {
                 printf("server: client died, server loops\n");
                 close(client_sock);
@@ -259,6 +259,9 @@ int ls_dir(char *pathname)
 
 int ls_file(char *fname)
 {
+    int n;
+    char buff[MAX];
+    char fmt[MAX];
     char linkname[MAX];
     char *t1 = "xwrxwrxwr-------";
     char *t2 = "----------------";
@@ -269,39 +272,61 @@ int ls_file(char *fname)
     sp = &fstat;
     if ((r = lstat(fname, &fstat)) < 0)
     {
-        printf("can’t stat %s\n", fname);
+        sprintf(fmt,"can’t stat %s\n", fname);
+        strcpy(data, fmt);
         exit(1);
     }
-    if ((sp->st_mode & 0xF000) == 0x8000) // if (S_ISREG())
-        printf("%c", '-');
-    if ((sp->st_mode & 0xF000) == 0x4000) // if (S_ISDIR())
-        printf("%c", 'd');
-    if ((sp->st_mode & 0xF000) == 0xA000) // if (S_ISLNK())
-        printf("%c", 'l');
+    if ((sp->st_mode & 0xF000) == 0x8000){ // if (S_ISREG())
+        sprintf(fmt, "%c", '-');
+        strcat(buff, fmt);
+    }
+    if ((sp->st_mode & 0xF000) == 0x4000){ // if (S_ISDIR())
+        sprintf(fmt, "%c", 'd');
+        strcat(buff, fmt);
+    }   
+    if ((sp->st_mode & 0xF000) == 0xA000){ // if (S_ISLNK())
+        sprintf(fmt, "%c", 'l');
+        strcat(buff, fmt);
+    }
     for (i = 8; i >= 0; i--)
     {
-        if (sp->st_mode & (1 << i))
-            printf("%c", t1[i]); // print r|w|x printf("%c", t1[i]);
-        else
-            printf("%c", t2[i]); // or print -
+        if (sp->st_mode & (1 << i)){
+            sprintf(fmt, "%c", t1[i]); // print r|w|x printf("%c", t1[i]);
+            strcat(buff, fmt);
+        }
+        else{
+            sprintf(fmt, "%c", t2[i]); // or print -
+            strcat(buff, fmt);
+        }
     }
-    printf("%4d ", sp->st_nlink); // link count
-    printf("%4d ", sp->st_gid);   // gid
-    printf("%4d ", sp->st_uid);   // uid
-    printf("%8d ", sp->st_size);  // file size
+    sprintf(fmt, "%4d ", sp->st_nlink); // link count
+    strcat(buff, fmt);
+    sprintf(fmt, "%4d ", sp->st_gid);   // gid
+    strcat(buff, fmt);
+    sprintf(fmt, "%4d ", sp->st_uid);   // uid
+    strcat(buff, fmt);
+    sprintf(fmt, "%8d ", sp->st_size);  // file size
+    strcat(buff, fmt);
 
     strcpy(ftime, ctime(&sp->st_ctime)); // print time in calendar form ftime[strlen(ftime)-1] = 0; // kill \n at end
     ftime[strlen(ftime) - 1] = 0;        // removes the \n
-    printf("%s ", ftime);                // prints the time
+    sprintf(fmt, "%s ", ftime);                // prints the time
+    strcat(buff, fmt);
 
-    printf("%s", basename(fname)); // print file basename // print -> linkname if symbolic file
+    sprintf(fmt, "%s", basename(fname)); // print file basename // print -> linkname if symbolic file
+    strcat(buff, fmt);
     if ((sp->st_mode & 0xF000) == 0xA000)
     {
         readlink(fname, linkname, MAX);
-        printf(" -> %s", linkname); // print linked name }
+        sprintf(fmt," -> %s", linkname); // print linked name }
+        strcat(buff, fmt);
     }
 
-    printf("\n");
+    strcat(buff, "\n");
+    n = write(client_sock, buff, MAX);
+
+    printf("server: wrote n=%d bytes; ECHO=[%s]\n", n, buff);
+    memset(buff, 0, MAX);
 }
 
 int server_cd(char *pathname)
