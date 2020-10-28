@@ -41,12 +41,13 @@ int lpwd();
 int lmkdir(char *pathname);
 int lrmdir(char *pathname);
 int lrm(char *pathname);
+int menu();
 int init();
 
 // Command table (for function pointers)
-char *cmd[] = {"lcat", "lls", "lcd", "lpwd", "lmkdir", "lrmdir", "lrm"};
+char *cmd[] = {"lcat", "lls", "lcd", "lpwd", "lmkdir", "lrmdir", "lrm", "menu"};
 
-int (*fptr[])(char *) = {(int (*)())lcat, lls, lcd, lpwd, lmkdir, lrmdir, lrm};
+int (*fptr[])(char *) = {(int (*)())lcat, lls, lcd, lpwd, lmkdir, lrmdir, lrm, menu};
 
 int init()
 {
@@ -213,6 +214,13 @@ int find_cmd_index(char *command)
         i++;
     }
     return -1;
+}
+
+int menu(){
+    puts("********************** menu ***********************");
+    puts("*  get  put  ls   cd   pwd   mkdir   rmdir   rm   * ");
+    puts("*  lcat     lls  lcd  lpwd  lmkdir  lrmdir  lrm   *");
+    puts("***************************************************");
 }
 
 int lcat(char *filename)
