@@ -21,7 +21,7 @@
 
 #define MAX 256
 #define BLK 1024
-#define EOT 4
+#define EOT "\\r\\n\\r\\n"
 
 struct sockaddr_in saddr;
 char *serverIP = "127.0.0.1";
@@ -120,7 +120,7 @@ int main(int argc, char *argv[], char *env[])
         { // else send to server
             // Send ENTIRE line to server
             n = write(sock, line, MAX);
-            printf("client: wrote n=%d bytes; line=(%s)\n", n, line);
+            printf("Sent: %s\n", line);
             char command[16], arg[64];
             sscanf(line, "%s %s", command, arg);
             char buf[MAX];
@@ -144,12 +144,11 @@ int main(int argc, char *argv[], char *env[])
                 // Read a line from sock and show it
                 bzero(response, sizeof(response));
                 n = read(sock, response, sizeof(response));
-                while(is_end_of_tranmission(response)){
-                    printf("client: read  n=%d bytes; echo=(%s)\n", n, response);
+                while(!is_end_of_tranmission(response)){
+                    printf("client read: %s", response);
                     bzero(response, sizeof(response));
                     n = read(sock, response, sizeof(response));
                 }
-                printf("client: read  n=%d bytes; echo=(%s)\n", n, response);
                 // transmission ended
             }
         }
@@ -157,11 +156,9 @@ int main(int argc, char *argv[], char *env[])
 }
 
 int is_end_of_tranmission(char * response){
-    while(*response != 0){
-        if(*response == EOT){
-            return 1;
-        }
-        response++;
+    if(!strcmp(response, EOT)){
+        printf("End of transmission\n");
+        return 1;
     }
     return 0;
 }
