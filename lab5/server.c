@@ -23,6 +23,7 @@
 
 #define MAX 256
 #define BLK 1024
+#define EOT 4
 
 int server_sock, client_sock;
 char *serverIP = "127.0.0.1"; // hardcoded server IP address
@@ -164,6 +165,10 @@ int main(int argc, char *argv[], char *env[])
             n = write(client_sock, data, MAX);
 
             printf("server: wrote n=%d bytes; ECHO=[%s]\n", n, data);
+
+            // send EOT when transmission is over
+            n = write(client_sock, EOT, 1);
+            printf("server: sent EOT to client\n");
         }
     }
 }
