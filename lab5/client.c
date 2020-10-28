@@ -126,7 +126,7 @@ int main(int argc, char *argv[], char *env[])
             char buf[MAX];
             if (!strcmp(command, "get")) {
                 // get the # of bytes that the file is
-                read(sock, buf, max);
+                read(sock, buf, MAX);
                 int file_size = atoi(buf);
                 memset(buf, 0, sizeof(buf));
                 // synchronize data for get, arg is filename

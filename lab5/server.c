@@ -206,14 +206,20 @@ int find_cmd_index(char *command)
 
 int server_get(char *filename)
 {
+    int r;
+    FILE * fd;
+    char buffer[MAX];
+
     struct stat fstat, *sp;
     sp = &fstat;
     if ((r = lstat(filename, &fstat)) < 0) {
-        printf("can’t stat %s\n", fname);
+        printf("can’t stat %s\n", filename);
         return -1;
     }
     int file_size = sp->st_size;
-    write(client_sock, itoa(file_size), MAX);
+    sprintf(buffer, "%s", file_size);
+
+    write(client_sock, buffer, MAX);
     int fp = open(filename, O_RDONLY);
     if (fp != NULL) {
         char buf[MAX];
