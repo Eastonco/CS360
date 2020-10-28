@@ -204,8 +204,23 @@ int find_cmd_index(char *command)
     return -1;
 }
 
-int server_get()
+int server_get(char *filename)
 {
+    struct stat fstat, *sp;
+    sp = &fstat;
+    if ((r = lstat(filename, &fstat)) < 0) {
+        printf("can’t stat %s\n", fname);
+        return -1;
+    }
+    int file_size = sp->st_size;
+    write(client_sock, itoa(file_size), MAX);
+    int fp = open(filename, O_RDONLY);
+    if (fp != NULL) {
+        char buf[MAX];
+        int n = read(fd, buf, MAX); // read 256 bytes from the file
+        write(client_sock, buf, MAX);
+        // TODO fix the above to work with the client code
+    }
     return 0;
 }
 
