@@ -150,11 +150,11 @@ int main(int argc, char *argv[], char *env[])
                 strcat(data, line);
                 if (r != -1)
                 {
-                    strcat(data, " OK");
+                    strcat(data, " OK\n");
                 }
                 else
                 {
-                    strcat(data, " FAILED");
+                    strcat(data, " FAILED\n");
                 }
             }
             else
@@ -310,7 +310,8 @@ int server_cd(char *pathname)
 int server_pwd()
 {
     char buf[MAX];
-    getcwd(buf, MAX);
+    getcwd(buf, MAX-1);
+    strcat(buf, "\n");
     printf("SERVER LOCAL: %s\n", buf);
     strcpy(data, buf);
 }
