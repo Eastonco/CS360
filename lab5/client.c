@@ -101,10 +101,10 @@ int main(int argc, char *argv[], char *env[])
         printf("$ ");
         fgets(line, MAX, stdin);
         line[strlen(line) - 1] = 0; // kill <CR> at end
-        if (line[0] == 0)           // exit if NULL line
+        if (line[0] == 0 || !strcmp(line, "quit") || !strcmp(line, "exit")) // exit if NULL line, or if line is "quit" or "exit"
             exit(0);
 
-        // CHeck here if the command should be executed locally
+        // Check here if the command should be executed locally
         sscanf(line, "%s %s", command, arg);
         if (find_cmd_index(command) != -1)
         { // local command-- run on client only
