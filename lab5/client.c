@@ -35,6 +35,7 @@ int lls(char * pathname);
 int ls_dir(char *pathname);
 int ls_file(char *fname);
 int lcd(char *pathname);
+int is_end_of_tranmission(char * response);
 int lpwd();
 int lmkdir(char *pathname);
 int lrmdir(char *pathname);
@@ -121,16 +122,27 @@ int main(int argc, char *argv[], char *env[])
             printf("client: wrote n=%d bytes; line=(%s)\n", n, line);
 
             // Read a line from sock and show it
-            bzero(response, MAX);
-            n = read(sock, response, MAX);
-            while(response[0] != EOT){
+            bzero(response, sizeof(response));
+            n = read(sock, response, sizeof(response));
+            while(is_end_of_tranmission(response)){
                 printf("client: read  n=%d bytes; echo=(%s)\n", n, response);
-                bzero(response, MAX);
-                n = read(sock, response, MAX);
+                bzero(response, sizeof(response));
+                n = read(sock, response, sizeof(response));
             }
+            printf("client: read  n=%d bytes; echo=(%s)\n", n, response);
             // transmission ended
         }
     }
+}
+
+int is_end_of_tranmission(char * response){
+    while(*response != 0){
+        if(*response == EOT){
+            return 1;
+        }
+        response++;
+    }
+    return 0;
 }
 
 int find_cmd_index(char *command)
