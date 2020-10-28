@@ -21,6 +21,7 @@
 
 #define MAX 256
 #define BLK 1024
+#define EOT 4
 
 struct sockaddr_in saddr;
 char *serverIP = "127.0.0.1";
@@ -79,7 +80,7 @@ int main(int argc, char *argv[], char *env[])
 {
 
     int n;
-    char line[MAX], ans[MAX];
+    char line[MAX], response[MAX];
     char command[16], arg[64];
 
     init();
@@ -89,7 +90,7 @@ int main(int argc, char *argv[], char *env[])
         memset(command, '\0', sizeof(command));
         memset(arg, '\0', sizeof(arg));
         memset(line,'\0', sizeof(line));
-        memset(ans,'\0', sizeof(ans));
+        memset(response,'\0', sizeof(response));
 
 
 
@@ -120,9 +121,14 @@ int main(int argc, char *argv[], char *env[])
             printf("client: wrote n=%d bytes; line=(%s)\n", n, line);
 
             // Read a line from sock and show it
-            bzero(ans, MAX);
-            n = read(sock, ans, MAX);
-            printf("client: read  n=%d bytes; echo=(%s)\n", n, ans);
+            bzero(response, MAX);
+            n = read(sock, response, MAX);
+            while(response[0] != EOT){
+                printf("client: read  n=%d bytes; echo=(%s)\n", n, response);
+                bzero(response, MAX);
+                n = read(sock, response, MAX);
+            }
+            // transmission ended
         }
     }
 }
