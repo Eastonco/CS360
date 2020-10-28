@@ -216,9 +216,11 @@ int server_put()
 
 int server_ls(char *pathname)
 {
+    char buf[MAX];
+    getcwd(buf, MAX-1);
     if (!strcmp(pathname, ""))
     {
-        ls_dir("/");
+        ls_dir(buf);
         return;
     }
     ls_dir(pathname);
