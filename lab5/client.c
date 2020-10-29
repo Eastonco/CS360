@@ -142,11 +142,12 @@ int main(int argc, char *argv[], char *env[])
                 if (fd > 0) {
                     int bytes_read = 0; // total amount of the file read
                     int packet_size = 0; // each packet size between 0 and MAX
-                    while (bytes_read < file_size) {
+                    while (file_size > 0) {
                         read(sock, buf, MAX);
                         bytes_read += MAX;
                         if(file_size < MAX){
                             write(fd, buf, file_size);
+                            file_size -= file_size;
                         }
                         else{
                             write(fd, buf, MAX);
