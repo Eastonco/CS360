@@ -2,7 +2,8 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <fcntl.h>
-#include <linux/ext2_fs.h>
+#include <linux/fs.h>
+#include <ext2fs/ext2_fs.h> //install with 'sudo apt-get install e2fslibs-dev' **note: Linux/ext2_fs.h is depreciated
 #include <libgen.h>
 #include <string.h>
 #include <sys/stat.h>
