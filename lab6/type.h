@@ -70,22 +70,15 @@ typedef struct minode
     struct mount *mntPtr; // int lock;
 } MINODE;
 
-// Open file Table
-typedef struct oft
-{
-    int mode;
-    int refCount;
-    MINODE *minodePtr;
-    int offset;
-} OFT;
-
 // Mount Table structure
 typedef struct mtable
 {
     int dev;
     int ninodes;
     int nblocks;
-    int free_blocks int free_inodes int bmap;
+    int free_blocks;
+    int free_inodes;
+    int bmap;
     int imap;
     int iblock;
     MINODE *mntDirPtr;
