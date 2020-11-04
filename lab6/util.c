@@ -40,7 +40,7 @@ MINODE *iget(int dev, int ino)
   // serach in-memory minodes first
   for (i = 0; i < NMINODES; i++)
   {
-    MINODE *mip = &MINODE[i];
+    mip = &MINODE[i];
     if (mip->refCount && (mip->dev == dev) && (mip->ino == ino))
     {
       mip->refCount++;

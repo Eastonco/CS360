@@ -1,15 +1,6 @@
 /****************************************************************************
 *                   KCW testing ext2 file system                            *
 *****************************************************************************/
-#include <stdio.h>
-#include <stdlib.h>
-#include <fcntl.h>
-#include <ext2fs/ext2_fs.h>
-#include <string.h>
-#include <libgen.h>
-#include <sys/stat.h>
-#include <time.h>
-
 #include "type.h"
 
 // globals
@@ -28,7 +19,11 @@ int nblocks, ninodes, bmap, imap, inode_start;
 MINODE *iget();
 
 //#include "util.c"
-#include "cd_ls_pwd.c"
+#include "./cmd/ls.c"
+#include "./cmd/cd.c"
+#include "./cmd/pwd.c"
+#include "../util.c"
+
 
 int init()
 {
