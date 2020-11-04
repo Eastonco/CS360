@@ -5,11 +5,11 @@
 extern MINODE minode[NMINODE];
 extern MINODE *root;
 
-extern PROC   proc[NPROC], *running;
+extern PROC proc[NPROC], *running;
 
 extern char gpath[128]; // global for tokenized components
-extern char *name[32];  // assume at most 32 components in pathname
-extern int   n;         // number of component strings
+extern char *name[64];  // assume at most 32 components in pathname
+extern int n;           // number of component strings
 
 extern int fd, dev;
 extern int nblocks, ninodes, bmap, imap, inode_start;
@@ -28,20 +28,18 @@ int put_block(int dev, int blk, char *buf)
 int tokenize(char *pathname)
 {
     // copy pathname into gpath[]; tokenize it into name[0] to name[n-1]
-    char *name[64];  // token string pointers
-    char gline[256]; // holds token strings, each pointed by a name[i]
-    int nname;       // number of token stringsP
     char *s;
-    strcpy(gline, pathname);
-    nname = 0;
-    s = strtok(gline, "/");
+    strcpy(gpath, pathname);
+    n = 0;
+    s = strtok(gpath, "/");
     while (s)
     {
-        name[nname++] = s;
+        name[n++] = s;
         s = strtok(0, "/");
     }
 }
 
+/*
 MINODE *iget(int dev, int ino)
 {
     // return minode pointer of loaded INODE=(dev, ino)
@@ -110,9 +108,90 @@ void iput(MINODE *mip)
     ip = (INODE *)buf + offset;      // ip points at INODE
     *ip = mip->INODE;                // copy INODE to inode in block
     put_block(mip->dev, block, buf); // write back to disk
+}*/
+
+MINODE *mialloc() // allocate a FREE minode for use
+{
+    int i;
+    for (i = 0; i < NMINODE; i++)
+    {
+        MINODE *mp = &minode[i];
+        if (mp->refCount == 0)
+        {
+            mp->refCount = 1;
+            return mp;
+        }
+    }
+    printf("FS panic: out of minodes\n");
+    return 0;
 }
 
-int search(MINODE *mip, char *name)
+int midalloc(MINODE *mip) // release a used minode
+{
+    mip->refCount = 0;
+}
+
+MINODE *iget(int dev, int ino)
+{
+    MINODE *mip;
+    MTABLE *mp;
+    INODE *ip;
+    int i, block, offset;
+    char buf[BLKSIZE];
+    // serach in-memory minodes first
+    for (i = 0; i < NMINODE; i++)
+    {
+        mip = &minode[i];
+        if (mip->refCount && (mip->dev == dev) && (mip->ino == ino))
+        {
+            mip->refCount++;
+            return mip;
+        }
+    }
+    // needed INODE=(dev,ino) not in memory
+    mip = mialloc(); // allocate a FREE minode
+    mip->dev = dev;
+    mip->ino = ino; // assign to (dev, ino)
+    block = (ino - 1) / 8 + inode_start;
+    offset = (ino - 1) % 8;
+    get_block(dev, block, buf);
+    ip = (INODE *)buf + offset;
+    mip->INODE = *ip;
+    // initialize minode
+    mip->refCount = 1;
+    mip->mounted = 0;
+    mip->dirty = 0;
+    mip->mptr = 0;
+    return mip;
+}
+
+int iput(MINODE *mip)
+{
+    INODE *ip;
+    int i, block, offset;
+    char buf[BLKSIZE];
+    if (mip == 0)
+        return;
+    mip->refCount--;
+    if (mip->refCount > 0)
+        return;
+    if (mip->dirty == 0)
+        return;
+    // dec refCount by 1
+    // still has user
+    // no need to write back
+    // write INODE back to disk
+    block = (mip->ino - 1) / 8 + inode_start;
+    offset = (mip->ino - 1) % 8;
+    // get block containing this inode
+    get_block(mip->dev, block, buf);
+    ip = (INODE *)buf + offset;      // ip points at INODE
+    *ip = mip->INODE;                // copy INODE to inode in block
+    put_block(mip->dev, block, buf); // write back to disk
+    midalloc(mip);                   // mip->refCount = 0;
+}
+
+int search(MINODE *mip, char *lname)
 {
     // search for name in (DIRECT) data blocks of mip->INODE
     // return its ino
@@ -133,9 +212,9 @@ int search(MINODE *mip, char *name)
             temp[dp->name_len] = 0;
             printf("%8d%8d%8u %s\n",
                    dp->inode, dp->rec_len, dp->name_len, temp);
-            if (strcmp(name, temp) == 0)
+            if (strcmp(lname, temp) == 0)
             {
-                printf("found %s : inumber = %d\n", name, dp->inode);
+                printf("found %s : inumber = %d\n", lname, dp->inode);
                 return dp->inode;
             }
             cp += dp->rec_len;
