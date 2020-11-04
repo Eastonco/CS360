@@ -10,7 +10,7 @@
 #include <libgen.h>
 #include <string.h>
 #include <sys/stat.h>
-
+#include <time.h>
 
 typedef unsigned char  u8;
 typedef unsigned short u16;

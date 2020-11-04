@@ -13,6 +13,10 @@ extern int   n;         // number of component strings
 extern int fd, dev;
 extern int nblocks, ninodes, bmap, imap, inode_start;
 
+int ls_file(MINODE *mip, char *name);
+int ls_dir(MINODE *mip);
+int ls(char *pathname);
+
 int ls_file(MINODE *mip, char *name)
 {
     printf("ls_file: to be done: check this works\n");
@@ -42,7 +46,7 @@ int ls_file(MINODE *mip, char *name)
     printf("%4d ", mip->INODE.i_links_count); // link count
     printf("%4d ", mip->INODE.i_gid);   // gid
     printf("%4d ", mip->INODE.i_uid);   // uid
-    printf("%8ld ", mip->INODE.i_size); // file size
+    printf("%8d ", mip->INODE.i_size); // file size
 
     strcpy(ftime, ctime(&(mip->INODE.i_mtime))); // print time in calendar form ftime[strlen(ftime)-1] = 0; // kill \n at end
     ftime[strlen(ftime) - 1] = 0;        // removes the \n
