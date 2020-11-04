@@ -1,3 +1,6 @@
+#ifndef TYPE_H
+#define TYPE_H
+
 /*************** type.h file ************************/
 typedef unsigned char  u8;
 typedef unsigned short u16;
@@ -46,3 +49,5 @@ typedef struct proc{
   MINODE      *cwd;
   OFT         *fd[NFD];
 }PROC;
+
+#endif
