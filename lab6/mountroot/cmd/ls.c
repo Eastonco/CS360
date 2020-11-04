@@ -1,11 +1,4 @@
-/************* cd_ls_pwd.c file **************/
-
-int chdir(char *pathname)   
-{
-  printf("chdir %s\n", pathname);
-  printf("under construction READ textbook HOW TO chdir!!!!\n");
-  // READ Chapter 11.7.3 HOW TO chdir
-}
+#include "../type.h"
 
 int ls_file(MINODE *mip, char *name)
 {
@@ -44,15 +37,3 @@ int ls(char *pathname)
   printf("ls CWD only! YOU do it for ANY pathname\n");
   ls_dir(running->cwd);
 }
-
-char *pwd(MINODE *wd)
-{
-  printf("pwd: READ HOW TO pwd in textbook!!!!\n");
-  if (wd == root){
-    printf("/\n");
-    return;
-  }
-}
-
-
-
