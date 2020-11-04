@@ -26,14 +26,14 @@ GD    *gp;
 INODE *ip;
 DIR   *dp;  
 
-#define SUPERBLOCK 1
-#define GDBLOCK 2
-#define ROOT_INODE 2
+#define SUPERBLOCK  1
+#define GDBLOCK     2
+#define ROOT_INODE  2
 
-#define DIR_MODE 0x41ED
-#define FILE_MODE 0x81AE
+#define DIR_MODE    0x41ED
+#define FILE_MODE   0x81AE
 #define SUPER_MAGIC 0xEF53
-#define SUPER_USER 0
+#define SUPER_USER  0
 
 #define FREE        0
 #define READY       1
