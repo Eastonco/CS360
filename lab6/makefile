@@ -6,7 +6,7 @@
 GCC        	= gcc
 CFLAGS      = -g -m32 
 RM          = rm -rf
-BINDIR      = bin
+BINDIR      = mountroot
 
 
 default: all
@@ -18,4 +18,4 @@ build: mountroot
 	$(GCC) $(CFLAGS) -o $(BINDIR)/main.bin mountroot/util.c mountroot/main.c mountroot/type.h mountroot/cmd/cd.c mountroot/cmd/ls.c mountroot/cmd/pwd.c
 
 clean veryclean:
-	rm mountroot/main.bin
+	rm $(BINDIR)/main.bin
