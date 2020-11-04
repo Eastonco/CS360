@@ -37,6 +37,7 @@ int tokenize(char *pathname)
         name[n++] = s;
         s = strtok(0, "/");
     }
+    return n;
 }
 
 /*
