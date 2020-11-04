@@ -22,7 +22,7 @@ MINODE *iget();
 #include "./cmd/ls.c"
 #include "./cmd/cd.c"
 #include "./cmd/pwd.c"
-#include "../util.c"
+#include "./util.c"
 
 
 int init()
