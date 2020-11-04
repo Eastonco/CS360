@@ -1,3 +1,6 @@
+#ifndef TYPE_H_2
+#define TYPE_H_2
+
 /***** type.h file for EXT2 FS *****/
 #include <stdio.h>
 #include <stdlib.h>
@@ -85,3 +88,5 @@ typedef struct mtable
     char devName[64];
     char mntName[64];
 } MTABLE;
+
+#endif
