@@ -1,5 +1,4 @@
 *.zip
 .vscode
 *.gch
-main
 bin/
