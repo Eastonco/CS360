@@ -265,15 +265,58 @@ int getino(char *pathname)
     return ino;
 }
 
+// code is *very* similar to search-- just copies to myname instead of returning inode
 int findmyname(MINODE *parent, u32 myino, char *myname)
 {
     // WRITE YOUR code here:
     // search parent's data block for myino;
     // copy its name STRING to myname[ ];
+    int i;
+    char *cp, temp[256], sbuf[BLKSIZE];
+    DIR *dp;
+    MINODE *mip = parent;
+
+    for (i = 0; i < 12; i++)
+    { //Search DIR direct blcoks only
+        if (mip->INODE.i_block[i] == 0)
+            return -1;
+        get_block(mip->dev, mip->INODE.i_block[i], sbuf);
+        dp = (DIR *)sbuf;
+        cp = sbuf;
+        while (cp < sbuf + BLKSIZE)
+        {
+            strncpy(temp, dp->name, dp->name_len);
+            temp[dp->name_len] = 0;
+            
+            if (dp->inode == myino)
+            {
+                strncpy(myname, dp->name, dp->name_len);
+                myname[dp->name_len] = 0;
+                return 0;
+            }
+            cp += dp->rec_len;
+            dp = (DIR *)cp;
+        }
+    }
+    return -1;
 }
 
+// reads a block of memory in i_block[0] and copies it to a buffer.
+// Uses that buffer to get the inode of '.' (after casting to a DIR *)
+// Then iterates that pointer to the buffer by the length of the directory entry (dp->rec_len)
+// repeat, now use the DIR * pointer to get the inode of '..' and return
 int findino(MINODE *mip, u32 *myino) // myino = ino of . return ino of ..
 {
     // mip->a DIR minode. Write YOUR code to get mino=ino of .
     //                                         return ino of ..
+    char buf[BLKSIZE], *temp_ptr;
+    DIR *dp;
+
+    get_block(mip->dev, mip->INODE.i_block[0], buf);
+    temp_ptr = buf;
+    dp = (DIR *)buf;
+    *myino = dp->inode;
+    temp_ptr += dp->rec_len;
+    dp = (DIR *)temp_ptr;
+    return dp->inode;
 }

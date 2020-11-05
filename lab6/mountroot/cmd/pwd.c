@@ -4,34 +4,45 @@
 extern MINODE minode[NMINODE];
 extern MINODE *root;
 
-extern PROC   proc[NPROC], *running;
+extern PROC proc[NPROC], *running;
 
 extern char gpath[128]; // global for tokenized components
 extern char *name[32];  // assume at most 32 components in pathname
-extern int   n;         // number of component strings
+extern int n;           // number of component strings
 
 extern int fd, dev;
 extern int nblocks, ninodes, bmap, imap, inode_start;
 
 char *pwd(MINODE *wd)
 {
-  printf("pwd: READ HOW TO pwd in textbook!!!!\n");
-  if (wd == root){
-    printf("/\n");
-  }
-  else{
-    rpwd(wd);
-  }
+    if (wd == root)
+    {
+        printf("/\n");
+    }
+    else
+    {
+        rpwd(wd);
+        printf("\n");
+    }
 }
 
-void rpwd(MINODE *wd){
-  if(wd == root){
+void rpwd(MINODE *wd)
+{
+    if (wd == root)
+    {
+        return;
+    }
+    char buf[BLKSIZE], lname[256];
+    int ino;
+    get_block(dev, wd->INODE.i_block[0], buf);
+    int parent_ino = findino(wd, &ino);
+    MINODE *pip = iget(dev, parent_ino);
+
+    findmyname(pip, ino, lname);
+    rpwd(pip);
+    iput(pip);
+    printf("/%s", lname);
     return;
-  }
-  char buf[BLKSIZE];
-  get_block(dev, wd->INODE.i_block[0], buf);
-  int parent_ino;
-  MINODE *pip = iget(dev, parent_ino);
 }
 
 /* FOR rpwd

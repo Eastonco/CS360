@@ -19,7 +19,6 @@ int ls(char *pathname);
 
 int ls_file(MINODE *mip, char *name)
 {
-    printf("ls_file: to be done: check this works\n");
     // READ Chapter 11.7.3 HOW TO ls
 
     char *t1 = "xwrxwrxwr-------";
@@ -64,8 +63,6 @@ int ls_file(MINODE *mip, char *name)
 
 int ls_dir(MINODE *mip)
 {
-    printf("ls_dir: list CWD's file names; YOU do it for ls -l\n");
-
     char buf[BLKSIZE], temp[256];
     DIR *dp;
     char *cp;
