@@ -18,7 +18,7 @@ int ls_dir(MINODE *mip);
 int ls(char *pathname);
 
 /*************************************************************
-* Function: ls_file                                         *
+* Function: ls_file(MINODE *mip, char *name)                *
 * Date Created: 11/4/2020                                   *
 * Date Last Modified:                                       *
 * Description: "List" command specifically for a file.      *
@@ -71,7 +71,7 @@ int ls_file(MINODE *mip, char *name)
 }
 
 /*************************************************************
-* Function: ls_dir                                          *
+* Function: ls_dir(MINODE *mip)                             *
 * Date Created: 11/4/2020                                   *
 * Date Last Modified:                                       *
 * Description: "List" command for a directory.              *
@@ -115,11 +115,11 @@ int ls_dir(MINODE *mip)
 }
 
 /*************************************************************
-* Function: ls                                              *
+* Function: ls(char *pathname)                              *
 * Date Created: 11/4/2020                                   *
 * Date Last Modified:                                       *
 * Description: "List" parent command to call ls_file or     *
-                ls_dir as necessary.                        *
+*               ls_dir as necessary.                        *
 * Input parameters: Pathname string.                        *
 * Returns: Returns success.                                 *
 * Preconditions: Pathname string refers to a valid path.    *
