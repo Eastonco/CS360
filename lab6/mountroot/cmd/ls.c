@@ -4,11 +4,11 @@
 extern MINODE minode[NMINODE];
 extern MINODE *root;
 
-extern PROC   proc[NPROC], *running;
+extern PROC proc[NPROC], *running;
 
 extern char gpath[128]; // global for tokenized components
 extern char *name[32];  // assume at most 32 components in pathname
-extern int   n;         // number of component strings
+extern int n;           // number of component strings
 
 extern int fd, dev;
 extern int nblocks, ninodes, bmap, imap, inode_start;
@@ -41,18 +41,18 @@ int ls_file(MINODE *mip, char *name)
             printf("%c", t2[i]); // or print -
     }
     printf("%4d ", mip->INODE.i_links_count); // link count
-    printf("%4d ", mip->INODE.i_gid);   // gid
-    printf("%4d ", mip->INODE.i_uid);   // uid
-    printf("%8ld ", mip->INODE.i_size); // file size
+    printf("%4d ", mip->INODE.i_gid);         // gid
+    printf("%4d ", mip->INODE.i_uid);         // uid
+    printf("%8ld ", mip->INODE.i_size);       // file size
 
     strcpy(ftime, ctime(&(mip->INODE.i_mtime))); // print time in calendar form ftime[strlen(ftime)-1] = 0; // kill \n at end
-    ftime[strlen(ftime) - 1] = 0;        // removes the \n
-    printf("%s ", ftime);                // prints the time
+    ftime[strlen(ftime) - 1] = 0;                // removes the \n
+    printf("%s ", ftime);                        // prints the time
 
     printf("%s", name);
     if (S_ISLNK(mode))
     {
-        printf(" -> %s", (char *) mip->INODE.i_block); // print linked name }
+        printf(" -> %s", (char *)mip->INODE.i_block); // print linked name }
     }
 
     printf("\n");
@@ -83,7 +83,7 @@ int ls_dir(MINODE *mip)
 
         MINODE *temp_mip = iget(dev, dp->inode);
         ls_file(temp_mip, temp);
-        
+
         //printf("[%d %s]  ", dp->inode, temp); // print [inode# name]
 
         cp += dp->rec_len;
@@ -113,12 +113,14 @@ int ls(char *pathname)
             int dev = root->dev;
             MINODE *mip = iget(dev, ino);
             mode = mip->INODE.i_mode;
-            if (S_ISDIR(mode)) {
+            if (S_ISDIR(mode))
+            {
                 ls_dir(mip);
-            } else {
+            }
+            else
+            {
                 ls_file(mip, pathname);
             }
-            
         }
     }
 }
