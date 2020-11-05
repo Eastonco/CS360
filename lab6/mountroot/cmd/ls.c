@@ -17,6 +17,17 @@ int ls_file(MINODE *mip, char *name);
 int ls_dir(MINODE *mip);
 int ls(char *pathname);
 
+/*************************************************************
+* Function: ls_file                                         *
+* Date Created: 11/4/2020                                   *
+* Date Last Modified:                                       *
+* Description: "List" command specifically for a file.      *
+* Input parameters: Pointer to MINODE mip, name of file.    *
+* Returns: Returns success (redundant).                     *
+* Preconditions: mip points to a valid MINODE, name         *
+*                describes the file being listed.           *
+* Postconditions:                                           *
+*************************************************************/
 int ls_file(MINODE *mip, char *name)
 {
     // READ Chapter 11.7.3 HOW TO ls
@@ -59,6 +70,16 @@ int ls_file(MINODE *mip, char *name)
     return 0;
 }
 
+/*************************************************************
+* Function: ls_dir                                          *
+* Date Created: 11/4/2020                                   *
+* Date Last Modified:                                       *
+* Description: "List" command for a directory.              *
+* Input parameters: MINODE pointer mip.                     *
+* Returns: Returns success (redundant).                     *
+* Preconditions: mip points to a valid MINODE.              *
+* Postconditions:                                           *
+*************************************************************/
 int ls_dir(MINODE *mip)
 {
     char *t1 = "xwrxwrxwr-------";
@@ -90,8 +111,20 @@ int ls_dir(MINODE *mip)
         dp = (DIR *)cp;
     }
     printf("\n");
+    return 0;
 }
 
+/*************************************************************
+* Function: ls                                              *
+* Date Created: 11/4/2020                                   *
+* Date Last Modified:                                       *
+* Description: "List" parent command to call ls_file or     *
+                ls_dir as necessary.                        *
+* Input parameters: Pathname string.                        *
+* Returns: Returns success.                                 *
+* Preconditions: Pathname string refers to a valid path.    *
+* Postconditions:                                           *
+*************************************************************/
 int ls(char *pathname)
 {
     int mode;
@@ -123,4 +156,5 @@ int ls(char *pathname)
             }
         }
     }
+    return 0;
 }
