@@ -13,16 +13,16 @@ extern int n;           // number of component strings
 extern int fd, dev;
 extern int nblocks, ninodes, bmap, imap, inode_start;
 
-/*************************************************************
-  * Function: pwd(MINODE *wd)                                 *
-  * Date Created: 11/4/2020                                   *
-  * Date Last Modified:                                       *
-  * Description: Prints the working directory to console      *
-  * Input parameters:  working directory MINODE               *
-  * Returns: NULL - Prints out the working dir                *
-  * Preconditions: wd and root must bet set to a node         *
-  * Postconditions:                                           *
-  *************************************************************/
+/************************************************************
+* Function: pwd(MINODE *wd)                                 *
+* Date Created: 11/4/2020                                   *
+* Date Last Modified:                                       *
+* Description: Prints the working directory to console      *
+* Input parameters:  working directory MINODE               *
+* Returns: NULL - Prints out the working dir                *
+* Preconditions: wd and root must bet set to a node         *
+* Postconditions:                                           *
+*************************************************************/
 char *pwd(MINODE *wd)
 {
     if (wd == root)
@@ -36,16 +36,16 @@ char *pwd(MINODE *wd)
     }
 }
 
-/**************************************************************
-  * Function:rpwd(MINODE *wd)                                 *
-  * Date Created: 11/4/2020                                   *
-  * Date Last Modified:                                       *
-  * Description: Recursive helper to pwd                      *
-  * Input parameters: MINODE of directory to be printed       *
-  * Returns: NULL - Prints out the working dir                *
-  * Preconditions: wd and root must bet set to a node         *
-  * Postconditions:                                           *
-  *************************************************************/
+/************************************************************
+* Function:rpwd(MINODE *wd)                                 *
+* Date Created: 11/4/2020                                   *
+* Date Last Modified:                                       *
+* Description: Recursive helper to pwd                      *
+* Input parameters: MINODE of directory to be printed       *
+* Returns: NULL - Prints out the working dir                *
+* Preconditions: wd and root must bet set to a node         *
+* Postconditions:                                           *
+*************************************************************/
 void rpwd(MINODE *wd)
 {
     if (wd == root)
