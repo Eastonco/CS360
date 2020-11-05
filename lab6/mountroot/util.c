@@ -194,6 +194,19 @@ int getino(char *pathname)
     return ino;
 }
 
+/****************************************************************
+* Function: findmyname(MINODE *parent, u32 myino, char *myname) *
+* Date Created: 11/4/2020                                       *
+* Date Last Modified:                                           *
+* Description: Searches for an inode and returns its name.      *
+* Input parameters: MINODE ptr parent, u32 current dir          *
+*                   myino, return parameter string myname.      *
+* Returns: Name of inode indirectly through myname.             *
+* Preconditions: parent must point to a valid MINODE, myino     *
+*               must be a declared u32 variable, myname is a    *
+*               valid string.                                   *
+* Postconditions:                                               *
+*****************************************************************/
 // code is *very* similar to search-- just copies to myname instead of returning inode
 int findmyname(MINODE *parent, u32 myino, char *myname)
 {
@@ -230,14 +243,25 @@ int findmyname(MINODE *parent, u32 myino, char *myname)
     return -1;
 }
 
+/************************************************************
+* Function: findino(MINODE *mip, u32 *myino)                *
+* Date Created: 11/4/2020                                   *
+* Date Last Modified:                                       *
+* Description: Finds the inode of current dir (.) and       *
+*                parent dir (..).                           *
+* Input parameters:  myino output parameter, pointer to     *
+*                   MINODE mip.                             *
+* Returns: inode of . indirectly, inode of .. directly.     *
+* Preconditions: mip must point to a valid MINODE, myino    *
+*               must be a declared u32 variable pointer.    *
+* Postconditions:                                           *
+*************************************************************/
 // reads a block of memory in i_block[0] and copies it to a buffer.
 // Uses that buffer to get the inode of '.' (after casting to a DIR *)
 // Then iterates that pointer to the buffer by the length of the directory entry (dp->rec_len)
 // repeat, now use the DIR * pointer to get the inode of '..' and return
 int findino(MINODE *mip, u32 *myino) // myino = ino of . return ino of ..
 {
-    // mip->a DIR minode. Write YOUR code to get mino=ino of .
-    //                                         return ino of ..
     char buf[BLKSIZE], *temp_ptr;
     DIR *dp;
 
