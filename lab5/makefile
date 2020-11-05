@@ -7,16 +7,16 @@ GCC        	= gcc
 CFLAGS      = -g -m32 
 RM          = rm -rf
 BINDIR      = bin
-
+SRCDIR 		= src
 
 default: all
 
 all: build
 
-build: client.c server.c
+build: $(SRCDIR)/client.c $(SRCDIR)/server.c
 	mkdir -p $(BINDIR)
-	$(GCC) $(CFLAGS) -o $(BINDIR)/client.bin client.c
-	$(GCC) $(CFLAGS) -o $(BINDIR)/server.bin server.c 
+	$(GCC) $(CFLAGS) -o $(BINDIR)/client.bin $(SRCDIR)/client.c
+	$(GCC) $(CFLAGS) -o $(BINDIR)/server.bin $(SRCDIR)/server.c 
 
 clean veryclean:
 	$(RM) $(BINDIR)
