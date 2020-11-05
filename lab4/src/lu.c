@@ -99,7 +99,6 @@ int *lu(void *arg)
                 A[j][m] = temp;
             }
             print('A', A);
-            getchar();
         }
         pthread_barrier_wait(&barrier);
 
@@ -148,7 +147,6 @@ int *lu(void *arg)
             print('L', L);
             print('U', U);
             printP();
-            getchar();
         }
         pthread_barrier_wait(&barrier);
     }

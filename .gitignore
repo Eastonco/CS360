@@ -2,3 +2,4 @@
 .vscode
 *.gch
 main
+bin/

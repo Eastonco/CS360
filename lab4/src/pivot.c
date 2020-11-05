@@ -78,7 +78,7 @@ int main(int argc, char *argv[])
     double sum;
     pthread_t threads[N];
 
-    printf("enter number of threads: ");
+    printf("enter number of threads (1-8): ");
     scanf("%d", &nthreads);
 
     printf("main: initialize matrix A[N][N+1] as [A|B]\n");
