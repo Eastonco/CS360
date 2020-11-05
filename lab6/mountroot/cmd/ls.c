@@ -8,7 +8,7 @@ extern PROC proc[NPROC], *running;
 
 extern char gpath[128]; // global for tokenized components
 extern char *name[32];  // assume at most 32 components in pathname
-extern int n;           // number of component strings
+extern int n;           // number of component strings in name[]
 
 extern int fd, dev;
 extern int nblocks, ninodes, bmap, imap, inode_start;
@@ -38,11 +38,11 @@ int ls_file(MINODE *mip, char *name)
     char ftime[256];
     u16 mode = mip->INODE.i_mode;
 
-    if (S_ISREG(mode)) // if (S_ISREG())
+    if (S_ISREG(mode)) 
         printf("%c", '-');
-    if (S_ISDIR(mode)) // if (S_ISDIR())
+    if (S_ISDIR(mode))
         printf("%c", 'd');
-    if (S_ISLNK(mode)) // if (S_ISLNK())
+    if (S_ISLNK(mode))
         printf("%c", 'l');
     for (int i = 8; i >= 0; i--)
     {
@@ -63,7 +63,7 @@ int ls_file(MINODE *mip, char *name)
     printf("%s", name);
     if (S_ISLNK(mode))
     {
-        printf(" -> %s", (char *)mip->INODE.i_block); // print linked name }
+        printf(" -> %s", (char *)mip->INODE.i_block); // print linked name 
     }
 
     printf("\n");
