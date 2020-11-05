@@ -13,6 +13,16 @@ extern int n;           // number of component strings
 extern int fd, dev;
 extern int nblocks, ninodes, bmap, imap, inode_start;
 
+/************************************************************
+* Function: pwd(MINODE *wd)                                 *
+* Date Created: 11/4/2020                                   *
+* Date Last Modified:                                       *
+* Description: Prints the working directory to console      *
+* Input parameters:  working directory MINODE               *
+* Returns: NULL - Prints out the working dir                *
+* Preconditions: wd and root must bet set to a node         *
+* Postconditions:                                           *
+*************************************************************/
 char *pwd(MINODE *wd)
 {
     if (wd == root)
@@ -26,6 +36,16 @@ char *pwd(MINODE *wd)
     }
 }
 
+/************************************************************
+* Function:rpwd(MINODE *wd)                                 *
+* Date Created: 11/4/2020                                   *
+* Date Last Modified:                                       *
+* Description: Recursive helper to pwd                      *
+* Input parameters: MINODE of directory to be printed       *
+* Returns: NULL - Prints out the working dir                *
+* Preconditions: wd and root must bet set to a node         *
+* Postconditions:                                           *
+*************************************************************/
 void rpwd(MINODE *wd)
 {
     if (wd == root)
@@ -44,11 +64,3 @@ void rpwd(MINODE *wd)
     printf("/%s", lname);
     return;
 }
-
-/* FOR rpwd
-(1). if (wd==root) return;
-(2). from wd->INODE.i_block[0], get my_ino and parent_ino
-(3). pip = iget(dev, parent_ino);
-(4). from pip->INODE.i_block[ ]: get my_name string by my_ino as LOCAL (5). rpwd(pip); // recursive call rpwd(pip) with parent minode
-(6). print "/%s", my_name;
-*/
