@@ -27,8 +27,6 @@ int ls_file(MINODE *mip, char *name)
     char ftime[256];
     u16 mode = mip->INODE.i_mode;
 
-    printf("hi\n");
-
     if (S_ISREG(mode)) // if (S_ISREG())
         printf("%c", '-');
     if (S_ISDIR(mode)) // if (S_ISDIR())
@@ -63,6 +61,12 @@ int ls_file(MINODE *mip, char *name)
 
 int ls_dir(MINODE *mip)
 {
+    char *t1 = "xwrxwrxwr-------";
+    char *t2 = "----------------";
+
+    char ftime[256];
+    u16 mode = mip->INODE.i_mode;
+
     char buf[BLKSIZE], temp[256];
     DIR *dp;
     char *cp;
@@ -77,7 +81,10 @@ int ls_dir(MINODE *mip)
         strncpy(temp, dp->name, dp->name_len);
         temp[dp->name_len] = 0;
 
-        printf("[%d %s]  ", dp->inode, temp); // print [inode# name]
+        MINODE *temp_mip = iget(dev, dp->inode);
+        ls_file(temp_mip, temp);
+        
+        //printf("[%d %s]  ", dp->inode, temp); // print [inode# name]
 
         cp += dp->rec_len;
         dp = (DIR *)cp;
@@ -87,6 +94,7 @@ int ls_dir(MINODE *mip)
 
 int ls(char *pathname)
 {
+    int mode;
     printf("ls %s\n", pathname);
     if (!strcmp(pathname, ""))
     {
@@ -104,7 +112,13 @@ int ls(char *pathname)
         {
             int dev = root->dev;
             MINODE *mip = iget(dev, ino);
-            ls_file(mip, pathname);
+            mode = mip->INODE.i_mode;
+            if (S_ISDIR(mode)) {
+                ls_dir(mip);
+            } else {
+                ls_file(mip, pathname);
+            }
+            
         }
     }
 }
