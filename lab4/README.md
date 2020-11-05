@@ -1,4 +1,4 @@
-# CS360 Lab 5
+# CS360 Lab 4
 Threading
 
 ## Dependencies
