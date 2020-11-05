@@ -1,13 +1,14 @@
 /****************************************************************************
-*                   KCW testing ext2 file system                            *
+*                             ext2 file system                              *
 *****************************************************************************/
 #include "type.h"
 
 // globals
-MINODE minode[NMINODE];
-MINODE *root;
+MINODE minode[NMINODE]; // in memory INODEs
+MINODE *root;           // root of the file system
 
-PROC proc[NPROC], *running;
+PROC proc[NPROC]; // PROC structures
+PROC *running;    // current executing PROC
 
 char gpath[128]; // global for tokenized components
 char *name[32];  // assume at most 32 components in pathname
@@ -17,12 +18,6 @@ int fd, dev;
 int nblocks, ninodes, bmap, imap, inode_start;
 
 MINODE *iget();
-
-//#include "util.c"
-/*#include "./cmd/ls.c"
-#include "./cmd/cd.c"
-#include "./cmd/pwd.c"
-#include "./util.c"*/
 
 int init()
 {
