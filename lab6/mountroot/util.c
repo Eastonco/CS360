@@ -101,12 +101,12 @@ int iput(MINODE *mip)
     int i, block, offset;
     char buf[BLKSIZE];
     if (mip == 0)
-        return;
+        return -1;
     mip->refCount--;
     if (mip->refCount > 0)
-        return;
+        return -1;
     if (mip->dirty == 0)
-        return;
+        return -1;
     // dec refCount by 1
     // still has user
     // no need to write back
@@ -119,6 +119,7 @@ int iput(MINODE *mip)
     *ip = mip->INODE;                // copy INODE to inode in block
     put_block(mip->dev, block, buf); // write back to disk
     midalloc(mip);                   // mip->refCount = 0;
+    return 0;
 }
 
 int search(MINODE *mip, char *lname)
@@ -132,7 +133,7 @@ int search(MINODE *mip, char *lname)
     for (i = 0; i < 12; i++)
     { //Search DIR direct blcoks only
         if (mip->INODE.i_block[i] == 0)
-            return 0;
+            return -1;
         get_block(mip->dev, mip->INODE.i_block[i], sbuf);
         dp = (DIR *)sbuf;
         cp = sbuf;
@@ -161,7 +162,7 @@ int getino(char *pathname)
     int i, ino;
     if (strcmp(pathname, "/") == 0)
         return 2; // return root ino = 2
-    if (pathname[0] == "/")
+    if (pathname[0] == '/')
         mip = root; // if absolute pathname: start from root
     else
     {

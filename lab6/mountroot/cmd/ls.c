@@ -1,4 +1,5 @@
-#include "../type.h"
+//#include "../type.h"
+#include "../cmd.h"
 
 // globals
 extern MINODE minode[NMINODE];
@@ -54,9 +55,9 @@ int ls_file(MINODE *mip, char *name)
     printf("%4d ", mip->INODE.i_links_count); // link count
     printf("%4d ", mip->INODE.i_gid);         // gid
     printf("%4d ", mip->INODE.i_uid);         // uid
-    printf("%8ld ", mip->INODE.i_size);       // file size
+    printf("%8d ", mip->INODE.i_size);       // file size
 
-    strcpy(ftime, ctime(&(mip->INODE.i_mtime))); // print time in calendar form ftime[strlen(ftime)-1] = 0; // kill \n at end
+    strcpy(ftime, ctime((time_t *)&(mip->INODE.i_mtime))); // print time in calendar form ftime[strlen(ftime)-1] = 0; // kill \n at end
     ftime[strlen(ftime) - 1] = 0;                // removes the \n
     printf("%s ", ftime);                        // prints the time
 
@@ -115,7 +116,7 @@ int ls_dir(MINODE *mip)
 }
 
 /*************************************************************
-* Function: ls(char *pathname)                              *
+* Function: my_ls(char *pathname)                           *
 * Date Created: 11/4/2020                                   *
 * Date Last Modified:                                       *
 * Description: "List" parent command to call ls_file or     *
@@ -125,7 +126,7 @@ int ls_dir(MINODE *mip)
 * Preconditions: Pathname string refers to a valid path.    *
 * Postconditions:                                           *
 *************************************************************/
-int ls(char *pathname)
+int my_ls(char *pathname)
 {
     int mode;
     printf("ls %s\n", pathname);

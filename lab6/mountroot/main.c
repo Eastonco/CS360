@@ -2,6 +2,8 @@
 *                             ext2 file system                              *
 *****************************************************************************/
 #include "type.h"
+#include "util.h"
+#include "cmd.h"
 
 // globals
 MINODE minode[NMINODE]; // in memory INODEs
@@ -16,8 +18,6 @@ int n;           // number of component strings
 
 int fd, dev;
 int nblocks, ninodes, bmap, imap, inode_start;
-
-MINODE *iget();
 
 int init()
 {
@@ -120,11 +120,11 @@ int main(int argc, char *argv[])
         printf("cmd=%s pathname=%s\n", cmd, pathname);
 
         if (strcmp(cmd, "ls") == 0)
-            ls(pathname);
+            my_ls(pathname);
         if (strcmp(cmd, "cd") == 0)
-            chdir(pathname);
+            my_chdir(pathname);
         if (strcmp(cmd, "pwd") == 0)
-            pwd(running->cwd);
+            my_pwd(running->cwd);
         if (strcmp(cmd, "quit") == 0)
             quit();
     }

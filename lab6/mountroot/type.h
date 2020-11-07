@@ -11,6 +11,8 @@
 #include <string.h>
 #include <sys/stat.h>
 #include <time.h>
+#include <sys/types.h>
+#include <unistd.h>
 
 typedef unsigned char u8;
 typedef unsigned short u16;

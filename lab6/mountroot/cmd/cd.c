@@ -1,4 +1,5 @@
-#include "../type.h"
+//#include "../type.h"
+#include "../cmd.h"
 
 // globals
 extern MINODE minode[NMINODE];
@@ -14,7 +15,7 @@ extern int fd, dev;
 extern int nblocks, ninodes, bmap, imap, inode_start;
 
 /************************************************************
-* Function:chdir(char *pathname)                            *
+* Function: my_chdir(char *pathname)                        *
 * Date Created: 11/4/2020                                   *
 * Date Last Modified:                                       *
 * Description: changes cwd to new pathname                  *
@@ -23,7 +24,7 @@ extern int nblocks, ninodes, bmap, imap, inode_start;
 * Preconditions: must have initialized system               *
 * Postconditions:                                           *
 *************************************************************/
-int chdir(char *pathname)
+int my_chdir(char *pathname)
 {
   printf("chdir %s\n", pathname);
 

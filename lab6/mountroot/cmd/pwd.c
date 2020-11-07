@@ -1,4 +1,5 @@
-#include "../type.h"
+//#include "../type.h"
+#include "../cmd.h"
 
 // globals
 extern MINODE minode[NMINODE];
@@ -14,7 +15,7 @@ extern int fd, dev;
 extern int nblocks, ninodes, bmap, imap, inode_start;
 
 /************************************************************
-* Function: pwd(MINODE *wd)                                 *
+* Function: my_pwd(MINODE *wd)                              *
 * Date Created: 11/4/2020                                   *
 * Date Last Modified:                                       *
 * Description: Prints the working directory to console      *
@@ -23,7 +24,7 @@ extern int nblocks, ninodes, bmap, imap, inode_start;
 * Preconditions: wd and root must bet set to a node         *
 * Postconditions:                                           *
 *************************************************************/
-char *pwd(MINODE *wd)
+char *my_pwd(MINODE *wd)
 {
     if (wd == root)
     {
@@ -57,7 +58,7 @@ void rpwd(MINODE *wd)
     get_block(dev, wd->INODE.i_block[0], buf);
     int parent_ino = findino(wd, &ino);
     MINODE *pip = iget(dev, parent_ino);
-
+    
     findmyname(pip, ino, lname);
     rpwd(pip);
     iput(pip);
