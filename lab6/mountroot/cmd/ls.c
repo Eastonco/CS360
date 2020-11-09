@@ -14,6 +14,7 @@ extern int n;           // number of component strings in name[]
 extern int fd, dev;
 extern int nblocks, ninodes, bmap, imap, inode_start;
 
+// Headers
 int ls_file(MINODE *mip, char *name);
 int ls_dir(MINODE *mip);
 int ls(char *pathname);

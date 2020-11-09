@@ -14,6 +14,10 @@ extern int n;           // number of component strings
 extern int fd, dev;
 extern int nblocks, ninodes, bmap, imap, inode_start;
 
+// Headers
+char *my_pwd(MINODE *wd);
+void rpwd(MINODE *wd);
+
 /************************************************************
 * Function: my_pwd(MINODE *wd)                              *
 * Date Created: 11/4/2020                                   *

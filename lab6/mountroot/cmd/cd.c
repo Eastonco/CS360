@@ -13,6 +13,8 @@ extern int n;           // number of component strings
 
 extern int fd, dev;
 extern int nblocks, ninodes, bmap, imap, inode_start;
+// Headers
+int my_chdir(char *pathname);
 
 /************************************************************
 * Function: my_chdir(char *pathname)                        *
