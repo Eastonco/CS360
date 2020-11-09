@@ -14,6 +14,73 @@ extern int n;           // number of component strings
 extern int fd, dev;
 extern int nblocks, ninodes, bmap, imap, inode_start;
 
+
+int tst_bit(char *buf, int bitnum)
+{
+    int bit, byte;
+    byte = bitnum / 8; 
+    bit = bitnum % 8; 
+    if(buf[byte] & (1 << bit)){
+        return 1;
+    }
+    return 0;
+}
+
+int set_bit(char *buf, int bitnum)
+{
+    int bit, byte;
+    byte = bitnum / 8; 
+    bit = bitnum % 8; 
+    if(buf[byte] |= (1<<bit)){
+        return 1;
+    }
+    return 0;
+}
+
+int clr_bit(char *buf, int bitnum)
+{
+    int bit, byte;
+    byte = bitnum / 8; 
+    bit = bitnum % 8; 
+    if(buf[byte] &= ~(1 << bit)){
+        return 1;
+    }
+    return 0;
+}
+
+int ialloc(int dev)  // allocate an inode number from inode_bitmap
+{
+  int  i;
+  char buf[BLKSIZE];
+
+  get_block(dev, imap, buf); // read inode_bitmap block
+
+  for (i=0; i < ninodes; i++){
+    if (tst_bit(buf, i)==0){
+        set_bit(buf, i);
+        put_block(dev, imap, buf);
+        printf("allocated ino = %d\n", i+1); // bits count from 0; ino from 1
+        return i+1;
+    }
+  }
+  return 0;
+}
+
+int balloc(int dev){ //returns a FREE disk block number  NOTE: Not 100% sure if this works
+    int i;
+    char buf[BLKSIZE];
+    
+    get_block(dev, bmap, buf);
+
+    for (i=0; i < ninodes; i++){
+        if (tst_bit(buf, i)==0){
+            printf("Free disk block at %d\n", i+1); // bits count from 0; ino from 1
+            return i+1;
+        }
+    }
+    return 0;
+}
+
 int get_block(int dev, int blk, char *buf)
 {
     lseek(dev, (long)blk * BLKSIZE, 0);

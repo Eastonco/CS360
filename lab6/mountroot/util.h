@@ -20,4 +20,10 @@ int getino(char *pathname);
 int findmyname(MINODE *parent, u32 myino, char *myname);
 int findino(MINODE *mip, u32 *myino);
 
+int tst_bit(char *buf, int bitnum);
+int set_bit(char *buf, int bitnum);
+int clr_bit(char *buf, int bitnum);
+int ialloc(int dev);
+int balloc(int dev);
+
 #endif
