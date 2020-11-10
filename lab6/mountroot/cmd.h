@@ -17,4 +17,9 @@ void rpwd(MINODE *wd);
 //  cd
 int my_chdir(char *pathname);
 
+// mkdir
+int make_dir(char *pathname);
+int mymkdir(MINODE *pip, char *name);
+int enter_name(MINODE *pip, int myino, char *myname);
+
 #endif

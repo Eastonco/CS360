@@ -14,7 +14,7 @@ extern int n;           // number of component strings in name[]
 extern int fd, dev;
 extern int nblocks, ninodes, bmap, imap, inode_start;
 
-int make_dir(char *pathname)
+int make_dir(char *pathname) //TODO: debug mkdir (currently can't make 2 dirs inside one another
 {
     MINODE *start;
     char pathcpy1[256], pathcpy2[256];
@@ -52,7 +52,7 @@ int make_dir(char *pathname)
         return -1;
     }
 
-    if (search(pip, child))
+    if (!search(pip, child))
     {
         printf("ERROR: child %s already exists under parent %s", child, parent);
         return -1;
@@ -110,8 +110,10 @@ int mymkdir(MINODE *pip, char *name)
     dp->name_len = 1;  // len of name
     dp->name[0] = '.'; // name
 
+    cp += dp->rec_len; // advancing to end of '.' entry
+	dp = (DIR *)cp;
+
     //making .. entry
-    dp = (char *)dp + 12;       // advancing to the end of the entry
     dp->inode = pip->ino;       // setting to parent ino
     dp->rec_len = BLKSIZE - 12; // size is rest of block
     dp->name_len = 2;
@@ -127,15 +129,72 @@ int mymkdir(MINODE *pip, char *name)
 
 int enter_name(MINODE *pip, int myino, char *myname)
 {
-    char buf[BLKSIZE];
+    char buf[BLKSIZE], *cp;
+    int bno;
     INODE *ip;
     DIR *dp;
 
+    int need_len = 4 * ((8 + strlen(myname) + 3) / 4); //ideal length of entry
+
     ip = &pip->INODE;
 
-    for(int i = 0; i <= 12; i++){
-        if(ip->i_block[i] == 0){
+    for (int i = 0; i < 12; i++)
+    {
+
+        if (ip->i_block[i] == 0)
+        {
             break;
-        } //TODO: finish enter_name
+        } 
+
+        bno = ip->i_block[i];
+        get_block(pip->dev, ip->i_block[i], buf);
+        dp = (DIR *)buf;
+        cp = buf;
+
+        // Going to last entry of the block
+        while (cp + dp->rec_len < buf + BLKSIZE)
+        {
+            printf("%s\n", dp->name);
+            cp += dp->rec_len;
+            dp = (DIR *)cp;
+        }
+
+        // at last entry
+        int ideal_len = 4 * ((8 + dp->name_len + 3) / 4);
+        int remainder = dp->rec_len - ideal_len;
+
+        if (remainder >= need_len)
+        {                            // space available for new netry
+            dp->rec_len = ideal_len; //trim current entry to ideal len
+            cp += dp->rec_len;       // advance to end
+            dp = (DIR *)cp;          // point to new open entry space
+
+            dp->inode = myino;
+            strcpy(dp->name, myname);
+            dp->name_len = strlen(myname);
+            dp->rec_len = remainder;
+
+            put_block(dev, bno, buf);
+            return 0;
+        }
+        else
+        { // not enough space in block
+            ip->i_size = BLKSIZE;
+            bno = balloc(dev); // allocate new block
+            ip->i_block[i] = bno;
+            pip->dirty = 1; // ino is changed so make dirty
+
+            get_block(dev, bno, buf);
+            dp = (DIR *)buf;
+            cp = buf;
+
+            dp->name_len = strlen(myname);
+            strcpy(dp->name, myname);
+            dp->inode = myino;
+            dp->rec_len = BLKSIZE; // only entry so full size
+
+            put_block(dev, bno, buf); //save
+            return 1;
+        }
     }
 }

@@ -108,7 +108,7 @@ int main(int argc, char *argv[])
 
     while (1)
     {
-        printf("input command : [ls|cd|pwd|quit] ");
+        printf("input command : [ls|cd|pwd|quit|mkdir] ");
         fgets(line, 128, stdin);
         line[strlen(line) - 1] = 0;
 
@@ -119,14 +119,16 @@ int main(int argc, char *argv[])
         sscanf(line, "%s %s", cmd, pathname);
         printf("cmd=%s pathname=%s\n", cmd, pathname);
 
-        if (strcmp(cmd, "ls") == 0)
+        if (!strcmp(cmd, "ls"))
             my_ls(pathname);
-        if (strcmp(cmd, "cd") == 0)
+        if (!strcmp(cmd, "cd"))
             my_chdir(pathname);
-        if (strcmp(cmd, "pwd") == 0)
+        if (!strcmp(cmd, "pwd"))
             my_pwd(running->cwd);
-        if (strcmp(cmd, "quit") == 0)
+        if (!strcmp(cmd, "quit"))
             quit();
+        if (!strcmp(cmd, "mkdir"))
+            make_dir(pathname);
     }
 }
 

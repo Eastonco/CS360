@@ -15,7 +15,7 @@ all: build
 
 build: mountroot
 	mkdir -p $(BINDIR)
-	$(GCC) $(CFLAGS) -o $(BINDIR)/main.bin mountroot/util.c mountroot/main.c mountroot/type.h mountroot/cmd/cd.c mountroot/cmd/ls.c mountroot/cmd/pwd.c
+	$(GCC) $(CFLAGS) -o $(BINDIR)/main.bin mountroot/util.c mountroot/main.c mountroot/type.h mountroot/cmd/cd.c mountroot/cmd/ls.c mountroot/cmd/pwd.c mountroot/cmd/mkdir.c
 
 clean veryclean:
 	rm $(BINDIR)/main.bin
