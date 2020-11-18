@@ -25,5 +25,8 @@ int set_bit(char *buf, int bitnum);
 int clr_bit(char *buf, int bitnum);
 int ialloc(int dev);
 int balloc(int dev);
+int decFreeBlocks(int dev);
+int decFreeInodes(int dev);
+int enter_name(MINODE *pip, int myino, char *myname);
 
 #endif

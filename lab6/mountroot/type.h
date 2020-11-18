@@ -36,7 +36,7 @@ DIR *dp;
 
 // Default dir and regular file modes
 #define DIR_MODE 0x41ED
-#define FILE_MODE 0x81AE
+#define FILE_MODE 0x81A4
 #define SUPER_MAGIC 0xEF53
 #define SUPER_USER 0
 
