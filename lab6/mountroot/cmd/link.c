@@ -50,6 +50,8 @@ int my_link(char *oldname, char *newname)
         return -1;
     }
 
+    int olddev = dev;
+
     // set dev correctly for getting new inode
     if (newname[0] == '/')
     {
@@ -58,6 +60,19 @@ int my_link(char *oldname, char *newname)
     else
     {
         dev = running->cwd->dev;
+    }
+
+    if (olddev != dev) {
+        printf("cannot link two files on different devices\n");
+        return -1;
+    }
+
+    printf("%s NEWNAME\n", newname);
+    int fileino = getino(newname);
+    // ino can be -1? which shouldn't exist, might need refactor
+    if (fileino > 0) {
+        printf("link or file already exists, %s, ino=%d\n", newname, fileino);
+        return -1;
     }
 
     // look for that directory newname exists but the file does not exist yet in the directory
