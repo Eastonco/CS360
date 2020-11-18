@@ -67,7 +67,6 @@ int my_link(char *oldname, char *newname)
         return -1;
     }
 
-    printf("%s NEWNAME\n", newname);
     int fileino = getino(newname);
     // ino can be -1? which shouldn't exist, might need refactor
     if (fileino > 0) {
