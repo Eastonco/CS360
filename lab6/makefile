@@ -7,6 +7,7 @@ GCC        	= gcc
 CFLAGS      = -g -m32 
 RM          = rm -rf
 BINDIR      = mountroot
+CMD 		= mountroot/cmd
 
 
 default: all
@@ -15,7 +16,7 @@ all: build
 
 build: mountroot
 	mkdir -p $(BINDIR)
-	$(GCC) $(CFLAGS) -o $(BINDIR)/main.bin mountroot/util.c mountroot/main.c mountroot/type.h mountroot/cmd/cd.c mountroot/cmd/ls.c mountroot/cmd/pwd.c mountroot/cmd/mkdir.c mountroot/cmd/link.c
+	$(GCC) $(CFLAGS) -o $(BINDIR)/main.bin $(BINDIR)/util.c $(BINDIR)/main.c $(BINDIR)/type.h $(CMD)/cd.c $(CMD)/ls.c $(CMD)/pwd.c $(CMD)/mkdir.c $(CMD)/link.c $(CMD)/creat.c
 
 clean veryclean:
 	rm $(BINDIR)/main.bin

@@ -26,4 +26,8 @@ int enter_name(MINODE *pip, int myino, char *myname);
 int link_wrapper(char *old, char *new);
 int my_link(char *oldname, char *newname);
 
+//creat
+int my_creat(MINODE *pip, char *name);
+int creat_file(char *pathname);
+
 #endif

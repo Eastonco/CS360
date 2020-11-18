@@ -133,7 +133,8 @@ int main(int argc, char *argv[])
             sscanf(line, "%s %s %s", cmd, pathname, pathname_two);
             link_wrapper(pathname, pathname_two);
         }
-            
+        if (!strcmp(cmd, "creat"))
+            creat_file(pathname);
     }
 }
 
