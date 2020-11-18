@@ -129,6 +129,8 @@ int main(int argc, char *argv[])
             quit();
         if (!strcmp(cmd, "mkdir"))
             make_dir(pathname);
+        //if (!strcmp(cmd, "link"))
+            //link_wrapper(pathname);
     }
 }
 

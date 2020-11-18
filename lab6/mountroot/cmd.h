@@ -22,4 +22,8 @@ int make_dir(char *pathname);
 int mymkdir(MINODE *pip, char *name);
 int enter_name(MINODE *pip, int myino, char *myname);
 
+// link
+int link_wrapper(char *pathname);
+int my_link(char *oldname, char *newname);
+
 #endif
