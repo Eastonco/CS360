@@ -15,15 +15,14 @@ extern int nblocks, ninodes, bmap, imap, inode_start;
 
 int link_wrapper(char *pathname) {
     // tokenize pathname into 'old' and 'new' delimited by a space
-    char dup[256];
-    strcpy(dup, pathname);
     char old[256], new[256];
-    old = strtok(dup, " ");
-    new = strtok(NULL, " ");
+    sscanf(pathname, "%s %s", old, new);
+
     printf("old = %s\nnew = %s\n", old, new);
-    //link(old, new);
+    //my_link(old, new);
 }
 
+/*
 int my_link(char *oldname, char *newname)
 {
     int inode_old, inode_new;
@@ -82,3 +81,4 @@ int my_link(char *oldname, char *newname)
     iput(mip);
     iput(mip_new);
 }
+*/
