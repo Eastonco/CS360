@@ -61,7 +61,7 @@ int main(int argc, char *argv[])
 {
     int ino;
     char buf[BLKSIZE];
-    char line[128], cmd[32], pathname[128];
+    char line[128], cmd[32], pathname[128], pathname_two[128];
 
     if (argc > 1)
         disk = argv[1];
@@ -129,8 +129,11 @@ int main(int argc, char *argv[])
             quit();
         if (!strcmp(cmd, "mkdir"))
             make_dir(pathname);
-        if (!strcmp(cmd, "link"))
-            link_wrapper(pathname);
+        if (!strcmp(cmd, "link")) {
+            sscanf(line, "%s %s %s", cmd, pathname, pathname_two);
+            link_wrapper(pathname, pathname_two);
+        }
+            
     }
 }
 
