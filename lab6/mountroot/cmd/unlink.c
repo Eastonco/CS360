@@ -65,4 +65,8 @@ int truncate(MINODE *mip) {
         incFreeBlocks(dev);
         ip->iblock[i] = 0;
     }
+    mip->i_blocks = 0;
+    mip->i_size = 0;
+    mip->dirty = 1;
+    iput(mip);
 }
