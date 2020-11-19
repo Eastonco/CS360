@@ -6,20 +6,22 @@
 GCC        	= gcc
 CFLAGS      = -g -m32 
 RM          = rm -rf
-BINDIR      = src
+SRCDIR      = src
 CMD 		= src/cmd
-
+BINDIR 		= bin
 
 default: all
 
-all: build
+all: clean build
 
-build: mountroot
+build: disk
 	mkdir -p $(BINDIR)
-	$(GCC) $(CFLAGS) -o $(BINDIR)/main.bin $(BINDIR)/util.c $(BINDIR)/main.c $(BINDIR)/type.h $(CMD)/*.c
+	$(GCC) $(CFLAGS) -o $(BINDIR)/main.bin $(SRCDIR)/util.c $(SRCDIR)/main.c $(SRCDIR)/type.h $(CMD)/*.c
+	sudo make disk
+
 
 clean veryclean:
-	rm $(BINDIR)/main.bin
+	$(RM) $(BINDIR)
 
 disk:
 	dd if=/dev/zero of=diskimage bs=1024 count=1440
@@ -28,3 +30,5 @@ disk:
 	sudo mount diskimage /mnt
 	(cd /mnt; rm -r *; mkdir dir1 dir2; mkdir dir1/dir3; touch file1 file2; ls -l)
 	sudo umount /mnt
+	mkdir -p $(BINDIR)
+	mv ./diskimage $(BINDIR)
