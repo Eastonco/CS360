@@ -26,7 +26,8 @@ disk:
 	mke2fs -b 1024 diskimage 1440
 
 	sudo mount diskimage /mnt
-	(cd /mnt; rm -r *; mkdir dir1 dir2; mkdir dir1/dir3; touch file1 file2; ls -l)
+	(cd /mnt; sudo rm -r *;sudo mkdir dir1 dir2; sudo mkdir dir1/dir3; sudo touch file1 file2; ls -l)
+	cd /home/eastonco/dev/360/lab6
 	sudo umount /mnt
 	mkdir -p $(BINDIR)
 	mv ./diskimage $(BINDIR)
