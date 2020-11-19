@@ -139,6 +139,8 @@ int main(int argc, char *argv[])
             creat_file(pathname);
         if (!strcmp(cmd, "rmdir"))  
             myrmdir(pathname);
+        if (!strcmp(cmd, "chmod"))
+            mychmod(pathname);
     }
 }
 
