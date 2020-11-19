@@ -13,11 +13,22 @@ extern int n;           // number of component strings in name[]
 extern int fd, dev;
 extern int nblocks, ninodes, bmap, imap, inode_start;
 
+/****************************************************************
+* Function:                                                     *
+* Date Created:                                                 *
+* Date Last Modified:                                           *
+* Description:                                                  *
+* Input parameters:                                             *
+* Returns:                                                      *
+* Preconditions:                                                *
+* Postconditions:                                               *
+*****************************************************************/
 int mychmod(char *pathname)
 {
     int ino = getino(pathname);
 
-    if(!ino){
+    if (!ino)
+    {
         printf("ERROR: Inode does not exist\n");
         return -1;
     }

@@ -19,6 +19,16 @@ int n;           // number of component strings
 int fd, dev;
 int nblocks, ninodes, bmap, imap, inode_start;
 
+/****************************************************************
+* Function:                                                     *
+* Date Created:                                                 *
+* Date Last Modified:                                           *
+* Description:                                                  *
+* Input parameters:                                             *
+* Returns:                                                      *
+* Preconditions:                                                *
+* Postconditions:                                               *
+*****************************************************************/
 int init()
 {
     int i, j;
@@ -57,6 +67,17 @@ int mount_root()
 }
 
 char *disk = "diskimage";
+
+/****************************************************************
+* Function:                                                     *
+* Date Created:                                                 *
+* Date Last Modified:                                           *
+* Description:                                                  *
+* Input parameters:                                             *
+* Returns:                                                      *
+* Preconditions:                                                *
+* Postconditions:                                               *
+*****************************************************************/
 int main(int argc, char *argv[])
 {
     int ino;
@@ -129,7 +150,8 @@ int main(int argc, char *argv[])
             quit();
         if (!strcmp(cmd, "mkdir"))
             make_dir(pathname);
-        if (!strcmp(cmd, "link")) {
+        if (!strcmp(cmd, "link"))
+        {
             sscanf(line, "%s %s %s", cmd, pathname, pathname_two);
             link_wrapper(pathname, pathname_two);
         }
@@ -137,13 +159,23 @@ int main(int argc, char *argv[])
             my_unlink(pathname);
         if (!strcmp(cmd, "creat"))
             creat_file(pathname);
-        if (!strcmp(cmd, "rmdir"))  
+        if (!strcmp(cmd, "rmdir"))
             myrmdir(pathname);
         if (!strcmp(cmd, "chmod"))
             mychmod(pathname);
     }
 }
 
+/****************************************************************
+* Function:                                                     *
+* Date Created:                                                 *
+* Date Last Modified:                                           *
+* Description:                                                  *
+* Input parameters:                                             *
+* Returns:                                                      *
+* Preconditions:                                                *
+* Postconditions:                                               *
+*****************************************************************/
 int quit()
 {
     int i;

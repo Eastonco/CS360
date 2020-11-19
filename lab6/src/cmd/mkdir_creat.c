@@ -14,6 +14,16 @@ extern int n;           // number of component strings in name[]
 extern int fd, dev;
 extern int nblocks, ninodes, bmap, imap, inode_start;
 
+/****************************************************************
+* Function:                                                     *
+* Date Created:                                                 *
+* Date Last Modified:                                           *
+* Description:                                                  *
+* Input parameters:                                             *
+* Returns:                                                      *
+* Preconditions:                                                *
+* Postconditions:                                               *
+*****************************************************************/
 int make_dir(char *pathname) //TODO: debug mkdir (currently can't make 2 dirs inside one another
 {
     MINODE *start;
@@ -66,6 +76,16 @@ int make_dir(char *pathname) //TODO: debug mkdir (currently can't make 2 dirs in
     return 0;
 }
 
+/****************************************************************
+* Function:                                                     *
+* Date Created:                                                 *
+* Date Last Modified:                                           *
+* Description:                                                  *
+* Input parameters:                                             *
+* Returns:                                                      *
+* Preconditions:                                                *
+* Postconditions:                                               *
+*****************************************************************/
 int mymkdir(MINODE *pip, char *name)
 {
     MINODE *mip;
@@ -111,7 +131,7 @@ int mymkdir(MINODE *pip, char *name)
     dp->name[0] = '.'; // name
 
     cp += dp->rec_len; // advancing to end of '.' entry
-	dp = (DIR *)cp;
+    dp = (DIR *)cp;
 
     //making .. entry
     dp->inode = pip->ino;       // setting to parent ino
@@ -127,8 +147,17 @@ int mymkdir(MINODE *pip, char *name)
     return 0;
 }
 
-
-int creat_file(char *pathname) 
+/****************************************************************
+* Function:                                                     *
+* Date Created:                                                 *
+* Date Last Modified:                                           *
+* Description:                                                  *
+* Input parameters:                                             *
+* Returns:                                                      *
+* Preconditions:                                                *
+* Postconditions:                                               *
+*****************************************************************/
+int creat_file(char *pathname)
 {
     MINODE *start;
     char pathcpy1[256], pathcpy2[256];
@@ -173,12 +202,22 @@ int creat_file(char *pathname)
     }
 
     my_creat(pip, child);
-    pip->INODE.i_atime = time(0L); 
+    pip->INODE.i_atime = time(0L);
     pip->dirty = 1;
     iput(pip); //writes the changed MINODE to the block
     return 0;
 }
 
+/****************************************************************
+* Function:                                                     *
+* Date Created:                                                 *
+* Date Last Modified:                                           *
+* Description:                                                  *
+* Input parameters:                                             *
+* Returns:                                                      *
+* Preconditions:                                                *
+* Postconditions:                                               *
+*****************************************************************/
 int my_creat(MINODE *pip, char *name)
 {
     MINODE *mip;
@@ -193,7 +232,7 @@ int my_creat(MINODE *pip, char *name)
     mip = iget(dev, ino);
 
     INODE *ip = &mip->INODE;
-    ip->i_mode = FILE_MODE;    // 0x81A4 OR 0100644: FILE type and permissions
+    ip->i_mode = FILE_MODE;   // 0x81A4 OR 0100644: FILE type and permissions
     ip->i_uid = running->uid; // Owner uid
     ip->i_gid = running->gid; // Group Id
     ip->i_size = BLKSIZE;     // Size in bytes
@@ -201,7 +240,7 @@ int my_creat(MINODE *pip, char *name)
     ip->i_atime = time(0L);   // set to current time
     ip->i_ctime = time(0L);
     ip->i_mtime = time(0L);
-    ip->i_blocks = 2;     // LINUX: Blocks count in 512-byte chunks
+    ip->i_blocks = 2;   // LINUX: Blocks count in 512-byte chunks
     ip->i_block[0] = 0; // new File has 0 data blocks
     for (int i = 1; i < 15; i++)
     {

@@ -3,7 +3,6 @@
 
 #include "util.h"
 
-
 // Function prototypes
 //  ls
 int ls_file(MINODE *mip, char *name);
@@ -45,8 +44,7 @@ int my_symlink(char *old, char *new);
 int myrmdir(char *pathname);
 int is_empty(MINODE *mip);
 
-//misclvl1 
+//misclvl1
 int mychmod(char *pathname);
-
 
 #endif
