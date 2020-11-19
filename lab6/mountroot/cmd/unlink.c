@@ -14,7 +14,7 @@ extern int fd, dev;
 extern int nblocks, ninodes, bmap, imap, inode_start;
 
 // todo: probably more checks to do
-int unlink(char *pathname) {
+int my_unlink(char *pathname) {
     int inode;
     MINODE *mip;
 
@@ -29,7 +29,7 @@ int unlink(char *pathname) {
 
     inode = getino(pathname);
     mip = iget(dev, inode);
-    if (S_ISDIR(mip->INODE.i_mode))) {
+    if (S_ISDIR(mip->INODE.i_mode)) {
         printf("dir cannot be link; cannot unlink %s\n", pathname);
         return -1;
     }
@@ -37,7 +37,7 @@ int unlink(char *pathname) {
     mip->INODE.i_links_count--;
     if (mip->INODE.i_links_count == 0) {
         // deallocate data blocks with truncate() function
-        truncate(mip);
+        inode_truncate(mip);
     }
 
     char child[256];
@@ -50,12 +50,12 @@ int unlink(char *pathname) {
 }
 
 // use inodes in block, go to address, free them (memset), 
-int truncate(MINODE *mip) {
+int inode_truncate(MINODE *mip) {
     char buf[BLKSIZE];
     INODE *ip = &mip->INODE;
     // 12 direct blocks
     for (int i = 0; i < 12; i++) {
-        if (ip->iblock[i] == 0)
+        if (ip->i_block[i] == 0)
             break;
         // now deallocate block
         get_block(dev, bmap, buf);
@@ -63,10 +63,10 @@ int truncate(MINODE *mip) {
         put_block(dev, bmap, buf);
         // increment # of free blocks
         incFreeBlocks(dev);
-        ip->iblock[i] = 0;
+        ip->i_block[i] = 0;
     }
-    mip->i_blocks = 0;
-    mip->i_size = 0;
+    mip->INODE.i_blocks = 0;
+    mip->INODE.i_size = 0;
     mip->dirty = 1;
     iput(mip);
 }

@@ -165,13 +165,14 @@ int idealloc(int dev, int ino)
 }
 
 int bdealloc(int dev, int bno)
-{ // deallocating dick block number
+{ // deallocating disk block number
     char buf[BLKSIZE];
 
     get_block(dev, bmap, buf);
-    clr_bit(buf, bno);
+    clr_bit(buf, bno-1); // I (Zach) wrote this same exact code for unlink's truncate and I was off by 1, so updated this here
     put_block(dev, bmap, buf);
-
+    incFreeBlocks(dev);
+    /*
     get_block(dev, 1, buf);
     sp = (SUPER *)buf;
     sp->s_free_blocks_count++;
@@ -181,6 +182,7 @@ int bdealloc(int dev, int bno)
     gp = (GD *)buf;
     gp->bg_free_blocks_count++;
     put_block(dev, 2, buf);
+    */
 }
 
 int get_block(int dev, int blk, char *buf)

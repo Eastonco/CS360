@@ -34,4 +34,17 @@ int creat_file(char *pathname);
 int rm_child(MINODE *parent, char *name);
 int myrmdir(char *pathname);
 
+// unlink
+int my_unlink(char *pathname);
+int inode_truncate(MINODE *mip);
+
+// symlink
+int my_symlink(char *old, char *new);
+
+// rmdir
+int myrmdir(char *pathname);
+int rm_child(MINODE *parent, char *name);
+int is_empty(MINODE *mip);
+
+
 #endif

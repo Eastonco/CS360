@@ -54,7 +54,7 @@ int my_symlink(char *old, char *new) {
         return -1;
     }
     mip = iget(dev, new_ino);
-    mip->i_mode = 0xA1FF; // A1FF sets link perm bits correctly (rwx for all users)
+    mip->INODE.i_mode = 0xA1FF; // A1FF sets link perm bits correctly (rwx for all users)
 
     // TODO: everything past here
     // write the string old into the i_block[ ], which has room for 60 chars.

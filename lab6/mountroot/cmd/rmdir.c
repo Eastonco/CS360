@@ -34,7 +34,7 @@ int myrmdir(char *pathname)
 
     if (mip->refCount > 2) // refcount is incrementing when we cd into it but not decrementing when cding out of it
     {
-        printf("ERROR: node is busy, refcount > 2\n");
+        printf("ERROR: node is busy, refcount > 2, refcount = %d\n", mip->refCount);
         return -1;
     }
 
