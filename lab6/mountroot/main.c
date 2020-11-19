@@ -133,6 +133,8 @@ int main(int argc, char *argv[])
             creat_file(pathname);
         //if (!strcmp(cmd, "link"))
         //    link_wrapper(pathname);
+        if (!strcmp(cmd, "rmdir"))
+            rmdir(pathname);
     }
 }
 

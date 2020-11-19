@@ -30,4 +30,8 @@ int my_link(char *oldname, char *newname);
 int my_creat(MINODE *pip, char *name);
 int creat_file(char *pathname);
 
+//rmdir
+int rm_child(MINODE *parent, char *name);
+int rmdir(char *pathname);
+
 #endif
