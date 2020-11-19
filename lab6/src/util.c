@@ -340,8 +340,6 @@ int getino(char *pathname)
         mip = running->cwd; // if relative pathname: start from cwd
     }
 
-    mip->refCount++;
-
     tokenize(pathname); // assume: name[], nname are globals
 
     for (i = 0; i < n; i++)
