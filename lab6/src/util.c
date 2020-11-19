@@ -644,12 +644,12 @@ int findino(MINODE *mip, u32 *myino) // myino = ino of . return ino of ..
 }
 
 /****************************************************************
-* Function:                                                     *
-* Date Created:                                                 *
+* Function: enter_name(MINODE *pip, int myino, char *myname)    *
+* Date Created: 11/12/2020                                      *
 * Date Last Modified:                                           *
-* Description:                                                  *
-* Input parameters:                                             *
-* Returns:                                                      *
+* Description: adds the name of a dir to the block entry        *
+* Input parameters: parent minode, inode number, name of file   *
+* Returns: 1 if allocating a new block, 0 if adding to block    *
 * Preconditions:                                                *
 * Postconditions:                                               *
 *****************************************************************/
@@ -662,7 +662,7 @@ int enter_name(MINODE *pip, int myino, char *myname)
 
     int need_len = 4 * ((8 + strlen(myname) + 3) / 4); //ideal length of entry
 
-    ip = &pip->INODE;
+    ip = &pip->INODE; // get the inode
 
     for (int i = 0; i < 12; i++)
     {
@@ -673,12 +673,11 @@ int enter_name(MINODE *pip, int myino, char *myname)
         }
 
         bno = ip->i_block[i];
-        get_block(pip->dev, ip->i_block[i], buf);
+        get_block(pip->dev, ip->i_block[i], buf); // get the block
         dp = (DIR *)buf;
         cp = buf;
 
-        // Going to last entry of the block
-        while (cp + dp->rec_len < buf + BLKSIZE)
+        while (cp + dp->rec_len < buf + BLKSIZE) // Going to last entry of the block
         {
             printf("%s\n", dp->name);
             cp += dp->rec_len;
@@ -686,8 +685,8 @@ int enter_name(MINODE *pip, int myino, char *myname)
         }
 
         // at last entry
-        int ideal_len = 4 * ((8 + dp->name_len + 3) / 4);
-        int remainder = dp->rec_len - ideal_len;
+        int ideal_len = 4 * ((8 + dp->name_len + 3) / 4); // ideal len of the name
+        int remainder = dp->rec_len - ideal_len;          // remaining space
 
         if (remainder >= need_len)
         {                            // space available for new netry
@@ -695,29 +694,29 @@ int enter_name(MINODE *pip, int myino, char *myname)
             cp += dp->rec_len;       // advance to end
             dp = (DIR *)cp;          // point to new open entry space
 
-            dp->inode = myino;
-            strcpy(dp->name, myname);
-            dp->name_len = strlen(myname);
-            dp->rec_len = remainder;
+            dp->inode = myino;             // add the inode
+            strcpy(dp->name, myname);      // add the name
+            dp->name_len = strlen(myname); // len of name
+            dp->rec_len = remainder;       // size of the record
 
-            put_block(dev, bno, buf);
+            put_block(dev, bno, buf); // save block
             return 0;
         }
         else
-        { // not enough space in block
-            ip->i_size = BLKSIZE;
-            bno = balloc(dev); // allocate new block
-            ip->i_block[i] = bno;
-            pip->dirty = 1; // ino is changed so make dirty
+        {                         // not enough space in block
+            ip->i_size = BLKSIZE; // size is new block
+            bno = balloc(dev);    // allocate new block
+            ip->i_block[i] = bno; // add the block to the list
+            pip->dirty = 1;       // ino is changed so make dirty
 
-            get_block(dev, bno, buf);
+            get_block(dev, bno, buf); // get the blcok from memory
             dp = (DIR *)buf;
             cp = buf;
 
-            dp->name_len = strlen(myname);
-            strcpy(dp->name, myname);
-            dp->inode = myino;
-            dp->rec_len = BLKSIZE; // only entry so full size
+            dp->name_len = strlen(myname); // add name len
+            strcpy(dp->name, myname);      // name
+            dp->inode = myino;             // inode
+            dp->rec_len = BLKSIZE;         // only entry so full size
 
             put_block(dev, bno, buf); //save
             return 1;
