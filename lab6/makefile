@@ -14,11 +14,9 @@ default: all
 
 all: clean build
 
-build: disk
+build: 
 	mkdir -p $(BINDIR)
 	$(GCC) $(CFLAGS) -o $(BINDIR)/main.bin $(SRCDIR)/util.c $(SRCDIR)/main.c $(SRCDIR)/type.h $(CMD)/*.c
-	sudo make disk
-
 
 clean veryclean:
 	$(RM) $(BINDIR)
