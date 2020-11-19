@@ -34,4 +34,5 @@ int idealloc(int dev, int ino);
 int incFreeInodes(int dev);
 int incFreeBlocks(int dev);
 
+int rm_child(MINODE *parent, char *name);
 #endif

@@ -43,7 +43,6 @@ int my_symlink(char *old, char *new);
 
 // rmdir
 int myrmdir(char *pathname);
-int rm_child(MINODE *parent, char *name);
 int is_empty(MINODE *mip);
 
 

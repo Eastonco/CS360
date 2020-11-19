@@ -515,3 +515,78 @@ int enter_name(MINODE *pip, int myino, char *myname)
         }
     }
 }
+
+int rm_child(MINODE *parent, char *name)
+{
+    DIR *dp, *prevdp, *lastdp;
+    char *cp, *lastcp, buf[BLKSIZE], tmp[256], *startptr, *endptr;
+    INODE *ip = &parent->INODE;
+
+    for (int i = 0; i < 12; i++)
+    {
+        if (ip->i_block[i] != 0)
+        {
+            get_block(parent->dev, ip->i_block[i], buf);
+            dp = (DIR *)buf;
+            cp = buf;
+
+            while (cp < buf + BLKSIZE)
+            {
+                strncpy(tmp, dp->name, dp->name_len);
+                tmp[dp->name_len] = 0;
+
+                if (!strcmp(tmp, name)) // name found
+                {
+                    if (cp == buf && cp + dp->rec_len == buf + BLKSIZE) // first/only record
+                    {
+                        bdealloc(parent->dev, ip->i_block[i]);
+                        ip->i_size -= BLKSIZE;
+
+                        while (ip->i_block[i + 1] != 0 && i + 1 < 12) // filling hole in the i_blocks since we deallocated this one
+                        {
+                            i++;
+                            get_block(parent->dev, ip->i_block[i], buf);
+                            put_block(parent->dev, ip->i_block[i - 1], buf);
+                        }
+                    }
+
+                    else if (cp + dp->rec_len == buf + BLKSIZE) // Last record in the block, previous absorbs size
+                    {
+                        prevdp->rec_len += dp->rec_len;
+                        put_block(parent->dev, ip->i_block[i], buf);
+                    }
+
+                    else // Record between others, must shift
+                    {
+                        lastdp = (DIR *)buf;
+                        lastcp = buf;
+
+                        while (lastcp + lastdp->rec_len < buf + BLKSIZE) // finding last record in the block
+                        {
+                            lastcp += lastdp->rec_len;
+                            lastdp = (DIR *)lastcp;
+                        }
+
+                        lastdp->rec_len += dp->rec_len; // adding size to last one
+
+                        startptr = cp + dp->rec_len; // start of copy block
+                        endptr = buf + BLKSIZE;      // end of copy block
+
+                        memmove(cp, startptr, endptr - startptr); // Shift left 
+                        put_block(parent->dev, ip->i_block[i], buf);
+                    }
+
+                    parent->dirty = 1;
+                    iput(parent);
+                    return 0;
+                }
+
+                prevdp = dp;
+                cp += dp->rec_len;
+                dp = (DIR *)cp;
+            }
+        }
+    }
+    printf("ERROR: child not found\n");
+    return -1;
+}
