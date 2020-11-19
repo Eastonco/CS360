@@ -61,7 +61,7 @@ int main(int argc, char *argv[])
 {
     int ino;
     char buf[BLKSIZE];
-    char line[128], cmd[32], pathname[128];
+    char line[128], cmd[32], pathname[128], pathname_two[128];
 
     if (argc > 1)
         disk = argv[1];
@@ -108,7 +108,7 @@ int main(int argc, char *argv[])
 
     while (1)
     {
-        printf("input command : [ls|cd|pwd|quit|mkdir] ");
+        printf("input command : [ls|cd|pwd|quit|mkdir|creat|link] ");
         fgets(line, 128, stdin);
         line[strlen(line) - 1] = 0;
 
@@ -129,6 +129,10 @@ int main(int argc, char *argv[])
             quit();
         if (!strcmp(cmd, "mkdir"))
             make_dir(pathname);
+        if (!strcmp(cmd, "link")) {
+            sscanf(line, "%s %s %s", cmd, pathname, pathname_two);
+            link_wrapper(pathname, pathname_two);
+        }
         if (!strcmp(cmd, "creat"))
             creat_file(pathname);
         //if (!strcmp(cmd, "link"))

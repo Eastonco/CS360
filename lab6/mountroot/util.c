@@ -73,6 +73,21 @@ int decFreeBlocks(int dev)
     //nblocks--;
 }
 
+int incFreeBlocks(int dev) 
+{
+    char buf[BLKSIZE];
+
+    get_block(dev, 1, buf);
+    sp = (SUPER *)buf;
+    sp->s_free_blocks_count++;
+    put_block(dev, 1, buf);
+
+    get_block(dev, 2, buf);
+    gp = (GD *)buf;
+    gp->bg_free_blocks_count++;
+    put_block(dev, 2, buf);
+}
+
 int ialloc(int dev)  // allocate an inode number from inode_bitmap
 {
   int  i;
