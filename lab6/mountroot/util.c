@@ -14,18 +14,18 @@ extern int n;           // number of component strings
 extern int fd, dev;
 extern int nblocks, ninodes, bmap, imap, inode_start;
 
-
 int tst_bit(char *buf, int bit)
 {
-    return buf[bit/8] & (1 << (bit % 8));
+    return buf[bit / 8] & (1 << (bit % 8));
 }
 
 int set_bit(char *buf, int bitnum)
 {
     int bit, byte;
-    byte = bitnum / 8; 
-    bit = bitnum % 8; 
-    if(buf[byte] |= (1<<bit)){
+    byte = bitnum / 8;
+    bit = bitnum % 8;
+    if (buf[byte] |= (1 << bit))
+    {
         return 1;
     }
     return 0;
@@ -34,15 +34,17 @@ int set_bit(char *buf, int bitnum)
 int clr_bit(char *buf, int bitnum)
 {
     int bit, byte;
-    byte = bitnum / 8; 
-    bit = bitnum % 8; 
-    if(buf[byte] &= ~(1 << bit)){
+    byte = bitnum / 8;
+    bit = bitnum % 8;
+    if (buf[byte] &= ~(1 << bit))
+    {
         return 1;
     }
     return 0;
 }
 
-int decFreeInodes(int dev){
+int decFreeInodes(int dev)
+{
     char buf[BLKSIZE];
 
     get_block(dev, 1, buf);
@@ -73,7 +75,7 @@ int decFreeBlocks(int dev)
     //nblocks--;
 }
 
-int incFreeBlocks(int dev) 
+int incFreeBlocks(int dev)
 {
     char buf[BLKSIZE];
 
@@ -88,41 +90,97 @@ int incFreeBlocks(int dev)
     put_block(dev, 2, buf);
 }
 
-int ialloc(int dev)  // allocate an inode number from inode_bitmap
+int incFreeInodes(int dev)
 {
-  int  i;
-  char buf[BLKSIZE];
-
-  get_block(dev, imap, buf); // read inode_bitmap block
-
-  for (i=0; i < ninodes; i++){
-    if (tst_bit(buf, i)==0){
-        set_bit(buf, i);
-        put_block(dev, imap, buf);
-        decFreeInodes(dev);
-        printf("allocated ino = %d\n", i+1); // bits count from 0; ino from 1
-        return i+1;
-    }
-  }
-  return 0;
+    char buf[BLKSIZE];
+    // inc free inodes count in SUPER and GD
+    get_block(dev, 1, buf);
+    sp = (SUPER *)buf;
+    sp->s_free_inodes_count++;
+    put_block(dev, 1, buf);
+    get_block(dev, 2, buf);
+    gp = (GD *)buf;
+    gp->bg_free_inodes_count++;
+    put_block(dev, 2, buf);
 }
 
-int balloc(int dev){ //returns a FREE disk block number  NOTE: Not 100% sure if this works
+int ialloc(int dev) // allocate an inode number from inode_bitmap
+{
     int i;
     char buf[BLKSIZE];
-    
-    get_block(dev, bmap, buf);
 
-    for (i=0; i < nblocks; i++){
-        if (tst_bit(buf, i)==0){
+    get_block(dev, imap, buf); // read inode_bitmap block
+
+    for (i = 0; i < ninodes; i++)
+    {
+        if (tst_bit(buf, i) == 0)
+        {
             set_bit(buf, i);
-            decFreeBlocks(dev);
-            put_block(dev, bmap, buf);
-            printf("Free disk block at %d\n", i+1); // bits count from 0; ino from 1
-            return i+1;
+            put_block(dev, imap, buf);
+            decFreeInodes(dev);
+            printf("allocated ino = %d\n", i + 1); // bits count from 0; ino from 1
+            return i + 1;
         }
     }
     return 0;
+}
+
+int balloc(int dev)
+{ //returns a FREE disk block number  NOTE: Not 100% sure if this works
+    int i;
+    char buf[BLKSIZE];
+
+    get_block(dev, bmap, buf);
+
+    for (i = 0; i < nblocks; i++)
+    {
+        if (tst_bit(buf, i) == 0)
+        {
+            set_bit(buf, i);
+            decFreeBlocks(dev);
+            put_block(dev, bmap, buf);
+            printf("Free disk block at %d\n", i + 1); // bits count from 0; ino from 1
+            return i + 1;
+        }
+    }
+    return 0;
+}
+
+int idealloc(int dev, int ino)
+{ // deallocating inode (number)
+    int i;
+    char buf[BLKSIZE];
+
+    if (ino > ninodes)
+    {
+        printf("inumber %d out of range\n", ino);
+        return;
+    }
+    get_block(dev, imap, buf);
+    clr_bit(buf, ino - 1);
+    // write buf back
+    put_block(dev, imap, buf);
+    // update free inode count in SUPER and GD
+    incFreeInodes(dev);
+}
+
+int bdealloc(int dev, int bno)
+{ // deallocating dick block number
+    char buf[BLKSIZE];
+
+    get_block(dev, bmap, buf);
+    clr_bit(buf, bno);
+    put_block(dev, bmap, buf);
+
+    get_block(dev, 1, buf);
+    sp = (SUPER *)buf;
+    sp->s_free_blocks_count++;
+    put_block(dev, 1, buf);
+
+    get_block(dev, 2, buf);
+    gp = (GD *)buf;
+    gp->bg_free_blocks_count++;
+    put_block(dev, 2, buf);
 }
 
 int get_block(int dev, int blk, char *buf)
@@ -403,7 +461,7 @@ int enter_name(MINODE *pip, int myino, char *myname)
         if (ip->i_block[i] == 0)
         {
             break;
-        } 
+        }
 
         bno = ip->i_block[i];
         get_block(pip->dev, ip->i_block[i], buf);

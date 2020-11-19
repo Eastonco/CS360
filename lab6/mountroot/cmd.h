@@ -32,6 +32,6 @@ int creat_file(char *pathname);
 
 //rmdir
 int rm_child(MINODE *parent, char *name);
-int rmdir(char *pathname);
+int myrmdir(char *pathname);
 
 #endif

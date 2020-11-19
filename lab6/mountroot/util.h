@@ -29,4 +29,9 @@ int decFreeBlocks(int dev);
 int decFreeInodes(int dev);
 int enter_name(MINODE *pip, int myino, char *myname);
 
+int bdealloc(int dev, int bno);
+int idealloc(int dev, int ino);
+int incFreeInodes(int dev);
+int incFreeBlocks(int dev);
+
 #endif
