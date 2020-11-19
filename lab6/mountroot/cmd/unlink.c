@@ -43,7 +43,7 @@ int my_unlink(char *pathname) {
     char child[256];
     strcpy(child, basename(pathname));
     // now remove child - same function as rm (to be implemented)
-    // rm_child(mip, child);
+    rm_child(mip, child);
 
     mip->dirty = 1;
     iput(mip);
