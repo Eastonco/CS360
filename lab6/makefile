@@ -14,7 +14,7 @@ default: all
 
 all: clean build
 
-build: 
+build: disk
 	mkdir -p $(BINDIR)
 	$(GCC) $(CFLAGS) -o $(BINDIR)/main.bin $(SRCDIR)/util.c $(SRCDIR)/main.c $(SRCDIR)/type.h $(CMD)/*.c
 
