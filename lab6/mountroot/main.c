@@ -135,8 +135,6 @@ int main(int argc, char *argv[])
         }
         if (!strcmp(cmd, "creat"))
             creat_file(pathname);
-        //if (!strcmp(cmd, "link"))
-        //    link_wrapper(pathname);
         if (!strcmp(cmd, "rmdir"))
             rmdir(pathname);
     }
