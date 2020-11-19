@@ -32,17 +32,19 @@ int myrmdir(char *pathname)
         return -1;
     }
 
+    if (!is_empty(mip))
+    {
+        printf("ERROR: Dir is not empty\n");
+        return -1;
+    }
+
     if (mip->refCount > 2) // refcount is incrementing when we cd into it but not decrementing when cding out of it
     {
         printf("ERROR: node is busy, refcount > 2, refcount = %d\n", mip->refCount);
         return -1;
     }
 
-    if (!is_empty(mip))
-    {
-        printf("ERROR: Dir is not empty\n");
-        return -1;
-    }
+
 
     for (int i = 0; i < 12; i++)
     {
