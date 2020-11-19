@@ -6,8 +6,8 @@
 GCC        	= gcc
 CFLAGS      = -g -m32 
 RM          = rm -rf
-BINDIR      = mountroot
-CMD 		= mountroot/cmd
+BINDIR      = src
+CMD 		= src/cmd
 
 
 default: all

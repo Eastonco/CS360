@@ -9,15 +9,47 @@ extern PROC proc[NPROC], *running;
 
 extern char gpath[128]; // global for tokenized components
 extern char *name[32];  // assume at most 32 components in pathname
-extern int n;           // number of component strings in name[]
+extern int n;           // number of component strings
 
 extern int fd, dev;
 extern int nblocks, ninodes, bmap, imap, inode_start;
-
 // Headers
-int ls_file(MINODE *mip, char *name);
-int ls_dir(MINODE *mip);
-int ls(char *pathname);
+int my_chdir(char *pathname);
+
+/************************************************************
+* Function: my_chdir(char *pathname)                        *
+* Date Created: 11/4/2020                                   *
+* Date Last Modified:                                       *
+* Description: changes cwd to new pathname                  *
+* Input parameters: path to new cwd                         *
+* Returns: 1 if success, 0 if fail                          *
+* Preconditions: must have initialized system               *
+* Postconditions:                                           *
+*************************************************************/
+int my_chdir(char *pathname)
+{
+  printf("chdir %s\n", pathname);
+
+  int ino = getino(pathname);
+  if (ino == 0)
+  {
+    printf("ERROR: Chdir() - ino can't be found\n");
+    return 0;
+  }
+
+  MINODE *mip = iget(dev, ino);
+
+  if (!S_ISDIR(mip->INODE.i_mode))
+  {
+    printf("Error: Chdir() - mip is not a directory");
+    return 0;
+  }
+
+  iput(running->cwd);
+  running->cwd = mip;
+  return 1;
+}
+
 
 /*************************************************************
 * Function: ls_file(MINODE *mip, char *name)                *
@@ -159,4 +191,57 @@ int my_ls(char *pathname)
         }
     }
     return 0;
+}
+
+
+/************************************************************
+* Function: my_pwd(MINODE *wd)                              *
+* Date Created: 11/4/2020                                   *
+* Date Last Modified:                                       *
+* Description: Prints the working directory to console      *
+* Input parameters:  working directory MINODE               *
+* Returns: NULL - Prints out the working dir                *
+* Preconditions: wd and root must bet set to a node         *
+* Postconditions:                                           *
+*************************************************************/
+char *my_pwd(MINODE *wd)
+{
+    if (wd == root)
+    {
+        printf("/\n");
+    }
+    else
+    {
+        rpwd(wd);
+        printf("\n");
+    }
+}
+
+/************************************************************
+* Function:rpwd(MINODE *wd)                                 *
+* Date Created: 11/4/2020                                   *
+* Date Last Modified:                                       *
+* Description: Recursive helper to pwd                      *
+* Input parameters: MINODE of directory to be printed       *
+* Returns: NULL - Prints out the working dir                *
+* Preconditions: wd and root must bet set to a node         *
+* Postconditions:                                           *
+*************************************************************/
+void rpwd(MINODE *wd)
+{
+    if (wd == root)
+    {
+        return;
+    }
+    char buf[BLKSIZE], lname[256];
+    int ino;
+    get_block(dev, wd->INODE.i_block[0], buf);
+    int parent_ino = findino(wd, &ino);
+    MINODE *pip = iget(dev, parent_ino);
+    
+    findmyname(pip, ino, lname);
+    rpwd(pip);
+    iput(pip);
+    printf("/%s", lname);
+    return;
 }
