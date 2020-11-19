@@ -37,5 +37,5 @@ int mychmod(char *pathname)
     mip->INODE.i_mode |= 7;       // not sure if this number is correct but does make file rwx
     mip->dirty = 1;               // mark as changed
     iput(mip);                    // write changes to memory
-    return 0
+    return 0;
 }
