@@ -120,6 +120,8 @@ int ls_dir(MINODE *mip)
     char *t2 = "----------------";
 
     char ftime[256];
+    MINODE *temp_mip;
+
     u16 mode = mip->INODE.i_mode;
 
     char buf[BLKSIZE], temp[256];
@@ -136,8 +138,9 @@ int ls_dir(MINODE *mip)
         strncpy(temp, dp->name, dp->name_len);
         temp[dp->name_len] = 0;
 
-        MINODE *temp_mip = iget(dev, dp->inode);
+        temp_mip = iget(dev, dp->inode);
         ls_file(temp_mip, temp);
+        //iput(temp_mip); ----------------------- FIXME: this causes the loop
 
         //printf("[%d %s]  ", dp->inode, temp); // print [inode# name]
 
@@ -188,6 +191,7 @@ int my_ls(char *pathname)
             {
                 ls_file(mip, pathname);
             }
+            //iput(mip); -----------FIXME: this also causes the loop
         }
     }
     return 0;
