@@ -55,14 +55,16 @@ int my_symlink(char *old, char *new) {
     }
     mip = iget(dev, new_ino);
     mip->INODE.i_mode = 0xA1FF; // A1FF sets link perm bits correctly (rwx for all users)
+    mip->dirty = 1;
 
     // TODO: everything past here
     // write the string old into the i_block[ ], which has room for 60 chars.
     // i_block[] + 24 after = 84 total for old
-
+    strncpy(mip->INODE.i_block, old, 84);
 
     // set /x/y/z file size = number of chars in oldName
+    mip->INODE.i_size = strlen(old) + 1; // +1 for '\0'
 
     // write the INODE of /x/y/z back to disk.
-
+    iput(mip);
 }

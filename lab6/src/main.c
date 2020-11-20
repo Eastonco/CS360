@@ -108,7 +108,7 @@ int main(int argc, char *argv[])
 
     while (1)
     {
-        printf("input command : [ls|cd|pwd|quit|mkdir|rmdir|creat|link|unlink] ");
+        printf("input command : [ls|cd|pwd|quit|mkdir|rmdir|creat|link|unlink|symlink] ");
         fgets(line, 128, stdin);
         line[strlen(line) - 1] = 0;
 
@@ -135,6 +135,10 @@ int main(int argc, char *argv[])
         }
         if (!strcmp(cmd, "unlink"))
             my_unlink(pathname);
+        if (!strcmp(cmd, "symlink")) {
+            sscanf(line, "%s %s %s", cmd, pathname, pathname_two);
+            my_symlink(pathname, pathname_two);
+        }
         if (!strcmp(cmd, "creat"))
             creat_file(pathname);
         if (!strcmp(cmd, "rmdir"))  

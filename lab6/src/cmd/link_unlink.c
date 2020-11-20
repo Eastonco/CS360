@@ -79,6 +79,7 @@ int my_link(char *oldname, char *newname)
     strcpy(child, basename(newname));
     strcpy(parent, dirname(newname));
 
+    printf("parent = %s\nchild = %s\n", parent, child);
     inode_new = getino(parent);
     if (!inode_new) {
         printf("can't create link in parent dir %s\n", parent);
@@ -88,6 +89,8 @@ int my_link(char *oldname, char *newname)
     mip_new = iget(dev, inode_new);
 
     enter_name(mip_new, mip->ino, child);
+
+    //print_parent_mode(mip_new);
 
     mip->INODE.i_links_count++;
     mip->dirty = 1;
@@ -110,26 +113,42 @@ int my_unlink(char *pathname) {
         dev = running->cwd->dev;
     }
 
+    char parent[256], child[256];
+    strcpy(parent, dirname(pathname));
+    strcpy(child, basename(pathname));
+
+    // link MIP
     inode = getino(pathname);
     mip = iget(dev, inode);
+
+    // check link mip is not a dir
     if (S_ISDIR(mip->INODE.i_mode)) {
         printf("dir cannot be link; cannot unlink %s\n", pathname);
         return -1;
     }
 
+    // decrement link's link count
     mip->INODE.i_links_count--;
     if (mip->INODE.i_links_count == 0) {
         // deallocate data blocks with truncate() function
-        inode_truncate(mip);
+        if (!S_ISLNK(mip->INODE.i_mode)) {
+            inode_truncate(mip);
+        }
     }
-
-    char child[256];
-    strcpy(child, basename(pathname));
-    // now remove child - same function as rm (to be implemented)
-    rm_child(mip, child);
-
     mip->dirty = 1;
     iput(mip);
+
+    // now remove child - same function as rm (to be implemented)
+    // parent MIP
+    int pino = getino(parent);
+    MINODE *pip = iget(mip->dev, pino);
+    rm_child(pip, child);
+
+    /*pip->INODE.i_mode = S_IFDIR;
+    pip->dirty = 1;
+    iput(pip);*/
+
+    //print_parent_mode(pip);
 }
 
 // use inodes in block, go to address, free them (memset), 
@@ -141,15 +160,21 @@ int inode_truncate(MINODE *mip) {
         if (ip->i_block[i] == 0)
             break;
         // now deallocate block
-        get_block(dev, bmap, buf);
-        clr_bit(buf, (ip->i_block[i])-1);
-        put_block(dev, bmap, buf);
-        // increment # of free blocks
-        incFreeBlocks(dev);
+        bdealloc(dev, ip->i_block[i]);
         ip->i_block[i] = 0;
     }
     mip->INODE.i_blocks = 0;
     mip->INODE.i_size = 0;
     mip->dirty = 1;
     iput(mip);
+}
+
+void print_parent_mode(MINODE *pip) {
+    printf("parent mode ");
+    if (S_ISREG(pip->INODE.i_mode)) 
+        printf("%c", '-\n');
+    if (S_ISDIR(pip->INODE.i_mode))
+        printf("%c", 'd\n');
+    if (S_ISLNK(pip->INODE.i_mode))
+        printf("%c", 'l\n');
 }
