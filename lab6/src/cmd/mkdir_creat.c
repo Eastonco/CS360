@@ -14,7 +14,17 @@ extern int n;           // number of component strings in name[]
 extern int fd, dev;
 extern int nblocks, ninodes, bmap, imap, inode_start;
 
-int make_dir(char *pathname) //TODO: debug mkdir (currently can't make 2 dirs inside one another
+/****************************************************************
+* Function: int make_dir(char *pathname)                        *
+* Date Created: 11/18/2020                                      *
+* Date Last Modified:                                           *
+* Description: creates a directory at a given path              *
+* Input parameters: the pathname/dirname                        *
+* Returns: 0 if success, -1 if fail                             *
+* Preconditions:                                                *
+* Postconditions:                                               *
+*****************************************************************/
+int make_dir(char *pathname)
 {
     MINODE *start;
     char pathcpy1[256], pathcpy2[256];
@@ -22,7 +32,7 @@ int make_dir(char *pathname) //TODO: debug mkdir (currently can't make 2 dirs in
     strcpy(pathcpy1, pathname);
     strcpy(pathcpy2, pathname);
 
-    if (pathname[0] == '/')
+    if (pathname[0] == '/') // absolute vs relative pathname
     {
         start = root;
         dev = root->dev;
@@ -36,61 +46,71 @@ int make_dir(char *pathname) //TODO: debug mkdir (currently can't make 2 dirs in
     char *parent = dirname(pathcpy1); //dir and basename are distructive to strings
     char *child = basename(pathcpy2);
 
-    int pino = getino(parent);
+    int pino = getino(parent); // get partent inode numbe
 
-    if (!pino)
-    { // Verrifies ino exists
+    if (!pino) // Verrifies ino exists
+    {
         printf("ERROR: parent %s doesn't exist\n", parent);
         return -1;
     }
 
-    MINODE *pip = iget(dev, pino);
+    MINODE *pip = iget(dev, pino); // get inode of parent
 
-    if (!S_ISDIR(pip->INODE.i_mode)) // checks if parent is dir
+    if (!S_ISDIR(pip->INODE.i_mode)) // verrfies parent is a dir
     {
         printf("ERROR: %s is not a directory\n", parent);
         return -1;
     }
 
-    if (!search(pip, child))
+    if (!search(pip, child)) // verrifes the child name doesn't already exist
     {
         printf("ERROR: child %s already exists under parent %s", child, parent);
         return -1;
     }
 
-    mymkdir(pip, child);
-    pip->INODE.i_links_count++;
-    pip->INODE.i_atime = time(0L); // TODO: idk what this is
-    pip->dirty = 1;
-    iput(pip); //writes the changed MINODE to the block
+    mymkdir(pip, child);           // makes the dir
+    pip->INODE.i_links_count++;    // dirs increment link count
+    pip->INODE.i_atime = time(0L); // reset the time
+    pip->dirty = 1;                // mark as changed
+    iput(pip);                     //writes the changed MINODE to the block
     return 0;
 }
 
+/****************************************************************
+* Function: int mymkdir(MINODE *pip, char *name)                *
+* Date Created: 11/18/2020                                      *
+* Date Last Modified:                                           *
+* Description: creates the dir and default files inside         *
+* Input parameters: minode to parent, new name of child dir     *
+* Returns: 0 on success                                         *
+* Preconditions: called from make_dir(char *pathname)          *
+* Postconditions:                                               *
+*****************************************************************/
 int mymkdir(MINODE *pip, char *name)
 {
     MINODE *mip;
     char *buf[BLKSIZE], *cp;
     DIR *dp;
 
-    int ino = ialloc(dev);
-    int bno = balloc(dev);
+    int ino = ialloc(dev); // allocate a new inode
+    int bno = balloc(dev); // allocate a new block
 
     printf("ino: %d, bno: %d\n", ino, bno);
 
-    mip = iget(dev, ino);
+    mip = iget(dev, ino); // get the newly allocated inode
 
     INODE *ip = &mip->INODE;
-    ip->i_mode = DIR_MODE;    // OR 040755: DIR type and permissions
-    ip->i_uid = running->uid; // Owner uid
-    ip->i_gid = running->gid; // Group Id
-    ip->i_size = BLKSIZE;     // Size in bytes
-    ip->i_links_count = 2;    // Links count=2 because of . and ..
-    ip->i_atime = time(0L);   // set to current time
-    ip->i_ctime = time(0L);
-    ip->i_mtime = time(0L);
-    ip->i_blocks = 2;     // LINUX: Blocks count in 512-byte chunks
-    ip->i_block[0] = bno; // new DIR has one data block
-    for (int i = 1; i < 15; i++)
+    ip->i_mode = DIR_MODE;       // OR 040755: DIR type and permissions
+    ip->i_uid = running->uid;    // Owner uid
+    ip->i_gid = running->gid;    // Group Id
+    ip->i_size = BLKSIZE;        // Size in bytes
+    ip->i_links_count = 2;       // Links count=2 because of . and ..
+    ip->i_atime = time(0L);      // set to current time
+    ip->i_ctime = time(0L);      // set to current time
+    ip->i_mtime = time(0L);      // set to current time
+    ip->i_blocks = 2;            // LINUX: Blocks count in 512-byte chunks
+    ip->i_block[0] = bno;        // new DIR has one data block
+    for (int i = 1; i < 15; i++) // clears all the block memeory
     {
         ip->i_block[i] = 0;
     }
@@ -98,7 +118,7 @@ int mymkdir(MINODE *pip, char *name)
     mip->dirty = 1; // mark minode dirty
     iput(mip);      // write INODE to disk
 
-    get_block(dev, bno, buf);
+    get_block(dev, bno, buf); // get the newly allocated block
     dp = (DIR *)buf;
     cp = buf;
 
@@ -111,24 +131,33 @@ int mymkdir(MINODE *pip, char *name)
     dp->name[0] = '.'; // name
 
     cp += dp->rec_len; // advancing to end of '.' entry
-	dp = (DIR *)cp;
+    dp = (DIR *)cp;
 
     //making .. entry
     dp->inode = pip->ino;       // setting to parent ino
     dp->rec_len = BLKSIZE - 12; // size is rest of block
-    dp->name_len = 2;
+    dp->name_len = 2;           // size of the name
     dp->name[0] = '.';
     dp->name[1] = '.';
 
-    put_block(dev, bno, buf);
+    put_block(dev, bno, buf); // write the block
 
-    enter_name(pip, ino, name);
+    enter_name(pip, ino, name); // add the name to the block
 
     return 0;
 }
 
-
-int creat_file(char *pathname) 
+/****************************************************************
+* Function: int creat_file(char *pathname)                      *
+* Date Created: 11/12/2020                                      *
+* Date Last Modified:                                           *
+* Description: creates a file with name pathname                *
+* Input parameters: pathname/name of file                       *
+* Returns: 0 if success, -1 if fail                             *
+* Preconditions:                                                *
+* Postconditions:                                               *
+*****************************************************************/
+int creat_file(char *pathname)
 {
     MINODE *start;
     char pathcpy1[256], pathcpy2[256];
@@ -136,7 +165,7 @@ int creat_file(char *pathname)
     strcpy(pathcpy1, pathname);
     strcpy(pathcpy2, pathname);
 
-    if (pathname[0] == '/')
+    if (pathname[0] == '/') // relative or absolute pathname
     {
         start = root;
         dev = root->dev;
@@ -150,50 +179,60 @@ int creat_file(char *pathname)
     char *parent = dirname(pathcpy1); //dir and basename are distructive to strings
     char *child = basename(pathcpy2);
 
-    int pino = getino(parent);
+    int pino = getino(parent); // get the parent inode number
 
-    if (!pino)
-    { // Verrifies ino exists
+    if (!pino) // Verrifies ino exists
+    {
         printf("ERROR: parent %s doesn't exist\n", parent);
         return -1;
     }
 
-    MINODE *pip = iget(dev, pino);
+    MINODE *pip = iget(dev, pino); // get the minode from pino
 
-    if (!S_ISDIR(pip->INODE.i_mode)) // checks if parent is dir
+    if (!S_ISDIR(pip->INODE.i_mode)) // verrifies parent is dir
     {
         printf("ERROR: %s is not a directory\n", parent);
         return -1;
     }
 
-    if (!search(pip, child))
+    if (!search(pip, child)) // verrifes name doesn't already exist in the parent dir
     {
         printf("ERROR: child %s already exists under parent %s", child, parent);
         return -1;
     }
 
-    my_creat(pip, child);
-    pip->INODE.i_atime = time(0L); 
-    pip->dirty = 1;
-    iput(pip); //writes the changed MINODE to the block
+    my_creat(pip, child);          // creates the file
+    pip->INODE.i_atime = time(0L); // sets time
+    pip->dirty = 1;                // mark as changed
+    iput(pip);                     //writes the changed MINODE to the block
     return 0;
 }
 
+/****************************************************************
+* Function: my_creat(MINODE *pip, char *name)                   *
+* Date Created: 11/12/2020                                      *
+* Date Last Modified:                                           *
+* Description: creates a file with stadard permissions          *
+* Input parameters: parent minode, name of file                 *
+* Returns: 0 if success                                         *
+* Preconditions: called from creat_file(char *pathname)         *
+* Postconditions:                                               *
+*****************************************************************/
 int my_creat(MINODE *pip, char *name)
 {
     MINODE *mip;
     char *buf[BLKSIZE], *cp;
     DIR *dp;
 
-    int ino = ialloc(dev);
-    int bno = balloc(dev);
+    int ino = ialloc(dev); // allocates new inode
+    int bno = balloc(dev); // allocdes new block
 
     printf("ino: %d, bno: %d\n", ino, bno);
 
-    mip = iget(dev, ino);
+    mip = iget(dev, ino); // get the minode from memory
 
     INODE *ip = &mip->INODE;
-    ip->i_mode = FILE_MODE;    // 0x81A4 OR 0100644: FILE type and permissions
+    ip->i_mode = FILE_MODE;   // 0x81A4 OR 0100644: FILE type and permissions
     ip->i_uid = running->uid; // Owner uid
     ip->i_gid = running->gid; // Group Id
     ip->i_size = BLKSIZE;     // Size in bytes
@@ -201,9 +240,9 @@ int my_creat(MINODE *pip, char *name)
     ip->i_atime = time(0L);   // set to current time
     ip->i_ctime = time(0L);
     ip->i_mtime = time(0L);
-    ip->i_blocks = 2;     // LINUX: Blocks count in 512-byte chunks
-    ip->i_block[0] = 0; // new File has 0 data blocks
-    for (int i = 1; i < 15; i++)
+    ip->i_blocks = 2;            // LINUX: Blocks count in 512-byte chunks
+    ip->i_block[0] = 0;          // new File has 0 data blocks
+    for (int i = 1; i < 15; i++) // clear block memory
     {
         ip->i_block[i] = 0;
     }
@@ -211,7 +250,7 @@ int my_creat(MINODE *pip, char *name)
     mip->dirty = 1; // mark minode dirty
     iput(mip);      // write INODE to disk
 
-    enter_name(pip, ino, name);
+    enter_name(pip, ino, name); // add the name to the block
 
     return 0;
 }

@@ -30,3 +30,13 @@ disk:
 	cd -
 	sudo umount /mnt
 	mv ./diskimage $(BINDIR)
+
+emptydisk: 
+	dd if=/dev/zero of=diskimage bs=1024 count=1440
+	mke2fs -b 1024 diskimage 1440
+	mkdir -p $(BINDIR)
+	sudo mount diskimage /mnt
+	(cd /mnt; sudo rm -r *;)
+	cd -
+	sudo umount /mnt
+	mv ./diskimage $(BINDIR)
