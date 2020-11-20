@@ -48,12 +48,14 @@ int myrmdir(char *pathname)
         return -1;
     }
 
+    /*
     if (mip->refCount > 2) // verrify it's not being used 
     {
         printf("ERROR: node is busy, refcount > 2, refcount = %d\n", mip->refCount);
         return -1;
     }
-
+    */
+   
     for (int i = 0; i < 12; i++)
     {
         if (mip->INODE.i_block[i] == 0)

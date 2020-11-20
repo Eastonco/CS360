@@ -129,6 +129,10 @@ int main(int argc, char *argv[])
 
     while (1)
     {
+        memset(cmd, 0, sizeof(cmd));
+        memset(pathname, 0, sizeof(pathname));
+        memset(pathname_two, 0, sizeof(pathname_two));
+
         printf("input command : [ls|cd|pwd|quit|mkdir|rmdir|creat|link|unlink|symlink] ");
         fgets(line, 128, stdin);
         line[strlen(line) - 1] = 0;
