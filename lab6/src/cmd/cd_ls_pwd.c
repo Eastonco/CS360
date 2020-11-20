@@ -140,7 +140,7 @@ int ls_dir(MINODE *mip)
 
         temp_mip = iget(dev, dp->inode);
         ls_file(temp_mip, temp);
-        iput(temp_mip);
+        //iput(temp_mip); ----------------------- FIXME: this causes the loop
 
         //printf("[%d %s]  ", dp->inode, temp); // print [inode# name]
 
@@ -191,7 +191,7 @@ int my_ls(char *pathname)
             {
                 ls_file(mip, pathname);
             }
-            iput(mip);
+            //iput(mip); -----------FIXME: this also causes the loop
         }
     }
     return 0;
