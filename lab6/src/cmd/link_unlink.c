@@ -151,24 +151,6 @@ int my_unlink(char *pathname) {
     //print_parent_mode(pip);
 }
 
-// use inodes in block, go to address, free them (memset), 
-int inode_truncate(MINODE *mip) {
-    char buf[BLKSIZE];
-    INODE *ip = &mip->INODE;
-    // 12 direct blocks
-    for (int i = 0; i < 12; i++) {
-        if (ip->i_block[i] == 0)
-            break;
-        // now deallocate block
-        bdealloc(dev, ip->i_block[i]);
-        ip->i_block[i] = 0;
-    }
-    mip->INODE.i_blocks = 0;
-    mip->INODE.i_size = 0;
-    mip->dirty = 1;
-    iput(mip);
-}
-
 void print_parent_mode(MINODE *pip) {
     printf("parent mode ");
     if (S_ISREG(pip->INODE.i_mode)) 

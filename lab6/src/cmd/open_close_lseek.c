@@ -60,7 +60,7 @@ int open_file(char *pathname, int mode) {
             oftp->offset = 0;
             break;
         case 1:                 // write, truncate file to 0 size
-            //truncate(mip);
+            inode_truncate(mip);
             oftp->offset = 0;
             break;
         case 2:                 // read/write, don't truncate file
@@ -97,10 +97,6 @@ int open_file(char *pathname, int mode) {
 int mode_is_invalid(int mode) {
     return !(mode == 0 || mode == 1 || mode == 2 || mode == 3);
 }
-
-/*int truncate(MINODE *mip) {
-    // already done -- inode_truncate in link_unlink also needs to handle doubly indirect blocks though (not done)
-}*/
 
 int close_file(int fd) {
     if (is_invalid_fd(fd)) {

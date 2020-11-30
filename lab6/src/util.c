@@ -806,3 +806,58 @@ int rm_child(MINODE *parent, char *name)
     printf("ERROR: child not found\n");
     return -1;
 }
+
+// use inodes in block, go to address, free them (memset), 
+int inode_truncate(MINODE *mip) {
+    char buf[BLKSIZE];
+    INODE *ip = &mip->INODE;
+    // 12 direct blocks
+    for (int i = 0; i < 12; i++) {
+        if (ip->i_block[i] == 0)
+            break;
+        // now deallocate block
+        bdealloc(dev, ip->i_block[i]);
+        ip->i_block[i] = 0;
+    }
+    // now worry about indirect blocks and doubly indirect blocks
+    // (see pp. 762 in ULK for visualization of data blocks)
+    // indirect blocks:
+    if (ip->i_block[12] != NULL) {
+        get_block(dev, ip->i_block[12], buf); // follow the ptr to the block
+        int *ip_indirect = (int *)buf; // reference to indirect block via integer ptr
+        int indirect_count = 0;
+        while (indirect_count < BLKSIZE / sizeof(int)) { // split blksize into int sized chunks (4 bytes at a time)
+            if (ip_indirect[indirect_count] == 0)
+                break;
+            // deallocate indirect block
+            bdealloc(dev, ip_indirect[indirect_count]);
+            ip_indirect[indirect_count] = 0;
+            indirect_count++;
+        }
+        // now all indirect blocks have been dealt with, deallocate reference to indirect
+        bdealloc(dev, ip->i_block[12]);
+        ip->i_block[12] = 0;
+    }
+
+    // doubly indirect blocks (same code as above, different variables):
+    if (ip->i_block[13] != NULL) {
+        get_block(dev, ip->i_block[13], buf);
+        int *ip_doubly_indirect = (int *)buf;
+        int doubly_indirect_count = 0;
+        while (doubly_indirect_count < BLKSIZE / sizeof(int)) {
+            if (ip_doubly_indirect[doubly_indirect_count] == 0)
+                break;
+            // deallocate doubly indirect block
+            bdealloc(dev, ip_doubly_indirect[doubly_indirect_count]);
+            ip_doubly_indirect[doubly_indirect_count] = 0;
+            doubly_indirect_count++;
+        }
+        bdealloc(dev, ip->i_block[13]);
+        ip->i_block[13] = 0;
+    }
+
+    mip->INODE.i_blocks = 0;
+    mip->INODE.i_size = 0;
+    mip->dirty = 1;
+    iput(mip);
+}
