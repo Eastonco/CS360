@@ -129,17 +129,85 @@ int is_invalid_fd(int fd) {
 }
 
 int my_lseek(int fd, int position) {
+    if (is_invalid_fd(fd)) {
+        printf("error: fd not in range\n");
+        return -1;
+    }
 
+    // check if pointing at OFT entry
+    if (running->fd[fd] == NULL) {
+        printf("error: not OFT entry\n");
+        return -1;
+    }
+
+    OFT *oftp = running->fd[fd];
+    if (position > oftp->mptr->INODE.i_size || position < 0) {
+        printf("error: file size overrun\n");
+    }
+
+    int original_offset = oftp->offset;
+    oftp->offset = position;
+
+    return original_offset;
 }
 
-int pfd() {
-
+int pfd(void) {
+    printf("fd\tmode\toffset\tINODE [dev, ino]\n");
+    for (int i = 0; i < NFD; i++) {
+        if (running->fd[i] == NULL)
+            break;
+        printf("%d\t%s\t%d\t[%d, %d]\n", i, running->fd[i]->mode, running->fd[i]->offset, running->fd[i]->mptr->dev, running->fd[i]->mptr->ino);
+    }
 }
 
 int dup(int fd) {
+    if (is_invalid_fd(fd)) {
+        printf("error: fd not in range\n");
+        return -1;
+    }
 
+    // check if pointing at OFT entry
+    if (running->fd[fd] == NULL) {
+        printf("error: not OFT entry\n");
+        return -1;
+    }
+
+    OFT *oftp = running->fd[fd];
+    for (int i = 0; i < NFD; i++) {
+        if (running->fd[i] == NULL) {
+            running->fd[i] = oftp;
+            oftp->refCount++;
+            return 0;
+        }
+    }
+
+    printf("error: no free fd to dupe into (allocated FDs = NFD)\n");
+    return -1;
 }
 
 int dup2(int fd, int gd) {
+    if (is_invalid_fd(fd)) {
+        printf("error: fd not in range\n");
+        return -1;
+    }
 
+    if (is_invalid_fd(gd)) {
+        printf("error: gd not in range\n");
+        return -1;
+    }
+
+    // check if gd is already opened
+    if (running->fd[gd] != NULL) {
+        // close if so
+        int r = close_file(gd);
+        if (r == -1) {
+            printf("error closing file gd\n");
+            return -1;
+        }
+    }
+    // dupe fd[fd] into fd[gd]
+    OFT *oftp = running->fd[fd];
+    running->fd[gd] = oftp;
+    oftp->refCount++;
+    return 0;
 }
