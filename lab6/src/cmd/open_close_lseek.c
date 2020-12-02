@@ -42,6 +42,8 @@ int open_file(char *pathname, int mode) {
 
     // go through all open files-- check if anything is open with incompatible mode
     for (int i = 0; i < NFD; i++) {
+        if (running->fd[i] == NULL)
+            break;
         if (running->fd[i]->mptr == mip) {
             if (mode != 0) {
                 printf("error: already open with incompatible mode\n");

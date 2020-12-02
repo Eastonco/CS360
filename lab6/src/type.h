@@ -50,6 +50,12 @@ DIR *dp;
 #define NFD 16
 #define NPROC 2
 
+// read/write/rw/append modes
+#define READ 0
+#define WRITE 1
+#define READ_WRITE 2
+#define APPEND 3
+
 // In-memory inode structure
 typedef struct minode
 {

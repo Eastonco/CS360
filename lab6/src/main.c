@@ -66,7 +66,7 @@ int mount_root()
     root = iget(dev, 2);
 }
 
-char *disk = "diskimage";
+char *disk = "mydisk";
 
 /****************************************************************
 * Function:                                                     *
@@ -125,6 +125,9 @@ int main(int argc, char *argv[])
     running = &proc[0];
     running->status = READY;
     running->cwd = iget(dev, 2);
+    // set all entries in running's fd table to null
+    for (int i = 0; i < NFD; i++)
+        running->fd[i] = NULL;
     printf("root refCount = %d\n", root->refCount);
 
     while (1)
@@ -171,6 +174,8 @@ int main(int argc, char *argv[])
             myrmdir(pathname);
         if (!strcmp(cmd, "chmod"))
             mychmod(pathname);
+        if (!strcmp(cmd, "cat"))
+            my_cat(pathname);
     }
 }
 
