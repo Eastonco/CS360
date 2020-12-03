@@ -119,31 +119,32 @@ int mywrite(int fd, char *buf, int n_bytes)
                 put_block(mip->dev, ip->i_block[13], ibuf);
                 ip->i_blocks++;
             }
+            int doublebuf[BLKSIZE/sizeof(int)] = {0};
             printf("get block from the 13th place\n");
-            get_block(mip->dev, ip->i_block[13], (char *)doubly_ibuf);
-            int doubleblk = doubly_ibuf[lblk/256];
+            get_block(mip->dev, ip->i_block[13], (char *)doublebuf);
+            int doubleblk = doublebuf[lblk/256];
 
             if(doubleblk == 0){
-                doubly_ibuf[lblk/256] = balloc(mip->dev);
-                doubleblk = doubly_ibuf[lblk/256];
+                doublebuf[lblk/256] = balloc(mip->dev);
+                doubleblk = doublebuf[lblk/256];
                 get_block(mip->dev, doubleblk, (char *)doubly_ibuf);
                 for(int i = 0; i < 256; i++){
                     doubly_ibuf[i] = 0;
                 }
-                put_block(mip->dev, ip->i_block[13], (char *)doubly_ibuf);
+                put_block(mip->dev, doubleblk, (char *)doubly_ibuf);
                 ip->i_blocks++;
-                put_block(mip->dev, mip->INODE.i_block[13], (char *)doubly_ibuf);
+                put_block(mip->dev, mip->INODE.i_block[13], (char *)doublebuf);
             }
 
-            memset(doubly_ibuf, 0, 256);
-            get_block(mip->dev, doubleblk, (char *)doubly_ibuf);
+            memset(doublebuf, 0, 256);
+            get_block(mip->dev, doubleblk, (char *)doublebuf);
 
-            if (doubly_ibuf[lblk % 256] == 0) {
-                blk = doubly_ibuf[lblk % 256] = balloc(mip->dev);
+            if (doublebuf[lblk % 256] == 0) {
+                blk = doublebuf[lblk % 256] = balloc(mip->dev);
                 if (blk == 0)
                     return 0;
                 ip->i_blocks++;
-                put_block(mip->dev, doubleblk, (char *)doubly_ibuf);
+                put_block(mip->dev, doubleblk, (char *)doublebuf);
             }
 
             /*// use mailman's algorithm to reset blk to the correct doubly indirect block
