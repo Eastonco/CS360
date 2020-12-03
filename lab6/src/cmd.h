@@ -47,4 +47,20 @@ int is_empty(MINODE *mip);
 //misclvl1
 int mychmod(char *pathname);
 
+//open_close_lseek
+int open_file(char *pathname, int mode);
+int mode_is_invalid(int mode);
+int close_file(int fd);
+int is_invalid_fd(int fd);
+int my_lseek(int fd, int position);
+int pfd(void);
+int dup(int fd);
+int dup2(int fd, int gd);
+
+//write cp
+int my_cp(char *src, char *dest);
+int mywrite(int fd, char *buf, int n_bytes);
+int write_file();
+
+
 #endif

@@ -176,6 +176,10 @@ int main(int argc, char *argv[])
             mychmod(pathname);
         if (!strcmp(cmd, "cat"))
             my_cat(pathname);
+        if (!strcmp(cmd, "cp")){
+            sscanf(line, "%s %s %s", cmd, pathname, pathname_two);
+            my_cp(pathname, pathname_two);
+        }
     }
 }
 
