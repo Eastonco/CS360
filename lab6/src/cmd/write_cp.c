@@ -40,6 +40,7 @@ int write_file()
 
 int mywrite(int fd, char *buf, int n_bytes)
 {
+    printf("fd = %d\n", fd);
     OFT *oftp = running->fd[fd];
     MINODE *mip = oftp->mptr;
     INODE *ip = &mip->INODE;
@@ -49,24 +50,31 @@ int mywrite(int fd, char *buf, int n_bytes)
 
     char *cq = buf;
 
+    printf("write!\n");
 
     while (n_bytes)
     {
+        printf("loop\n");
         lblk = oftp->offset / BLKSIZE;
         startByte = oftp->offset % BLKSIZE;
 
+        printf("lblk: %d\n", lblk);
+
         if (lblk < 12) // direct blocks
         {
+            printf("direct blocks\n");
             if(ip->i_block[lblk] == 0)
             {
                 ip->i_block[lblk] = balloc(mip->dev);
             }
             blk = ip->i_block[lblk];
+            printf("survived 1\n");
         }
 
         else if (lblk >= 12 && lblk < 256 + 12 )
         {
-            char tbuf[BLKSIZE];
+            printf("indirect blocks\n");
+            int tbuf[BLKSIZE];
 
             if(ip->i_block[12] == 0)
             {
@@ -91,14 +99,17 @@ int mywrite(int fd, char *buf, int n_bytes)
                 put_block(mip->dev, ip->i_block[12], (char *)ibuf);
 
             }
-
+            printf("survived 2\n");
         }
 
         else
         {
-            lblk = lblk - (BLKSIZE/sizeof(int) - 12);
-            if(ip->i_block[13] == 0)
+            printf("doubly indirect blocks\n");
+            lblk = lblk - ((BLKSIZE/sizeof(int)) - 12);
+            printf("%d\n", mip->INODE.i_block[13]);
+            if(mip->INODE.i_block[13] == 0)
             {
+                printf("allocate new block\n");
                 ip->i_block[13] = balloc(mip->dev);
                 get_block(mip->dev, ip->i_block[13], (char *)ibuf);
 
@@ -108,7 +119,7 @@ int mywrite(int fd, char *buf, int n_bytes)
                 put_block(mip->dev, ip->i_block[13], ibuf);
                 ip->i_blocks++;
             }
-
+            printf("get block from the 13th place\n");
             get_block(mip->dev, ip->i_block[13], (char *)doubly_ibuf);
             int doubleblk = doubly_ibuf[lblk/256];
 
@@ -121,16 +132,28 @@ int mywrite(int fd, char *buf, int n_bytes)
                 }
                 put_block(mip->dev, ip->i_block[13], (char *)doubly_ibuf);
                 ip->i_blocks++;
+                put_block(mip->dev, mip->INODE.i_block[13], (char *)doubly_ibuf);
             }
-            
-            // use mailman's algorithm to reset blk to the correct doubly indirect block
+
+            memset(doubly_ibuf, 0, 256);
+            get_block(mip->dev, doubleblk, (char *)doubly_ibuf);
+
+            if (doubly_ibuf[lblk % 256] == 0) {
+                blk = doubly_ibuf[lblk % 256] = balloc(mip->dev);
+                if (blk == 0)
+                    return 0;
+                ip->i_blocks++;
+                put_block(mip->dev, doubleblk, (char *)doubly_ibuf);
+            }
+
+            /*// use mailman's algorithm to reset blk to the correct doubly indirect block
             int chunk_size = BLKSIZE / sizeof(int);
             lblk -= chunk_size - 12; // reset lbk to 0 relatively
             blk = ibuf[lblk / chunk_size]; // divide 'addresses'/indices by 256
             get_block(mip->dev, blk, doubly_ibuf);
             // now modulus to get the correct mapping
             blk = doubly_ibuf[lblk % chunk_size];
-            //fixme
+            //fixme*/
         }
         
         char writebuf[BLKSIZE];
@@ -145,18 +168,14 @@ int mywrite(int fd, char *buf, int n_bytes)
             memcpy(cp, cq, n_bytes); 
             cq += n_bytes;
             cp += n_bytes;
-            count += n_bytes;
             oftp->offset += n_bytes;
-            //avail -= n_bytes;
             remainder -= n_bytes;
             n_bytes -= n_bytes;
         } else {
             memcpy(cp, cq, remainder);
             cq += remainder;
             cp += remainder;
-            count += remainder;
             oftp->offset += remainder;
-            //avail -= remainder;
             n_bytes -= remainder; 
         }
 
@@ -171,7 +190,10 @@ int my_cp(char *src, char *dest){
     int n = 0;
     char mybuf[BLKSIZE] = {0};
     int fdsrc = open_file(src, READ);
-    int fddest = open_file(dest, WRITE);
+    int fddest = open_file(dest, READ_WRITE);
+
+    printf("fdsrc %d\n", fdsrc);
+    printf("fddest %d\n", fddest);
 
     if (fdsrc == -1 || fddest == -1) {
 		if (fddest == -1) close_file(fddest);
@@ -179,9 +201,11 @@ int my_cp(char *src, char *dest){
 		return -1;
 	}
 
+    memset(mybuf, '\0', BLKSIZE);
     while ( n = myread(fdsrc, mybuf, BLKSIZE)){
         mybuf[n] = 0;
         mywrite(fddest, mybuf, n);
+        printf("debug zach\n");
         memset(mybuf, '\0', BLKSIZE);
     }
     close_file(fdsrc);

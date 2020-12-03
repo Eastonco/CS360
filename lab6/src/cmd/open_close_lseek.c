@@ -31,7 +31,24 @@ int open_file(char *pathname, int mode) {
     }
     
     int ino = getino(pathname);
+
+    if (ino == -1) {
+        // ino must be created, does not exist
+
+        // find parent ino of file to be created
+        char parent[BLKSIZE], buf[BLKSIZE];
+        strcpy(buf, pathname);
+        strcpy(parent, dirname(buf));
+        int pino = getino(parent);
+        MINODE *pmip = iget(dev, pino);
+
+        int r = my_creat(pmip, pathname);
+        ino = getino(pathname);
+    }
+
     MINODE *mip = iget(dev, ino);
+
+    printf("debug mode: %d\n", mip->ino);
 
     if (!S_ISREG(mip->INODE.i_mode)) {
         printf("error: not a regular file\n");
@@ -101,10 +118,10 @@ int mode_is_invalid(int mode) {
 }
 
 int close_file(int fd) {
-    if (is_invalid_fd(fd)) {
+    /*if (is_invalid_fd(fd)) {
         printf("error: fd not in range\n");
         return -1;
-    }
+    }*/
 
     // check if pointing at OFT entry
     if (running->fd[fd] == NULL) {
