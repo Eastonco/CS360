@@ -109,16 +109,16 @@ int my_cat(char *filename) {
     int fd = open_file(filename, READ);
     while (n = myread(fd, mybuf, BLKSIZE)) {
         mybuf[n] = 0;
-        char *cp = mybuf;
-        while (*cp != '\0') {
+        //char *cp = mybuf;
+        /*while (*cp != '\0') {
             if (*cp == '\n') {
                 putchar('\n');
             } else {
                 putchar(*cp);
             }
             cp++;
-        }
-        //printf("%s", mybuf); // to be fixed
+        }*/
+        printf("%s", mybuf); // to be fixed
     }
     putchar('\n');
     close_file(fd);

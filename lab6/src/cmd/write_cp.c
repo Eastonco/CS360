@@ -178,6 +178,8 @@ int mywrite(int fd, char *buf, int n_bytes)
             oftp->offset += remainder;
             n_bytes -= remainder; 
         }
+        if(oftp->offset > mip->INODE.i_size)
+            mip->INODE.i_size = oftp->offset;
 
         put_block(mip->dev, blk, writebuf);
     }
