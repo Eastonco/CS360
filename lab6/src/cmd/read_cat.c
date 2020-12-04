@@ -62,8 +62,8 @@ int myread(int fd, char *buf, int n_bytes) {
             // read block from i_block[13]
             get_block(mip->dev, mip->INODE.i_block[13], (char *)ibuf);
             // use mailman's algorithm to reset blk to the correct doubly indirect block
-            int chunk_size = BLKSIZE / sizeof(int);
-            lbk -= chunk_size - 12; // reset lbk to 0 relatively
+            int chunk_size = (BLKSIZE / sizeof(int));
+            lbk = lbk - chunk_size - 12; // reset lbk to 0 relatively
             blk = ibuf[lbk / chunk_size]; // divide 'addresses'/indices by 256
             get_block(mip->dev, blk, doubly_ibuf);
             // now modulus to get the correct mapping
@@ -79,7 +79,7 @@ int myread(int fd, char *buf, int n_bytes) {
         int remainder = BLKSIZE - startByte;
 
         // copy entire BLKSIZE at a time
-        if (remainder > n_bytes) {
+        if (n_bytes <= remainder) {
             memcpy(cq, cp, n_bytes);
             cq += n_bytes;
             cp += n_bytes;
@@ -109,18 +109,18 @@ int my_cat(char *filename) {
     int fd = open_file(filename, READ);
     while (n = myread(fd, mybuf, BLKSIZE)) {
         mybuf[n] = 0;
-        //char *cp = mybuf;
-        /*while (*cp != '\0') {
+        char *cp = mybuf;
+        while (*cp != '\0') {
             if (*cp == '\n') {
                 putchar('\n');
             } else {
                 putchar(*cp);
             }
             cp++;
-        }*/
-        printf("%s", mybuf); // to be fixed
+        }
+        //printf("%s", mybuf); // to be fixed
     }
-    putchar('\n');
+    //putchar('\n');
     close_file(fd);
     return 0;
 }

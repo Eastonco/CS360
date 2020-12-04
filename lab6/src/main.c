@@ -180,6 +180,8 @@ int main(int argc, char *argv[])
             sscanf(line, "%s %s %s", cmd, pathname, pathname_two);
             my_cp(pathname, pathname_two);
         }
+
+        pfd();
     }
 }
 

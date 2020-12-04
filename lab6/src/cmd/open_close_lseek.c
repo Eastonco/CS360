@@ -55,7 +55,15 @@ int open_file(char *pathname, int mode) {
         return -1;
     }
 
-    // TODO: check file permissions are OK (uid, gid?)
+    if (!(mip->INODE.i_uid == running->uid || running->uid)) {
+        printf("permissions error: uid\n");
+        return -1;
+    }
+
+    if (!(mip->INODE.i_gid == running->gid || running->gid)) {
+        printf("permissions error: gid\n");
+        return -1;
+    }
 
     // go through all open files-- check if anything is open with incompatible mode
     for (int i = 0; i < NFD; i++) {

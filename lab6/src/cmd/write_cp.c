@@ -40,19 +40,17 @@ int write_file()
 
 int mywrite(int fd, char *buf, int n_bytes)
 {
-    printf("fd = %d\n", fd);
     OFT *oftp = running->fd[fd];
     MINODE *mip = oftp->mptr;
     INODE *ip = &mip->INODE;
-    int count = 0, lblk, startByte, blk;
-    int ibuf[BLKSIZE] = { 0 };
-    int doubly_ibuf[BLKSIZE] = { 0 };
+    int count = 0, lblk, startByte, blk, remainder, doubleblk;
+    char ibuf[BLKSIZE] = { 0 }, doubly_ibuf[BLKSIZE] = { 0 };
 
     char *cq = buf;
 
     printf("write!\n");
 
-    while (n_bytes)
+    while (n_bytes > 0)
     {
         printf("loop\n");
         lblk = oftp->offset / BLKSIZE;
@@ -74,29 +72,33 @@ int mywrite(int fd, char *buf, int n_bytes)
         else if (lblk >= 12 && lblk < 256 + 12 )
         {
             printf("indirect blocks\n");
-            int tbuf[BLKSIZE];
+            char tbuf[BLKSIZE] = { 0 };
 
             if(ip->i_block[12] == 0)
             {
-                ip->i_block[12] = balloc(mip->dev);
+                int block_12 = ip->i_block[12] = balloc(mip->dev);
 
-                get_block(mip->dev, ip->i_block[12], tbuf);
+                if (block_12 == 0) 
+                    return 0;
 
-                for(int i = 0; i < BLKSIZE; i++)
+                get_block(mip->dev, ip->i_block[12], ibuf);
+                int *ptr = (int *)ibuf;
+                for(int i = 0; i < (BLKSIZE / sizeof(int)); i++)
                 {
-                    tbuf[i] = 0; 
+                    ptr[i] = 0; 
                 }
 
-                put_block(mip->dev, ip->i_block[12], tbuf);
+                put_block(mip->dev, ip->i_block[12], ibuf);
                 mip->INODE.i_blocks++;
             }
-            get_block(mip->dev, ip->i_block[12], (char *)ibuf);
-            blk = ibuf[lblk - 12];
+            int indir_buf[BLKSIZE / sizeof(int)] = { 0 };
+            get_block(mip->dev, ip->i_block[12], (char *)indir_buf);
+            blk = indir_buf[lblk - 12];
 
             if(blk == 0){
-                blk = balloc(mip->dev);
-                ibuf[lblk - 12] = blk;
-                put_block(mip->dev, ip->i_block[12], (char *)ibuf);
+                blk = indir_buf[lblk - 12] = balloc(mip->dev);
+                ip->i_blocks++;
+                put_block(mip->dev, ip->i_block[12], (char *)indir_buf);
 
             }
             printf("survived 2\n");
@@ -105,16 +107,20 @@ int mywrite(int fd, char *buf, int n_bytes)
         else
         {
             printf("doubly indirect blocks\n");
-            lblk = lblk - ((BLKSIZE/sizeof(int)) - 12);
-            printf("%d\n", mip->INODE.i_block[13]);
+            lblk = lblk - (BLKSIZE/sizeof(int)) - 12;
+            //printf("%d\n", mip->INODE.i_block[13]);
             if(mip->INODE.i_block[13] == 0)
             {
                 printf("allocate new block\n");
-                ip->i_block[13] = balloc(mip->dev);
-                get_block(mip->dev, ip->i_block[13], (char *)ibuf);
+                int block_13 = ip->i_block[13] = balloc(mip->dev);
 
-                for(int i = 0; i < 256; i++){
-                    ibuf[i] = 0;
+                if (block_13 == 0) 
+                    return 0;
+
+                get_block(mip->dev, ip->i_block[13], ibuf);
+                int *ptr = (int *)ibuf;
+                for(int i = 0; i < (BLKSIZE / sizeof(int)); i++){
+                    ptr[i] = 0;
                 }
                 put_block(mip->dev, ip->i_block[13], ibuf);
                 ip->i_blocks++;
@@ -122,62 +128,53 @@ int mywrite(int fd, char *buf, int n_bytes)
             int doublebuf[BLKSIZE/sizeof(int)] = {0};
             printf("get block from the 13th place\n");
             get_block(mip->dev, ip->i_block[13], (char *)doublebuf);
-            int doubleblk = doublebuf[lblk/256];
+            doubleblk = doublebuf[lblk/(BLKSIZE / sizeof(int))];
 
             if(doubleblk == 0){
-                doublebuf[lblk/256] = balloc(mip->dev);
-                doubleblk = doublebuf[lblk/256];
-                get_block(mip->dev, doubleblk, (char *)doubly_ibuf);
-                for(int i = 0; i < 256; i++){
-                    doubly_ibuf[i] = 0;
+                doubleblk = doublebuf[lblk/(BLKSIZE / sizeof(int))] = balloc(mip->dev);
+                if (doubleblk == 0) 
+                    return 0;
+                get_block(mip->dev, doubleblk, doubly_ibuf);
+                int *ptr = (int *)doubly_ibuf;
+                for(int i = 0; i < (BLKSIZE / sizeof(int)); i++){
+                    ptr[i] = 0;
                 }
-                put_block(mip->dev, doubleblk, (char *)doubly_ibuf);
+                put_block(mip->dev, doubleblk, doubly_ibuf);
                 ip->i_blocks++;
                 put_block(mip->dev, mip->INODE.i_block[13], (char *)doublebuf);
             }
 
-            memset(doublebuf, 0, 256);
+            memset(doublebuf, 0, BLKSIZE / sizeof(int));
             get_block(mip->dev, doubleblk, (char *)doublebuf);
-
-            if (doublebuf[lblk % 256] == 0) {
-                blk = doublebuf[lblk % 256] = balloc(mip->dev);
+            if (doublebuf[lblk % (BLKSIZE / sizeof(int))] == 0) {
+                blk = doublebuf[lblk % (BLKSIZE / sizeof(int))] = balloc(mip->dev);
                 if (blk == 0)
                     return 0;
                 ip->i_blocks++;
                 put_block(mip->dev, doubleblk, (char *)doublebuf);
             }
-
-            /*// use mailman's algorithm to reset blk to the correct doubly indirect block
-            int chunk_size = BLKSIZE / sizeof(int);
-            lblk -= chunk_size - 12; // reset lbk to 0 relatively
-            blk = ibuf[lblk / chunk_size]; // divide 'addresses'/indices by 256
-            get_block(mip->dev, blk, doubly_ibuf);
-            // now modulus to get the correct mapping
-            blk = doubly_ibuf[lblk % chunk_size];
-            //fixme*/
         }
         
-        char writebuf[BLKSIZE];
+        char writebuf[BLKSIZE] = { 0 };
 
         get_block(mip->dev, blk, writebuf);
 
         char *cp = writebuf + startByte;
-        int remainder = BLKSIZE - startByte;
+        remainder = BLKSIZE - startByte;
 
-        if(remainder > n_bytes)
+        if(remainder <= n_bytes)
         {
-            memcpy(cp, cq, n_bytes); 
-            cq += n_bytes;
-            cp += n_bytes;
-            oftp->offset += n_bytes;
-            remainder -= n_bytes;
-            n_bytes -= n_bytes;
-        } else {
             memcpy(cp, cq, remainder);
             cq += remainder;
             cp += remainder;
             oftp->offset += remainder;
-            n_bytes -= remainder; 
+            n_bytes -= remainder;
+        } else {
+            memcpy(cp, cq, n_bytes); 
+            cq += n_bytes;
+            cp += n_bytes;
+            oftp->offset += n_bytes;
+            n_bytes -= n_bytes;
         }
         if(oftp->offset > mip->INODE.i_size)
             mip->INODE.i_size = oftp->offset;
