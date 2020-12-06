@@ -58,7 +58,7 @@ int my_mount(char *filesys, char *mount_dest) {
     }
 
     // if not, allocate free mount table entry (dev=0 is FREE)
-    mtptr = (MTABLE *)malloc(sizeof(MTABLE));
+    mtptr = &mount_table[mount_index]; // no malloc --> mtptr = (MTABLE *)malloc(sizeof(MTABLE));
     mtptr->dev = 0;
     strcpy(mtptr->devName, filesys);
     strcpy(mtptr->mntName, mount_dest);
@@ -84,7 +84,7 @@ int my_mount(char *filesys, char *mount_dest) {
         return -1;
     }
 
-    // mount_point, get ino and then minode (this was done above)
+    // mount_point, get ino and then minode
     ino = getino(mount_dest);
     mip = iget(running->cwd->dev, ino);
 
