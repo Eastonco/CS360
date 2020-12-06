@@ -48,7 +48,7 @@ int make_dir(char *pathname)
 
     int pino = getino(parent); // get partent inode numbe
 
-    if (!pino) // Verrifies ino exists
+    if (pino == -1) // Verrifies ino exists
     {
         printf("ERROR: parent %s doesn't exist\n", parent);
         return -1;
@@ -181,7 +181,7 @@ int creat_file(char *pathname)
 
     int pino = getino(parent); // get the parent inode number
 
-    if (!pino) // Verrifies ino exists
+    if (pino == -1) // Verrifies ino exists
     {
         printf("ERROR: parent %s doesn't exist\n", parent);
         return -1;

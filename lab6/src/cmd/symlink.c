@@ -29,7 +29,7 @@ int my_symlink(char *old, char *new) {
 
     // verify old exists (either dir or regular)
     int old_ino = getino(old);
-    if (!old_ino) {
+    if (old_ino == -1) {
         printf("%s does not exist\n", old);
         return -1;
     }
@@ -49,7 +49,7 @@ int my_symlink(char *old, char *new) {
 
     // set type of new to LNK (0xA000)
     int new_ino = getino(new);
-    if (!new_ino) {
+    if (new_ino == -1) {
         printf("%s does not exist\n", new);
         return -1;
     }
@@ -66,5 +66,6 @@ int my_symlink(char *old, char *new) {
     mip->INODE.i_size = strlen(old) + 1; // +1 for '\0'
 
     // write the INODE of /x/y/z back to disk.
+    mip->dirty = 1;
     iput(mip);
 }

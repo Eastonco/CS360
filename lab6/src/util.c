@@ -466,7 +466,7 @@ int iput(MINODE *mip)
     ip = (INODE *)buf + offset;      // ip points at INODE
     *ip = mip->INODE;                // copy INODE to inode in block
     put_block(mip->dev, block, buf); // write back to disk
-    midalloc(mip);                   // mip->refCount = 0;
+    //midalloc(mip);                   // mip->refCount = 0;
     return 0;
 }
 
@@ -531,10 +531,12 @@ int getino(char *pathname)
     if (strcmp(pathname, "/") == 0)
         return 2; // return root ino = 2
     if (pathname[0] == '/')
-        mip = root; // if absolute pathname: start from root
+        //mip = root; // if absolute pathname: start from root
+        mip = iget(dev, 2);
     else
     {
-        mip = running->cwd; // if relative pathname: start from cwd
+        //mip = running->cwd; // if relative pathname: start from cwd
+        mip = iget(running->cwd->dev, running->cwd->ino);
     }
 
     tokenize(pathname); // assume: name[], nname are globals
@@ -544,19 +546,23 @@ int getino(char *pathname)
         if (!S_ISDIR(mip->INODE.i_mode))
         {
             printf("%s is not a directory\n", name[i]);
+            mip->dirty = 1;
             iput(mip);
-            return 0;
+            return -1;
         }
         ino = search(mip, name[i]);
         if (!ino)
         {
             printf("no such component name %s\n", name[i]);
+            mip->dirty = 1;
             iput(mip);
-            return 0;
+            return -1;
         }
+        mip->dirty = 1;
         iput(mip);
         mip = iget(dev, ino);
     }
+    mip->dirty = 1;
     iput(mip);
     return ino;
 }

@@ -31,7 +31,7 @@ int my_chdir(char *pathname)
   printf("chdir %s\n", pathname);
 
   int ino = getino(pathname);
-  if (ino == 0)
+  if (ino == -1)
   {
     printf("ERROR: Chdir() - ino can't be found\n");
     return 0;
@@ -124,7 +124,7 @@ int ls_dir(MINODE *mip)
 
     u16 mode = mip->INODE.i_mode;
 
-    char buf[BLKSIZE], temp[256];
+    char buf[BLKSIZE], temp[BLKSIZE];
     DIR *dp;
     char *cp;
 
@@ -140,7 +140,8 @@ int ls_dir(MINODE *mip)
 
         temp_mip = iget(dev, dp->inode);
         ls_file(temp_mip, temp);
-        //iput(temp_mip); ----------------------- FIXME: this causes the loop
+        temp_mip->dirty = 1;
+        iput(temp_mip); //----------------------- FIXME: this causes the loop
 
         //printf("[%d %s]  ", dp->inode, temp); // print [inode# name]
 
@@ -173,14 +174,14 @@ int my_ls(char *pathname)
     else
     {
         int ino = getino(pathname);
-        if (ino == 0)
+        if (ino == -1)
         {
             printf("inode DNE\n");
             return -1;
         }
         else
         {
-            int dev = root->dev;
+            dev = root->dev;
             MINODE *mip = iget(dev, ino);
             mode = mip->INODE.i_mode;
             if (S_ISDIR(mode))
@@ -189,9 +190,9 @@ int my_ls(char *pathname)
             }
             else
             {
-                ls_file(mip, pathname);
+                ls_file(mip, basename(pathname));
             }
-            //iput(mip); -----------FIXME: this also causes the loop
+            iput(mip); //-----------FIXME: this also causes the loop
         }
     }
     return 0;
@@ -245,6 +246,7 @@ void rpwd(MINODE *wd)
     
     findmyname(pip, ino, lname);
     rpwd(pip);
+    pip->dirty = 1;
     iput(pip);
     printf("/%s", lname);
     return;

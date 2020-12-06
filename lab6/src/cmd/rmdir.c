@@ -28,7 +28,7 @@ int myrmdir(char *pathname)
 {
     int ino = getino(pathname); // get the inode number from the name
 
-    if (!ino)   // make sure it's vaild
+    if (ino == -1)   // make sure it's vaild
     {
         printf("ERROR: ino does not exist\n");
         return -1;
@@ -64,6 +64,7 @@ int myrmdir(char *pathname)
     }
     idealloc(mip->dev, mip->ino); 
 
+    mip->dirty = 1;
     iput(mip); //which clears mip->refCount = 0
 
     char cp1[256], cp2[256], *parent, *child; // temp character buffers since basename and dirname are destructive
@@ -74,6 +75,10 @@ int myrmdir(char *pathname)
     child = basename(cp2);
 
     int pino = getino(parent);  // get the parent inode number
+    if (pino == -1) {
+        printf("error finding parent inode, rmdir\n");
+        return -1;
+    }
 
     MINODE *pip = iget(mip->dev, pino);     // get the parent inode
     rm_child(pip, child);   // remove the dir from the parent children list

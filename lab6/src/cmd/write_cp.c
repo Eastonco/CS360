@@ -48,30 +48,23 @@ int mywrite(int fd, char *buf, int n_bytes)
 
     char *cq = buf;
 
-    printf("write!\n");
-
     while (n_bytes > 0)
     {
-        printf("loop\n");
         lblk = oftp->offset / BLKSIZE;
         startByte = oftp->offset % BLKSIZE;
 
-        printf("lblk: %d\n", lblk);
 
         if (lblk < 12) // direct blocks
         {
-            printf("direct blocks\n");
             if(ip->i_block[lblk] == 0)
             {
                 ip->i_block[lblk] = balloc(mip->dev);
             }
             blk = ip->i_block[lblk];
-            printf("survived 1\n");
         }
 
         else if (lblk >= 12 && lblk < 256 + 12 )
         {
-            printf("indirect blocks\n");
             char tbuf[BLKSIZE] = { 0 };
 
             if(ip->i_block[12] == 0)
@@ -101,17 +94,14 @@ int mywrite(int fd, char *buf, int n_bytes)
                 put_block(mip->dev, ip->i_block[12], (char *)indir_buf);
 
             }
-            printf("survived 2\n");
         }
 
         else
         {
-            printf("doubly indirect blocks\n");
             lblk = lblk - (BLKSIZE/sizeof(int)) - 12;
             //printf("%d\n", mip->INODE.i_block[13]);
             if(mip->INODE.i_block[13] == 0)
             {
-                printf("allocate new block\n");
                 int block_13 = ip->i_block[13] = balloc(mip->dev);
 
                 if (block_13 == 0) 
@@ -126,7 +116,6 @@ int mywrite(int fd, char *buf, int n_bytes)
                 ip->i_blocks++;
             }
             int doublebuf[BLKSIZE/sizeof(int)] = {0};
-            printf("get block from the 13th place\n");
             get_block(mip->dev, ip->i_block[13], (char *)doublebuf);
             doubleblk = doublebuf[lblk/(BLKSIZE / sizeof(int))];
 

@@ -132,6 +132,7 @@ int main(int argc, char *argv[])
 
     while (1)
     {
+        printf("running->cwd->ino, address: %d\t%x\n", running->cwd->ino, running->cwd);
         memset(cmd, 0, sizeof(cmd));
         memset(pathname, 0, sizeof(pathname));
         memset(pathname_two, 0, sizeof(pathname_two));
@@ -181,7 +182,7 @@ int main(int argc, char *argv[])
             my_cp(pathname, pathname_two);
         }
 
-        pfd();
+        //pfd();
     }
 }
 

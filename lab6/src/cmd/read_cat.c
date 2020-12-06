@@ -56,7 +56,7 @@ int myread(int fd, char *buf, int n_bytes) {
             blk = mip->INODE.i_block[lbk];
         } else if (lbk >= 12 && lbk < 256 + 12) {   // indirect blocks
             // read block from i_block[12], pp. 348
-            get_block(mip->dev, mip->INODE.i_block[12], (char *)ibuf);
+            get_block(mip->dev, mip->INODE.i_block[12], ibuf);
             blk = ibuf[lbk - 12]; // offset of 12
         } else {                                    // doubly indirect blocks
             // read block from i_block[13]
@@ -104,17 +104,23 @@ int myread(int fd, char *buf, int n_bytes) {
 }
 
 int my_cat(char *filename) {
+    printf("CAT: running->cwd->ino, address: %d\t%x\n", running->cwd->ino, running->cwd);
     int n;
     char mybuf[BLKSIZE];
     int fd = open_file(filename, READ);
+    if (is_invalid_fd(fd)) {
+        printf("error, invalid fd to cat\n");
+        close_file(fd);
+        return -1;
+    }
     while (n = myread(fd, mybuf, BLKSIZE)) {
         mybuf[n] = 0;
         char *cp = mybuf;
         while (*cp != '\0') {
             if (*cp == '\n') {
-                putchar('\n');
+                printf("\n");
             } else {
-                putchar(*cp);
+                printf("%c", *cp);
             }
             cp++;
         }
@@ -122,5 +128,7 @@ int my_cat(char *filename) {
     }
     //putchar('\n');
     close_file(fd);
+
+    printf("END OF CAT: running->cwd->ino, address: %d\t%x\n", running->cwd->ino, running->cwd);
     return 0;
 }

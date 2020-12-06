@@ -27,7 +27,7 @@ int mychmod(char *pathname)
 {
     int ino = getino(pathname); // get the inode number from pathname
 
-    if (!ino) // verrfies ino exists
+    if (ino == -1) // verrfies ino exists
     {
         printf("ERROR: Inode does not exist\n");
         return -1;

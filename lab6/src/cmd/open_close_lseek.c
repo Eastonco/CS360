@@ -39,12 +39,24 @@ int open_file(char *pathname, int mode) {
         char parent[BLKSIZE], buf[BLKSIZE];
         strcpy(buf, pathname);
         strcpy(parent, dirname(buf));
+        printf("PARENT: %s\n", parent);
         int pino = getino(parent);
+        if (pino == -1) {
+            printf("error finding parent inode (open file)\n");
+            return -1;
+        }
         MINODE *pmip = iget(dev, pino);
 
         int r = my_creat(pmip, pathname);
         ino = getino(pathname);
+
+        if (ino == -1) {
+            // if ino still failed, we probably have bigger problems
+            printf("error: new ino allocation failed for open\n");
+            return -1;
+        }
     }
+    printf("MIDDLE OPEN: running->cwd->ino, address: %d\t%x\n", running->cwd->ino, running->cwd);
 
     MINODE *mip = iget(dev, ino);
 
@@ -144,6 +156,7 @@ int close_file(int fd) {
         return 0;
     
     MINODE *mip = oftp->mptr;
+    mip->dirty = 1;
     iput(mip);
     
     free(oftp); // no memory leaks allowed!

@@ -37,7 +37,7 @@ int my_link(char *oldname, char *newname)
     }
 
     inode_old = getino(oldname);
-    if (!inode_old) {
+    if (inode_old == -1) {
         // file doesn't exist
         printf("error - file linking to doesn't exist\n");
         return -1;
@@ -69,7 +69,7 @@ int my_link(char *oldname, char *newname)
 
     int fileino = getino(newname);
     // ino can be -1? which shouldn't exist, might need refactor
-    if (fileino > 0) {
+    if (fileino != -1) {
         printf("link or file already exists, %s, ino=%d\n", newname, fileino);
         return -1;
     }
@@ -81,7 +81,7 @@ int my_link(char *oldname, char *newname)
 
     printf("parent = %s\nchild = %s\n", parent, child);
     inode_new = getino(parent);
-    if (!inode_new) {
+    if (inode_new == -1) {
         printf("can't create link in parent dir %s\n", parent);
         return -1;
     }
@@ -94,6 +94,7 @@ int my_link(char *oldname, char *newname)
 
     mip->INODE.i_links_count++;
     mip->dirty = 1;
+    mip_new->dirty = 1;
 
     iput(mip);
     iput(mip_new);
@@ -119,6 +120,10 @@ int my_unlink(char *pathname) {
 
     // link MIP
     inode = getino(pathname);
+    if (inode == -1) {
+        printf("error getting link inode\n");
+        return -1;
+    }
     mip = iget(dev, inode);
 
     // check link mip is not a dir
@@ -141,6 +146,10 @@ int my_unlink(char *pathname) {
     // now remove child - same function as rm (to be implemented)
     // parent MIP
     int pino = getino(parent);
+    if (pino == -1) {
+        printf("error getting parent ino (link)\n");
+        return -1;
+    }
     MINODE *pip = iget(mip->dev, pino);
     rm_child(pip, child);
 
