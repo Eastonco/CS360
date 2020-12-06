@@ -12,6 +12,8 @@ MINODE *root;           // root of the file system
 PROC proc[NPROC]; // PROC structures
 PROC *running;    // current executing PROC
 
+MTABLE mount_table[NMOUNT]; // MOUNT table
+
 char gpath[128]; // global for tokenized components
 char *name[32];  // assume at most 32 components in pathname
 int n;           // number of component strings
@@ -34,6 +36,7 @@ int init()
     int i, j;
     MINODE *mip;
     PROC *p;
+    MTABLE *mtptr;
 
     printf("init()\n");
 
@@ -54,6 +57,11 @@ int init()
         p->status = FREE;
         for (j = 0; j < NFD; j++)
             p->fd[j] = 0;
+    }
+    for (i = 0; i < NMOUNT; i++)
+    {
+        mtptr = &mount_table[i];
+        mtptr->dev = 0;
     }
 
     root = NULL;

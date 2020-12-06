@@ -49,6 +49,7 @@ DIR *dp;
 #define NMINODE 128
 #define NFD 16
 #define NPROC 2
+#define NMOUNT 4
 
 // read/write/rw/append modes
 #define READ 0
