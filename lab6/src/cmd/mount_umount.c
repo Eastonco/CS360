@@ -20,7 +20,7 @@ int list_mount(void) {
     printf("Currently mounted filesystems:\n");
     printf("dev\tname\tmount dir\n");
     for (int i = 0; i < NMOUNT; i++) {
-        if (mount_table[i].dev != 0) {
+        if (mount_table[i].dev != 0 && mount_table[i].mntDirPtr->mounted == 1) {
             printf("%d\t%s\t%s\n", mount_table[i].dev, mount_table[i].devName, mount_table[i].mntName);
         }
     }
@@ -118,12 +118,40 @@ int my_mount(char *filesys, char *mount_dest) {
 
 int my_umount(char *filesys) {
     // 1. Search the MOUNT table to check filesys is indeed mounted.
+    int is_mounted = 0;
+    int mounted_dev;
+    MTABLE *mtptr = NULL;
+    for (int i = 0; i < NMOUNT; i++) {
+        if (!strcmp(mount_table[i].devName, filesys) && mount_table[i].dev != 0) {
+            is_mounted = 1;
+            mounted_dev = mount_table[i].dev;
+            mtptr = &mount_table[i];
+            break;
+        }
+    }
+
+    if (!is_mounted) {
+        printf("filesystem %s is not mounted, cannot umount\n", filesys);
+        return -1;
+    }
 
     // 2. Check whether any file is still active in the mounted filesys;
     // HOW to check?      ANS: by checking all minode[].dev
 
+    for (int i = 0; i < NMINODE; i++) {
+        if (minode[i].dev == mounted_dev) {
+            printf("cannot umount filesystem, active file detected\n");
+            return -1;
+        }
+    }
+
     // 3. Find the mount_point's inode (which should be in memory while it's mounted on).  Reset it to "not mounted"; then 
     // iput()   the minode.  (because it was iget()ed during mounting)
+
+    MINODE *mip = mtptr->mntDirPtr;
+    //int ino = getino(mtptr->mntName);
+    mip->mounted = 0;
+    iput(mip);
 
 
     return 0;

@@ -185,6 +185,26 @@ int main(int argc, char *argv[])
             mychmod(pathname);
         if (!strcmp(cmd, "cat"))
             my_cat(pathname);
+        if (!strcmp(cmd, "open")) {
+            int mode = -1;
+            sscanf(line, "%s %s %d", cmd, pathname, &mode);
+            open_file(pathname, mode);
+        }
+        if (!strcmp(cmd, "read")) {
+            int fd = -1;
+            sscanf(line, "%s %d %s", cmd, &fd, pathname);
+            myread(fd, pathname, sizeof(pathname));
+        }
+        if (!strcmp(cmd, "write")) {
+            int fd = -1;
+            sscanf(line, "%s %d %s", cmd, &fd, pathname);
+            mywrite(fd, pathname, sizeof(pathname));
+        }
+        if (!strcmp(cmd, "close")) {
+            int fd = -1;
+            sscanf(line, "%s %d", cmd, &fd);
+            close_file(fd);
+        }
         if (!strcmp(cmd, "cp")){
             sscanf(line, "%s %s %s", cmd, pathname, pathname_two);
             my_cp(pathname, pathname_two);
@@ -197,6 +217,8 @@ int main(int argc, char *argv[])
                 my_mount(pathname, pathname_two);
             }
         }
+        if (!strcmp(cmd, "umount"))
+            my_umount(pathname);
 
         //pfd();
     }
