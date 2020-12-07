@@ -145,7 +145,7 @@ int main(int argc, char *argv[])
         memset(pathname, 0, sizeof(pathname));
         memset(pathname_two, 0, sizeof(pathname_two));
 
-        printf("input command : [ls|cd|pwd|quit|mkdir|rmdir|creat|link|unlink|symlink] ");
+        printf("input command : [ls|cd|pwd|quit|mkdir|rmdir|creat|link|unlink|symlink]\n\t\t[chmod|cat|cp|open|read|write|close|mount|umount] ");
         fgets(line, 128, stdin);
         line[strlen(line) - 1] = 0;
 
