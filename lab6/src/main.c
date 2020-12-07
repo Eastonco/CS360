@@ -74,7 +74,7 @@ int mount_root()
     root = iget(dev, 2);
 }
 
-char *disk = "mydisk";
+char *disk = "diskimage";
 
 /****************************************************************
 * Function:                                                     *
@@ -188,6 +188,14 @@ int main(int argc, char *argv[])
         if (!strcmp(cmd, "cp")){
             sscanf(line, "%s %s %s", cmd, pathname, pathname_two);
             my_cp(pathname, pathname_two);
+        }
+        if (!strcmp(cmd, "mount")) {
+            sscanf(line, "%s %s %s", cmd, pathname, pathname_two);
+            if (!strcmp(pathname, "") || !strcmp(pathname_two, "")) {
+                list_mount();
+            } else {
+                my_mount(pathname, pathname_two);
+            }
         }
 
         //pfd();

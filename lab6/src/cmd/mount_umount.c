@@ -69,9 +69,10 @@ int my_mount(char *filesys, char *mount_dest) {
     // check whether ext2 filesystem or not; if not reject
     //  |
     //  |-> read superblock, check if s_magic is 0xEF53
-    int fd = open_file(mount_dest, READ_WRITE);
+    printf("opening file %s for mount\n", filesys);
+    int fd = open(filesys, O_RDWR);
     if (is_invalid_fd(fd)) {
-        printf("invalid fd for filesys\n");
+        printf("invalid fd for filesys: error opening file %s\n", filesys);
         return -1;
     }
 
@@ -94,8 +95,8 @@ int my_mount(char *filesys, char *mount_dest) {
         return -1;
     }
 
-    if (mip->refCount > 0) {
-        printf("cannot mount: directory is busy (refcount > 0)\n");
+    if (mip->refCount > 2) {
+        printf("cannot mount: directory is busy (refcount > 2)\n");
         return -1;
     }
 
@@ -111,6 +112,7 @@ int my_mount(char *filesys, char *mount_dest) {
     mip->mptr = mtptr;
     mtptr->mntDirPtr = mip;
 
+    printf("my_mount: mounted disk %s onto directory %s successfully\n", filesys, mount_dest);
     return 0;
 }
 
