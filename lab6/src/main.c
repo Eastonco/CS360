@@ -18,7 +18,7 @@ char gpath[128]; // global for tokenized components
 char *name[32];  // assume at most 32 components in pathname
 int n;           // number of component strings
 
-int fd, dev;
+int fd, dev, root_dev;
 int nblocks, ninodes, bmap, imap, inode_start;
 
 /****************************************************************
@@ -52,7 +52,7 @@ int init()
     {
         p = &proc[i];
         p->pid = i;
-        p->uid = p->gid = 0;
+        p->uid = p->gid = i;
         p->cwd = 0;
         p->status = FREE;
         for (j = 0; j < NFD; j++)
@@ -64,6 +64,9 @@ int init()
         mtptr->dev = 0;
     }
 
+    // ensure circular process linking
+    proc[0].next = &proc[1];
+    proc[1].next = &proc[0];
     root = NULL;
 }
 
@@ -101,7 +104,7 @@ int main(int argc, char *argv[])
         printf("open %s failed\n", disk);
         exit(1);
     }
-    dev = fd;
+    dev = root_dev = fd;
 
     /********** read super block  ****************/
     get_block(dev, 1, buf);
@@ -145,7 +148,7 @@ int main(int argc, char *argv[])
         memset(pathname, 0, sizeof(pathname));
         memset(pathname_two, 0, sizeof(pathname_two));
 
-        printf("input command : [ls|cd|pwd|quit|mkdir|rmdir|creat|link|unlink|symlink]\n\t\t[chmod|cat|cp|open|read|write|close|mount|umount] ");
+        printf("input command : [ls|cd|pwd|quit|mkdir|rmdir|creat|link|unlink|symlink]\n\t\t[chmod|cat|cp|open|read|write|close|pfd|mount|umount|switch] ");
         fgets(line, 128, stdin);
         line[strlen(line) - 1] = 0;
 
@@ -219,8 +222,10 @@ int main(int argc, char *argv[])
         }
         if (!strcmp(cmd, "umount"))
             my_umount(pathname);
-
-        //pfd();
+        if (!strcmp(cmd, "pfd"))
+            pfd();
+        if (!strcmp(cmd, "switch"))
+            my_switch();
     }
 }
 

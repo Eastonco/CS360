@@ -6,12 +6,13 @@ extern MINODE minode[NMINODE];
 extern MINODE *root;
 
 extern PROC proc[NPROC], *running;
+extern MTABLE mount_table[NMOUNT];
 
 extern char gpath[128]; // global for tokenized components
 extern char *name[64];  // assume at most 32 components in pathname
 extern int n;           // number of component strings
 
-extern int fd, dev;
+extern int fd, dev, root_dev;
 extern int nblocks, ninodes, bmap, imap, inode_start;
 
 /****************************************************************
@@ -526,18 +527,23 @@ int search(MINODE *mip, char *lname)
 int getino(char *pathname)
 {
     // return ino of pathname
-    MINODE *mip;
+    MINODE *mip, *mip_two;
     int i, ino;
     if (strcmp(pathname, "/") == 0)
         return 2; // return root ino = 2
-    if (pathname[0] == '/')
+    if (pathname[0] == '/') {
         //mip = root; // if absolute pathname: start from root
-        mip = iget(dev, 2);
+        dev = root->dev;
+        ino = root->ino;
+    } 
     else
     {
         //mip = running->cwd; // if relative pathname: start from cwd
-        mip = iget(running->cwd->dev, running->cwd->ino);
+        dev = running->cwd->dev;
+        ino = running->cwd->ino;
     }
+
+    mip = iget(dev, ino);
 
     tokenize(pathname); // assume: name[], nname are globals
 
@@ -550,7 +556,11 @@ int getino(char *pathname)
             iput(mip);
             return -1;
         }
+
+        printf("inode #: %d\n", mip->ino);
+
         ino = search(mip, name[i]);
+
         if (!ino)
         {
             printf("no such component name %s\n", name[i]);
@@ -558,10 +568,44 @@ int getino(char *pathname)
             iput(mip);
             return -1;
         }
-        mip->dirty = 1;
-        iput(mip);
-        mip = iget(dev, ino);
+        else if (ino == 2 && dev != root_dev)
+        { // root of mount, but dev # is not dev # of real root
+            // upwards traversal!
+            // locate mount table entry via dev #
+            printf("UPWARDS\n");
+            for (int i = 0; i < NMOUNT; i++)
+            {
+                if (mount_table[i].dev == dev)
+                {
+                    // switch to minode pointed to by mount table entry and continue
+                    iput(mip);
+                    mip = mount_table[i].mntDirPtr;
+                    dev = mip->dev;
+                    break;
+                }
+            }
+        }
+        else 
+        {
+            mip->dirty = 1;
+            iput(mip);
+            mip = iget(dev, ino);
+
+            // downward traversal
+            if (mip->mounted)
+            {
+                printf("mounted boi!\n");
+                MTABLE *mtptr = mip->mptr;
+                dev = mtptr->dev;
+                ino = 2;
+                printf("get dev of %d\n", dev);
+                iput(mip);
+                mip = iget(dev, ino); // get root INODE into memory
+                // seach for x under root INODE of mounted device
+            }
+        }
     }
+
     mip->dirty = 1;
     iput(mip);
     return ino;

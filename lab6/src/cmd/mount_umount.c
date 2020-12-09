@@ -156,3 +156,12 @@ int my_umount(char *filesys) {
 
     return 0;
 }
+
+int my_switch(void) {
+    // switch processes from P0 to P1
+    // 2 processed system, circular linked list, so simply go to next node in list
+    running = running->next;
+    running->cwd = iget(dev, 2);
+    printf("switched to PID %d\n", running->pid);
+    return 0;
+}

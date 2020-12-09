@@ -19,8 +19,7 @@ int link_wrapper(char *old, char *new) {
     my_link(old, new);
 }
 
-// TODO: I don't think this does all of the checks it needs to regarding links, but basic functionality is there
-// (i.e. "link file1 link1" creates a link called link1 and ups file1's # of links by 1)
+// ("link file1 link1" creates a link called link1 and ups file1's # of links by 1)
 int my_link(char *oldname, char *newname)
 {
     int inode_old, inode_new;
@@ -68,7 +67,6 @@ int my_link(char *oldname, char *newname)
     }
 
     int fileino = getino(newname);
-    // ino can be -1? which shouldn't exist, might need refactor
     if (fileino != -1) {
         printf("link or file already exists, %s, ino=%d\n", newname, fileino);
         return -1;
@@ -100,7 +98,6 @@ int my_link(char *oldname, char *newname)
     iput(mip_new);
 }
 
-// todo: probably more checks to do
 int my_unlink(char *pathname) {
     int inode;
     MINODE *mip;
@@ -132,6 +129,22 @@ int my_unlink(char *pathname) {
         return -1;
     }
 
+    // check proc's permissions to unlink file
+    // mask out upper bits to just lower 9 bits (AND with 0x1FF to get lower 9 bits)
+    uint other = mip->INODE.i_mode & 0x7;          // low 3 bits
+    uint group = (mip->INODE.i_mode & 0x38) >> 3;  // mid 3 bits shifted right 3 spaces (bitmasked with 0b111000)
+    uint owner = (mip->INODE.i_mode & 0x1C0) >> 6; // upper 3 bits shifted right 6 spaces (bitmasked with 0b111000000)
+    if (!mip->INODE.i_mode & 0x1FF)
+    {
+        printf("ERROR: no permission\n");
+        return -1;
+    }
+
+    if (running->uid != mip->INODE.i_uid && running->uid != SUPER_USER) {
+        printf("ERROR: uid mismatch, no permission\n");
+        return -1;
+    }
+
     // decrement link's link count
     mip->INODE.i_links_count--;
     if (mip->INODE.i_links_count == 0) {
@@ -152,12 +165,6 @@ int my_unlink(char *pathname) {
     }
     MINODE *pip = iget(mip->dev, pino);
     rm_child(pip, child);
-
-    /*pip->INODE.i_mode = S_IFDIR;
-    pip->dirty = 1;
-    iput(pip);*/
-
-    //print_parent_mode(pip);
 }
 
 void print_parent_mode(MINODE *pip) {
