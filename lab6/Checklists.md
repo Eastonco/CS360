@@ -74,3 +74,65 @@ B. IF you can NOT cat, cp correctly, do the following
 7. Show you can open file1 for WRITE; write a few times to the opened fd    20
 
 ==============================================================================
+
+# Level 3 Checklist
+LEVEL-1: Use disk1                                            55 %
+   COMMANDS                    EXPECTED RESULTS           OBSERVED & comments
+------------------      ------------------------------  ----------------------
+startup & menu:          start up, show commands menu   ______________________
+ls                       show contents of / directory   ______________________
+
+mkdir /a ;     ls        show DIR /a exits; ls works    _______________________
+
+mkdir /a/b ;   ls /a     make dir with pathname         _______________________
+
+cd    /a/b ;   pwd       cd to a pathname, show CWD     ________________________
+
+cd    ../../ ; pwd       cd upward, show CWD            _______________________ 
+
+creat f1     ; ls        creat file, show f1 is a file  _______________________
+
+link  f1 f2;   ls        hard link, both linkCount=2    ________________________
+
+unlink   f1;   ls        unlink f1; f2 linkCount=1      ________________________
+
+symlink f2 f3; ls        symlink; ls show f3 -> f2      ________________________
+
+rmdir /a/b;    ls        rmdir and show results         ________________________
+  
+LEVEL-2: Use disk2: (file1,tiny,small,large,huge)             25 %
+------------------        ---------------------------   -----------------------
+cat large; cat huge       show contents to LAST LINE
+                           === END OF huge FILE ===   _________________________
+
+cp  large newlarge; ls    show they are SAME size     _________________________
+
+cp  huge  newhuge ; ls    show they are SAME size     _________________________
+
+              MUST DO THIS: exit YOUR project; 
+(In Linux): dif2          MUST not show any lines     _________________________ 
+
+============ IF can not do cat, cp: TRY to do these for LEVEL2 ================
+open  small 0;   pfd      show fd=0 opened for R      _________________________
+
+read 0 20;       pfd      show 20 chars read          _________________________
+
+open file1 1;    pfd      show fd=1 opened for W      _________________________
+
+write 1 "abcde"; ls       show file1 size=5           _________________________
+
+close 1; pfd              show fd=1 is closed         _________________________
+
+LEVEL-3: start with disk3.1;   MOUNT disk3.2                  20 %
+-------------------   ----------------------------  ----------------------------
+mount disk3.2 /mnt;       mount disk3.2 on /mnt      ___________________________
+
+ls /mnt                   contents of disk3.2        ___________________________
+
+cd /mnt/DIR1; pwd         show CWD is /mnt/DIR1      ___________________________
+
+mkdir ABC; ls             show ABC exits             ___________________________
+
+cd ../../;    pwd         show CWD=/                 ___________________________
+
+Switch to P1; rmdir dir1; unlink file1 : not owner   __________________________

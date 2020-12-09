@@ -31,7 +31,7 @@ disk:
 	sudo umount /mnt
 	mv ./diskimage $(BINDIR)
 
-empty: 
+empty:
 	dd if=/dev/zero of=diskimage bs=1024 count=1440
 	mke2fs -b 1024 diskimage 1440
 	mkdir -p $(BINDIR)
@@ -41,7 +41,7 @@ empty:
 	sudo umount /mnt
 	mv ./diskimage $(BINDIR)
 
-demo:
+demo: clean build
 	sudo wget https://eecs.wsu.edu/~cs360/samples/PROJECT/dif2 -P $(BINDIR)
 	sudo wget https://eecs.wsu.edu/~cs360/samples/PROJECT/disk1 -P $(BINDIR)
 	sudo wget https://eecs.wsu.edu/~cs360/samples/PROJECT/disk2 -P $(BINDIR)

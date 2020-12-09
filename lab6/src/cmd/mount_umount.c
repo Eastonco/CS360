@@ -62,8 +62,6 @@ int my_mount(char *filesys, char *mount_dest) {
     mtptr->dev = 0;
     strcpy(mtptr->devName, filesys);
     strcpy(mtptr->mntName, mount_dest);
-    // TODO: set mount table entry to mtptr (not currently array of ptrs)
-    // mount_table[mount_index] = mtptr;
 
     // open filesystem for RW, use FD # as new dev
     // check whether ext2 filesystem or not; if not reject

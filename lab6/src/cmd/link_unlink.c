@@ -130,6 +130,7 @@ int my_unlink(char *pathname) {
     }
 
     // check proc's permissions to unlink file
+
     // mask out upper bits to just lower 9 bits (AND with 0x1FF to get lower 9 bits)
     uint other = mip->INODE.i_mode & 0x7;          // low 3 bits
     uint group = (mip->INODE.i_mode & 0x38) >> 3;  // mid 3 bits shifted right 3 spaces (bitmasked with 0b111000)
