@@ -594,7 +594,6 @@ int getino(char *pathname)
             // downward traversal
             if (mip->mounted)
             {
-                printf("mounted boi!\n");
                 MTABLE *mtptr = mip->mptr;
                 dev = mtptr->dev;
                 ino = 2;
