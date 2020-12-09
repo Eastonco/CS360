@@ -194,7 +194,6 @@ int my_cp(char *src, char *dest){
     while ( n = myread(fdsrc, mybuf, BLKSIZE)){
         mybuf[n] = 0;
         mywrite(fddest, mybuf, n);
-        printf("debug zach\n");
         memset(mybuf, '\0', BLKSIZE);
     }
     close_file(fdsrc);

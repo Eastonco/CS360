@@ -40,3 +40,17 @@ empty:
 	cd -
 	sudo umount /mnt
 	mv ./diskimage $(BINDIR)
+
+demo:
+	sudo wget https://eecs.wsu.edu/~cs360/samples/PROJECT/dif2 -P $(BINDIR)
+	sudo wget https://eecs.wsu.edu/~cs360/samples/PROJECT/disk1 -P $(BINDIR)
+	sudo wget https://eecs.wsu.edu/~cs360/samples/PROJECT/disk2 -P $(BINDIR)
+	sudo wget https://eecs.wsu.edu/~cs360/samples/PROJECT/disk3.1 -P $(BINDIR)
+	sudo wget https://eecs.wsu.edu/~cs360/samples/PROJECT/disk3.2 -P $(BINDIR)
+	sudo wget https://eecs.wsu.edu/~cs360/samples/PROJECT/diskimage -P $(BINDIR)
+	sudo wget https://eecs.wsu.edu/~cs360/samples/PROJECT/mydisk -P $(BINDIR)
+	sudo wget https://eecs.wsu.edu/~cs360/samples/PROJECT/show -P $(BINDIR)
+	sudo wget https://eecs.wsu.edu/~cs360/samples/PROJECT/showDisk2 -P $(BINDIR)
+	sudo chmod +x $(BINDIR)/show
+	sudo chmod +x $(BINDIR)/showDisk2
+	sudo chmod +x $(BINDIR)/dif2
