@@ -76,63 +76,71 @@ B. IF you can NOT cat, cp correctly, do the following
 ==============================================================================
 
 # Level 3 Checklist
+
+NAME: Connor Easton | ID: 11557902 | NAME: Zachary Nett | ID: 11630705 
+
+1. Fill in NAMEs, IDs. Send to TA before 12-8-2020.
+2. DEMO with TA at scheduled time AND submit a ZIP file of YOUR project to TA
+3. Immediately after demo to TA, get on KCW's ZOOM session for Interview.
+
+4. Download disk1, disk2, disk3.1, disk3.2, dif2 from samples/PROJECT directory 
 LEVEL-1: Use disk1                                            55 %
    COMMANDS                    EXPECTED RESULTS           OBSERVED & comments
 ------------------      ------------------------------  ----------------------
-startup & menu:          start up, show commands menu   ______________________
-ls                       show contents of / directory   ______________________
+startup & menu:          start up, show commands menu   _____works as expected______________
+ls                       show contents of / directory   _____works as expected______________
 
-mkdir /a ;     ls        show DIR /a exits; ls works    _______________________
+mkdir /a ;     ls        show DIR /a exits; ls works    _____works as expected______________
 
-mkdir /a/b ;   ls /a     make dir with pathname         _______________________
+mkdir /a/b ;   ls /a     make dir with pathname         _____works as expected______________
 
-cd    /a/b ;   pwd       cd to a pathname, show CWD     ________________________
+cd    /a/b ;   pwd       cd to a pathname, show CWD     _____works as expected______________
 
-cd    ../../ ; pwd       cd upward, show CWD            _______________________ 
+cd    ../../ ; pwd       cd upward, show CWD            _____works as expected______________
 
-creat f1     ; ls        creat file, show f1 is a file  _______________________
+creat f1     ; ls        creat file, show f1 is a file  _____works as expected______________
 
-link  f1 f2;   ls        hard link, both linkCount=2    ________________________
+link  f1 f2;   ls        hard link, both linkCount=2    _____works as expected______________
 
-unlink   f1;   ls        unlink f1; f2 linkCount=1      ________________________
+unlink   f1;   ls        unlink f1; f2 linkCount=1      _____works as expected______________
 
-symlink f2 f3; ls        symlink; ls show f3 -> f2      ________________________
+symlink f2 f3; ls        symlink; ls show f3 -> f2      _____works as expected______________
 
-rmdir /a/b;    ls        rmdir and show results         ________________________
+rmdir /a/b;    ls        rmdir and show results         _____works as expected______________
   
 LEVEL-2: Use disk2: (file1,tiny,small,large,huge)             25 %
 ------------------        ---------------------------   -----------------------
 cat large; cat huge       show contents to LAST LINE
-                           === END OF huge FILE ===   _________________________
+                           === END OF huge FILE ===   _____works as expected______________
 
-cp  large newlarge; ls    show they are SAME size     _________________________
+cp  large newlarge; ls    show they are SAME size     _____works as expected______________
 
-cp  huge  newhuge ; ls    show they are SAME size     _________________________
+cp  huge  newhuge ; ls    show they are SAME size     _____works as expected______________
 
               MUST DO THIS: exit YOUR project; 
-(In Linux): dif2          MUST not show any lines     _________________________ 
+(In Linux): dif2          MUST not show any lines     _____works as expected______________ 
 
 ============ IF can not do cat, cp: TRY to do these for LEVEL2 ================
-open  small 0;   pfd      show fd=0 opened for R      _________________________
+open  small 0;   pfd      show fd=0 opened for R      ________N/A_________________
 
-read 0 20;       pfd      show 20 chars read          _________________________
+read 0 20;       pfd      show 20 chars read          ________N/A_________________
 
-open file1 1;    pfd      show fd=1 opened for W      _________________________
+open file1 1;    pfd      show fd=1 opened for W      ________N/A_________________
 
-write 1 "abcde"; ls       show file1 size=5           _________________________
+write 1 "abcde"; ls       show file1 size=5           ________N/A_________________
 
-close 1; pfd              show fd=1 is closed         _________________________
+close 1; pfd              show fd=1 is closed         ________N/A_________________
 
 LEVEL-3: start with disk3.1;   MOUNT disk3.2                  20 %
 -------------------   ----------------------------  ----------------------------
-mount disk3.2 /mnt;       mount disk3.2 on /mnt      ___________________________
+mount disk3.2 /mnt;       mount disk3.2 on /mnt      _____works as expected______________ 
 
-ls /mnt                   contents of disk3.2        ___________________________
+ls /mnt                   contents of disk3.2        unable to ls, however can cd into /mnt and then ls successfully
 
-cd /mnt/DIR1; pwd         show CWD is /mnt/DIR1      ___________________________
+cd /mnt/DIR1; pwd         show CWD is /mnt/DIR1      _____cd successful but can't pwd______________________
 
-mkdir ABC; ls             show ABC exits             ___________________________
+mkdir ABC; ls             show ABC exits             _______works as expected____________________
 
-cd ../../;    pwd         show CWD=/                 ___________________________
+cd ../../;    pwd         show CWD=/                 ________works as expected___________________
 
-Switch to P1; rmdir dir1; unlink file1 : not owner   __________________________
+Switch to P1; rmdir dir1; unlink file1 : not owner   _______works as expected__________________
