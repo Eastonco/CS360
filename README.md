@@ -1,5 +1,6 @@
 ![](https://img.shields.io/badge/Difficulty-Hard-informational?style=flat&color=2bbc8a)
 ![](https://img.shields.io/tokei/lines/github/eastonco/CS360)
+![](https://img.shields.io/github/downloads/eastonco/CS360/total)
 # CPTS 360 
 Taken Fall 2020 @ WSU 
 
