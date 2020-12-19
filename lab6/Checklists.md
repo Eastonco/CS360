@@ -77,8 +77,6 @@ B. IF you can NOT cat, cp correctly, do the following
 
 # Level 3 Checklist
 
-NAME: Connor Easton | ID: 11557902 | NAME: Zachary Nett | ID: 11630705 
-
 1. Fill in NAMEs, IDs. Send to TA before 12-8-2020.
 2. DEMO with TA at scheduled time AND submit a ZIP file of YOUR project to TA
 3. Immediately after demo to TA, get on KCW's ZOOM session for Interview.
