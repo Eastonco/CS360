@@ -44,6 +44,7 @@ void dbname(char *pathname);
 void print_node(NODE *pcur);
 void save(char *filename);
 void pwd();
+void reload(char *filename);
 void pwdhelper(NODE *pcur);
 void quit();
 void menu();
