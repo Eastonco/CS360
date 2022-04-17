@@ -15,15 +15,15 @@ extern int fd, dev;
 extern int nblocks, ninodes, bmap, imap, inode_start;
 
 /****************************************************************
-* Function: int myrmdir(char *pathname)                         *
-* Date Created: 11/19/2020                                      *
-* Date Last Modified:                                           *
-* Description: Removes a directory pathname                     *
-* Input parameters:  pathname to the dir                        *
-* Returns: 0 if success -1 if fail                              *
-* Preconditions: must be an empty, free dir to remove           *
-* Postconditions:                                               *
-*****************************************************************/
+ * Function: int myrmdir(char *pathname)                         *
+ * Date Created: 11/19/2020                                      *
+ * Date Last Modified:                                           *
+ * Description: Removes a directory pathname                     *
+ * Input parameters:  pathname to the dir                        *
+ * Returns: 0 if success -1 if fail                              *
+ * Preconditions: must be an empty, free dir to remove           *
+ * Postconditions:                                               *
+ *****************************************************************/
 int myrmdir(char *pathname)
 {
     int ino = getino(pathname); // get the inode number from the name
@@ -64,7 +64,8 @@ int myrmdir(char *pathname)
         return -1;
     }
 
-    if (running->uid != mip->INODE.i_uid && running->uid != SUPER_USER) {
+    if (running->uid != mip->INODE.i_uid && running->uid != SUPER_USER)
+    {
         printf("ERROR: uid mismatch, no permission\n");
         return -1;
     }
@@ -78,7 +79,7 @@ int myrmdir(char *pathname)
     idealloc(mip->dev, mip->ino);
 
     mip->dirty = 1;
-    iput(mip); //which clears mip->refCount = 0
+    iput(mip); // which clears mip->refCount = 0
 
     char cp1[256], cp2[256], *parent, *child; // temp character buffers since basename and dirname are destructive
     strcpy(cp1, pathname);
@@ -108,15 +109,15 @@ int myrmdir(char *pathname)
 }
 
 /****************************************************************
-* Function: int is_empty(MINODE *mip)                           *
-* Date Created: 11/19/2020                                      *
-* Date Last Modified:                                           *
-* Description: verrifies a dir is empty                         *
-* Input parameters: MINODE to the dir                           *
-* Returns: 1 if empty 0 if not                                  *
-* Preconditions: must be a dir minode                           *
-* Postconditions:                                               *
-*****************************************************************/
+ * Function: int is_empty(MINODE *mip)                           *
+ * Date Created: 11/19/2020                                      *
+ * Date Last Modified:                                           *
+ * Description: verrifies a dir is empty                         *
+ * Input parameters: MINODE to the dir                           *
+ * Returns: 1 if empty 0 if not                                  *
+ * Preconditions: must be a dir minode                           *
+ * Postconditions:                                               *
+ *****************************************************************/
 int is_empty(MINODE *mip)
 {
     char buf[BLKSIZE], *cp, temp[256];

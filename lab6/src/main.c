@@ -1,6 +1,6 @@
 /****************************************************************************
-*                             ext2 file system                              *
-*****************************************************************************/
+ *                             ext2 file system                              *
+ *****************************************************************************/
 #include "type.h"
 #include "util.h"
 #include "cmd.h"
@@ -22,15 +22,15 @@ int fd, dev, root_dev;
 int nblocks, ninodes, bmap, imap, inode_start;
 
 /****************************************************************
-* Function:                                                     *
-* Date Created:                                                 *
-* Date Last Modified:                                           *
-* Description:                                                  *
-* Input parameters:                                             *
-* Returns:                                                      *
-* Preconditions:                                                *
-* Postconditions:                                               *
-*****************************************************************/
+ * Function:                                                     *
+ * Date Created:                                                 *
+ * Date Last Modified:                                           *
+ * Description:                                                  *
+ * Input parameters:                                             *
+ * Returns:                                                      *
+ * Preconditions:                                                *
+ * Postconditions:                                               *
+ *****************************************************************/
 int init()
 {
     int i, j;
@@ -80,15 +80,15 @@ int mount_root()
 char *disk = "diskimage";
 
 /****************************************************************
-* Function:                                                     *
-* Date Created:                                                 *
-* Date Last Modified:                                           *
-* Description:                                                  *
-* Input parameters:                                             *
-* Returns:                                                      *
-* Preconditions:                                                *
-* Postconditions:                                               *
-*****************************************************************/
+ * Function:                                                     *
+ * Date Created:                                                 *
+ * Date Last Modified:                                           *
+ * Description:                                                  *
+ * Input parameters:                                             *
+ * Returns:                                                      *
+ * Preconditions:                                                *
+ * Postconditions:                                               *
+ *****************************************************************/
 int main(int argc, char *argv[])
 {
     int ino;
@@ -176,7 +176,8 @@ int main(int argc, char *argv[])
         }
         if (!strcmp(cmd, "unlink"))
             my_unlink(pathname);
-        if (!strcmp(cmd, "symlink")) {
+        if (!strcmp(cmd, "symlink"))
+        {
             sscanf(line, "%s %s %s", cmd, pathname, pathname_two);
             my_symlink(pathname, pathname_two);
         }
@@ -188,35 +189,44 @@ int main(int argc, char *argv[])
             mychmod(pathname);
         if (!strcmp(cmd, "cat"))
             my_cat(pathname);
-        if (!strcmp(cmd, "open")) {
+        if (!strcmp(cmd, "open"))
+        {
             int mode = -1;
             sscanf(line, "%s %s %d", cmd, pathname, &mode);
             open_file(pathname, mode);
         }
-        if (!strcmp(cmd, "read")) {
+        if (!strcmp(cmd, "read"))
+        {
             int fd = -1;
             sscanf(line, "%s %d %s", cmd, &fd, pathname);
             myread(fd, pathname, sizeof(pathname));
         }
-        if (!strcmp(cmd, "write")) {
+        if (!strcmp(cmd, "write"))
+        {
             int fd = -1;
             sscanf(line, "%s %d %s", cmd, &fd, pathname);
             mywrite(fd, pathname, sizeof(pathname));
         }
-        if (!strcmp(cmd, "close")) {
+        if (!strcmp(cmd, "close"))
+        {
             int fd = -1;
             sscanf(line, "%s %d", cmd, &fd);
             close_file(fd);
         }
-        if (!strcmp(cmd, "cp")){
+        if (!strcmp(cmd, "cp"))
+        {
             sscanf(line, "%s %s %s", cmd, pathname, pathname_two);
             my_cp(pathname, pathname_two);
         }
-        if (!strcmp(cmd, "mount")) {
+        if (!strcmp(cmd, "mount"))
+        {
             sscanf(line, "%s %s %s", cmd, pathname, pathname_two);
-            if (!strcmp(pathname, "") || !strcmp(pathname_two, "")) {
+            if (!strcmp(pathname, "") || !strcmp(pathname_two, ""))
+            {
                 list_mount();
-            } else {
+            }
+            else
+            {
                 my_mount(pathname, pathname_two);
             }
         }
@@ -230,15 +240,15 @@ int main(int argc, char *argv[])
 }
 
 /****************************************************************
-* Function:                                                     *
-* Date Created:                                                 *
-* Date Last Modified:                                           *
-* Description:                                                  *
-* Input parameters:                                             *
-* Returns:                                                      *
-* Preconditions:                                                *
-* Postconditions:                                               *
-*****************************************************************/
+ * Function:                                                     *
+ * Date Created:                                                 *
+ * Date Last Modified:                                           *
+ * Description:                                                  *
+ * Input parameters:                                             *
+ * Returns:                                                      *
+ * Preconditions:                                                *
+ * Postconditions:                                               *
+ *****************************************************************/
 int quit()
 {
     int i;

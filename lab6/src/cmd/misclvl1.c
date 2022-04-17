@@ -14,15 +14,15 @@ extern int fd, dev;
 extern int nblocks, ninodes, bmap, imap, inode_start;
 
 /****************************************************************
-* Function: mychmod(char *pathname)                             *
-* Date Created: 11/18/2020                                      *
-* Date Last Modified:                                           *
-* Description: modifes permission of a given file               *
-* Input parameters: pathname/file name                          *
-* Returns: 0 if succes, 0 if inode doesn't exist                *
-* Preconditions: file must exist                                *
-* Postconditions:                                               *
-*****************************************************************/
+ * Function: mychmod(char *pathname)                             *
+ * Date Created: 11/18/2020                                      *
+ * Date Last Modified:                                           *
+ * Description: modifes permission of a given file               *
+ * Input parameters: pathname/file name                          *
+ * Returns: 0 if succes, 0 if inode doesn't exist                *
+ * Preconditions: file must exist                                *
+ * Postconditions:                                               *
+ *****************************************************************/
 int mychmod(char *pathname)
 {
     int ino = getino(pathname); // get the inode number from pathname

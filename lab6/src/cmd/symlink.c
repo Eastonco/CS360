@@ -13,7 +13,8 @@ extern int n;           // number of component strings in name[]
 extern int fd, dev;
 extern int nblocks, ninodes, bmap, imap, inode_start;
 
-int my_symlink(char *old, char *new) {
+int my_symlink(char *old, char *new)
+{
     MINODE *mip;
 
     // set dev correctly for getting old inode
@@ -28,7 +29,8 @@ int my_symlink(char *old, char *new) {
 
     // verify old exists (either dir or regular)
     int old_ino = getino(old);
-    if (old_ino == -1) {
+    if (old_ino == -1)
+    {
         printf("%s does not exist\n", old);
         return -1;
     }
@@ -48,7 +50,8 @@ int my_symlink(char *old, char *new) {
 
     // set type of new to LNK (0xA000)
     int new_ino = getino(new);
-    if (new_ino == -1) {
+    if (new_ino == -1)
+    {
         printf("%s does not exist\n", new);
         return -1;
     }

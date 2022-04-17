@@ -12,7 +12,7 @@ Taken Fall 2020 @ WSU
 * `gcc <= 11.2`
 * `make <= 4.3`
 * `gcc-multilib`
-* `e2fslibs-dev`
+* `e2fslibs-dev` **note: Linux/ext2_fs.h is depreciated**
   
 ## Instructions
 
