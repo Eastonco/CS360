@@ -25,7 +25,6 @@ For help: run the `menu` command in the sim.
    mkdir d3; ls        show [D d1] [F f1] [D d2] [F f2] [D d3]
 
 5. rmdir d1; rm f2; ls show [D f1] [D d2] [D d3]
-       
 
 6. mkdir d2/d4; ls d2  show [D d4] in DIR d2
 
