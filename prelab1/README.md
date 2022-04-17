@@ -8,13 +8,13 @@
 - [CS360 Pre-LAB1 Assignment](#cs360-pre-lab1-assignment)
   - [Table Of Contents](#table-of-contents)
   - [Intro](#intro)
-  - [Part 1:](#part-1)
+  - [Part 1](#part-1)
     - [Part A](#part-a)
-      - [Answer These Questions:](#answer-these-questions)
+      - [Answer These Questions](#answer-these-questions)
     - [Part B](#part-b)
-      - [Answer These Questions:](#answer-these-questions-1)
+      - [Answer These Questions](#answer-these-questions-1)
   - [Part 2](#part-2)
-    - [Do the requirements 1 to 7 as specified below:](#do-the-requirements-1-to-7-as-specified-below)
+    - [Do the requirements 1 to 7 as specified below](#do-the-requirements-1-to-7-as-specified-below)
 
 ## Intro
 
@@ -30,7 +30,7 @@ to get and install
 gcc-multilib
 ```
 
-## Part 1:
+## Part 1
 
 A binary executable file, `a.out`, consists of
 
@@ -62,7 +62,7 @@ main()
 
 `t2.c`: Change the global variable `g` to `int g=3;`
 `t3.c`: Change the global variable `g` to `int g[10000];`
-`t4.c`: Change the global variable `g` to ` int g[10000] = {4};`
+`t4.c`: Change the global variable `g` to `int g[10000] = {4};`
 `t5.c`: Change the local variables `of main()` to
 
 ```c
@@ -108,9 +108,9 @@ to get its section sizes. After that, record the observed sizes in a table:
 
 ---
 
-#### Answer These Questions:
+#### Answer These Questions
 
-1.  Variables in C may be classified as
+1. Variables in C may be classified as
 
 ```
 globals ---|--- UNINITIALIZED  globals;
@@ -139,7 +139,7 @@ cc -m32 -static t.c
 
 to generate `a.out`.
 
-#### Answer These Questions:
+#### Answer These Questions
 
 - Record the sizes again and compare them with the sizes in (A).
 - What do you see?
@@ -160,7 +160,7 @@ to generate an `a.out`. Then, run a.out with
 a.out one two three > outfile
 ```
 
-### Do the requirements 1 to 7 as specified below:
+### Do the requirements 1 to 7 as specified below
 
 ```
 # ts.s file:
