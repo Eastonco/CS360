@@ -102,7 +102,7 @@ int *lu(void *arg)
         }
         pthread_barrier_wait(&barrier);
 
-        //swap L[k][0,k-2] and L[j][0,k-2]
+        // swap L[k][0,k-2] and L[j][0,k-2]
         for (m = 0; m < k - 2; m++)
         {
             if (k == myid)
