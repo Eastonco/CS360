@@ -197,15 +197,15 @@ int ialloc(int dev) // allocate an inode number from inode_bitmap
 {
     int i;
     char buf[BLKSIZE];
+    MTABLE* mptr = getmptr(dev);
+    get_block(dev, mptr->imap, buf); // read inode_bitmap block
 
-    get_block(dev, imap, buf); // read inode_bitmap block
-
-    for (i = 0; i < ninodes; i++)
+    for (i = 0; i < mptr->ninodes; i++)
     {
         if (tst_bit(buf, i) == 0)
         {
             set_bit(buf, i);
-            put_block(dev, imap, buf);
+            put_block(dev, mptr->imap, buf);
             decFreeInodes(dev);
             printf("allocated ino = %d\n", i + 1); // bits count from 0; ino from 1
             return i + 1;
@@ -228,16 +228,16 @@ int balloc(int dev)
 { //returns a FREE disk block number  NOTE: Not 100% sure if this works
     int i;
     char buf[BLKSIZE];
+    MTABLE* mptr = getmptr(dev);
+    get_block(dev, mptr->bmap, buf);
 
-    get_block(dev, bmap, buf);
-
-    for (i = 0; i < nblocks; i++)
+    for (i = 0; i < mptr->nblocks; i++)
     {
         if (tst_bit(buf, i) == 0)
         {
             set_bit(buf, i);
             decFreeBlocks(dev);
-            put_block(dev, bmap, buf);
+            put_block(dev, mptr->bmap, buf);
             printf("Free disk block at %d\n", i + 1); // bits count from 0; ino from 1
             return i + 1;
         }
@@ -259,16 +259,16 @@ int idealloc(int dev, int ino)
 { // deallocating inode (number)
     int i;
     char buf[BLKSIZE];
-
-    if (ino > ninodes)
+    MTABLE* mptr = getmptr(dev);
+    if (ino > mptr->ninodes)
     {
         printf("inumber %d out of range\n", ino);
         return;
     }
-    get_block(dev, imap, buf);
+    get_block(dev, mptr->imap, buf);
     clr_bit(buf, ino - 1);
     // write buf back
-    put_block(dev, imap, buf);
+    put_block(dev, mptr->imap, buf);
     // update free inode count in SUPER and GD
     incFreeInodes(dev);
 }
@@ -286,10 +286,10 @@ int idealloc(int dev, int ino)
 int bdealloc(int dev, int bno)
 {
     char buf[BLKSIZE]; // a sweet buffer
-
-    get_block(dev, bmap, buf); // get the block
+    MTABLE* mptr = getmptr(dev);
+    get_block(dev, mptr->bmap, buf); // get the block
     clr_bit(buf, bno - 1);     // clear the bits to 0
-    put_block(dev, bmap, buf); // write the block back
+    put_block(dev, mptr->bmap, buf); // write the block back
     incFreeBlocks(dev);        // increment the free block count
     return 0;
 }
