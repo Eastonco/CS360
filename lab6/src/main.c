@@ -78,7 +78,7 @@ int mount_root()
     mount_table[0].mntDirPtr = root;
 }
 
-char *disk = "disk2";
+char *disk = "diskimage";
 
 /****************************************************************
 * Function:                                                     *
