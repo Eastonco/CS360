@@ -36,12 +36,11 @@ int my_chdir(char *pathname)
     printf("ERROR: Chdir() - ino can't be found\n");
     return 0;
   }
-
   MINODE *mip = iget(dev, ino);
 
   if (!S_ISDIR(mip->INODE.i_mode))
   {
-    printf("Error: Chdir() - mip is not a directory");
+    printf("Error: Chdir() - mip is not a directory\n");
     return 0;
   }
 

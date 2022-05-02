@@ -74,6 +74,16 @@ int clr_bit(char *buf, int bitnum)
     return 0;
 }
 
+MTABLE* getmptr(int dev){
+    int i;
+    for (int i = 0; i < NMOUNT; i++){
+        if (dev == mount_table[i].dev){
+            return &mount_table[i];
+        }
+    }
+    return 0;
+}
+
 /****************************************************************
 * Function:                                                     *
 * Date Created:                                                 *
@@ -404,7 +414,7 @@ MINODE *iget(int dev, int ino)
     INODE *ip;
     int i, block, offset;
     char buf[BLKSIZE]; // a siiiiick buffer
-
+    MTABLE* mptr = getmptr(dev);
     // serach in-memory minodes first
     for (i = 0; i < NMINODE; i++)
     {
@@ -420,7 +430,7 @@ MINODE *iget(int dev, int ino)
     mip = mialloc();                     // allocate a FREE minode
     mip->dev = dev;                      // set the device to current
     mip->ino = ino;                      // assign to (dev, ino)
-    block = (ino - 1) / 8 + inode_start; // find the block to read from
+    block = (ino - 1) / 8 + mptr->iblock; // find the block to read from
     offset = (ino - 1) % 8;
     get_block(dev, block, buf); // read the block
     ip = (INODE *)buf + offset;
@@ -449,6 +459,8 @@ int iput(MINODE *mip)
     INODE *ip;
     int i, block, offset;
     char buf[BLKSIZE];
+    MTABLE* mptr = getmptr(dev);
+
     if (mip == 0)
         return -1;
     mip->refCount--;
@@ -460,7 +472,7 @@ int iput(MINODE *mip)
     // still has user
     // no need to write back
     // write INODE back to disk
-    block = (mip->ino - 1) / 8 + inode_start;
+    block = (mip->ino - 1) / 8 + mptr->iblock;
     offset = (mip->ino - 1) % 8;
     // get block containing this inode
     get_block(mip->dev, block, buf);
@@ -594,6 +606,7 @@ int getino(char *pathname)
             // downward traversal
             if (mip->mounted)
             {
+                printf("Downward Traversal\n");
                 MTABLE *mtptr = mip->mptr;
                 dev = mtptr->dev;
                 ino = 2;
