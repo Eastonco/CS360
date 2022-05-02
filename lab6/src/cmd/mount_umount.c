@@ -104,6 +104,12 @@ int my_mount(char *filesys, char *mount_dest) {
     mtptr->ninodes = sp->s_inodes_count;
     mtptr->nblocks = sp->s_blocks_count;
 
+    get_block(fd, 2, buf); 
+    gp = (GD *)buf;
+    mtptr->bmap = gp->bg_block_bitmap;
+    mtptr->imap = gp->bg_inode_bitmap;
+    mtptr->iblock = gp->bg_inode_table;
+
     // mark mount_point's minode as being mounted on and let it point at the MOUNT table entry, which points back to the
     // m_p minode
     mip->mounted = 1;

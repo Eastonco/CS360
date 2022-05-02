@@ -9,6 +9,7 @@ int mount_root();
 int quit();
 
 // Function prototypes, util.c
+MTABLE* getmptr(int dev);
 int get_block(int dev, int blk, char *buf);
 int put_block(int dev, int blk, char *buf);
 int tokenize(char *pathname);

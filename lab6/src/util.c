@@ -74,6 +74,16 @@ int clr_bit(char *buf, int bitnum)
     return 0;
 }
 
+MTABLE* getmptr(int dev){
+    int i;
+    for (int i = 0; i < NMOUNT; i++){
+        if (dev == mount_table[i].dev){
+            return &mount_table[i];
+        }
+    }
+    return 0;
+}
+
 /****************************************************************
 * Function:                                                     *
 * Date Created:                                                 *
@@ -187,15 +197,15 @@ int ialloc(int dev) // allocate an inode number from inode_bitmap
 {
     int i;
     char buf[BLKSIZE];
+    MTABLE* mptr = getmptr(dev);
+    get_block(dev, mptr->imap, buf); // read inode_bitmap block
 
-    get_block(dev, imap, buf); // read inode_bitmap block
-
-    for (i = 0; i < ninodes; i++)
+    for (i = 0; i < mptr->ninodes; i++)
     {
         if (tst_bit(buf, i) == 0)
         {
             set_bit(buf, i);
-            put_block(dev, imap, buf);
+            put_block(dev, mptr->imap, buf);
             decFreeInodes(dev);
             printf("allocated ino = %d\n", i + 1); // bits count from 0; ino from 1
             return i + 1;
@@ -218,16 +228,16 @@ int balloc(int dev)
 { //returns a FREE disk block number  NOTE: Not 100% sure if this works
     int i;
     char buf[BLKSIZE];
+    MTABLE* mptr = getmptr(dev);
+    get_block(dev, mptr->bmap, buf);
 
-    get_block(dev, bmap, buf);
-
-    for (i = 0; i < nblocks; i++)
+    for (i = 0; i < mptr->nblocks; i++)
     {
         if (tst_bit(buf, i) == 0)
         {
             set_bit(buf, i);
             decFreeBlocks(dev);
-            put_block(dev, bmap, buf);
+            put_block(dev, mptr->bmap, buf);
             printf("Free disk block at %d\n", i + 1); // bits count from 0; ino from 1
             return i + 1;
         }
@@ -249,16 +259,16 @@ int idealloc(int dev, int ino)
 { // deallocating inode (number)
     int i;
     char buf[BLKSIZE];
-
-    if (ino > ninodes)
+    MTABLE* mptr = getmptr(dev);
+    if (ino > mptr->ninodes)
     {
         printf("inumber %d out of range\n", ino);
         return;
     }
-    get_block(dev, imap, buf);
+    get_block(dev, mptr->imap, buf);
     clr_bit(buf, ino - 1);
     // write buf back
-    put_block(dev, imap, buf);
+    put_block(dev, mptr->imap, buf);
     // update free inode count in SUPER and GD
     incFreeInodes(dev);
 }
@@ -276,10 +286,10 @@ int idealloc(int dev, int ino)
 int bdealloc(int dev, int bno)
 {
     char buf[BLKSIZE]; // a sweet buffer
-
-    get_block(dev, bmap, buf); // get the block
+    MTABLE* mptr = getmptr(dev);
+    get_block(dev, mptr->bmap, buf); // get the block
     clr_bit(buf, bno - 1);     // clear the bits to 0
-    put_block(dev, bmap, buf); // write the block back
+    put_block(dev, mptr->bmap, buf); // write the block back
     incFreeBlocks(dev);        // increment the free block count
     return 0;
 }
@@ -404,7 +414,7 @@ MINODE *iget(int dev, int ino)
     INODE *ip;
     int i, block, offset;
     char buf[BLKSIZE]; // a siiiiick buffer
-
+    MTABLE* mptr = getmptr(dev);
     // serach in-memory minodes first
     for (i = 0; i < NMINODE; i++)
     {
@@ -420,7 +430,7 @@ MINODE *iget(int dev, int ino)
     mip = mialloc();                     // allocate a FREE minode
     mip->dev = dev;                      // set the device to current
     mip->ino = ino;                      // assign to (dev, ino)
-    block = (ino - 1) / 8 + inode_start; // find the block to read from
+    block = (ino - 1) / 8 + mptr->iblock; // find the block to read from
     offset = (ino - 1) % 8;
     get_block(dev, block, buf); // read the block
     ip = (INODE *)buf + offset;
@@ -449,6 +459,8 @@ int iput(MINODE *mip)
     INODE *ip;
     int i, block, offset;
     char buf[BLKSIZE];
+    MTABLE* mptr = getmptr(dev);
+
     if (mip == 0)
         return -1;
     mip->refCount--;
@@ -460,7 +472,7 @@ int iput(MINODE *mip)
     // still has user
     // no need to write back
     // write INODE back to disk
-    block = (mip->ino - 1) / 8 + inode_start;
+    block = (mip->ino - 1) / 8 + mptr->iblock;
     offset = (mip->ino - 1) % 8;
     // get block containing this inode
     get_block(mip->dev, block, buf);
@@ -594,6 +606,7 @@ int getino(char *pathname)
             // downward traversal
             if (mip->mounted)
             {
+                printf("Downward Traversal\n");
                 MTABLE *mtptr = mip->mptr;
                 dev = mtptr->dev;
                 ino = 2;
@@ -680,6 +693,13 @@ int findino(MINODE *mip, u32 *myino) // myino = ino of . return ino of ..
 {
     char buf[BLKSIZE], *temp_ptr;
     DIR *dp;
+
+    if(mip->ino == 2 && mip->dev != root->dev){
+        MTABLE* mptr = getmptr(mip->dev);
+        iput(mip);
+        mip = mptr->mntDirPtr;
+        dev = mip->dev;
+    }
 
     get_block(mip->dev, mip->INODE.i_block[0], buf);
     temp_ptr = buf;

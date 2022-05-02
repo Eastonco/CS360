@@ -58,7 +58,7 @@ int init()
         for (j = 0; j < NFD; j++)
             p->fd[j] = 0;
     }
-    for (i = 0; i < NMOUNT; i++)
+    for (i = 1; i < NMOUNT; i++)
     {
         mtptr = &mount_table[i];
         mtptr->dev = 0;
@@ -75,6 +75,7 @@ int mount_root()
 {
     printf("mount_root()\n");
     root = iget(dev, 2);
+    mount_table[0].mntDirPtr = root;
 }
 
 char *disk = "diskimage";
@@ -94,6 +95,7 @@ int main(int argc, char *argv[])
     int ino;
     char buf[BLKSIZE];
     char line[128], cmd[32], pathname[128], pathname_two[128];
+    MTABLE *mtptr;
 
     if (argc > 1)
         disk = argv[1];
@@ -117,15 +119,17 @@ int main(int argc, char *argv[])
         exit(1);
     }
     printf("EXT2 FS OK\n");
-    ninodes = sp->s_inodes_count;
-    nblocks = sp->s_blocks_count;
+    mtptr = &mount_table[0];
+    mtptr->dev = root_dev;
+    mtptr->ninodes = sp->s_inodes_count;
+    mtptr->nblocks = sp->s_blocks_count;
 
     get_block(dev, 2, buf);
     gp = (GD *)buf;
 
-    bmap = gp->bg_block_bitmap;
-    imap = gp->bg_inode_bitmap;
-    inode_start = gp->bg_inode_table;
+    mtptr->bmap = gp->bg_block_bitmap;
+    mtptr->imap = gp->bg_inode_bitmap;
+    mtptr->iblock = gp->bg_inode_table;
     printf("bmp=%d imap=%d inode_start = %d\n", bmap, imap, inode_start);
 
     init();
