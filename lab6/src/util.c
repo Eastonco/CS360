@@ -694,6 +694,13 @@ int findino(MINODE *mip, u32 *myino) // myino = ino of . return ino of ..
     char buf[BLKSIZE], *temp_ptr;
     DIR *dp;
 
+    if(mip->ino == 2 && mip->dev != root->dev){
+        MTABLE* mptr = getmptr(mip->dev);
+        iput(mip);
+        mip = mptr->mntDirPtr;
+        dev = mip->dev;
+    }
+
     get_block(mip->dev, mip->INODE.i_block[0], buf);
     temp_ptr = buf;
     dp = (DIR *)buf;
