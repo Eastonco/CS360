@@ -77,7 +77,7 @@ int mount_root()
     root = iget(dev, 2);
 }
 
-char *disk = "diskimage";
+char *disk = "disk2";
 
 /****************************************************************
  * Function:                                                     *

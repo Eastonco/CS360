@@ -1,0 +1,12 @@
+# run under Linux:
+
+sudo mount disk2 /mnt
+
+echo diff large with copied newlarge l
+sudo diff /mnt/large  /mnt/l
+
+echo diff huge  with copied newhuge  h
+sudo diff /mnt/huge   /mnt/h
+
+sudo umount /mnt
+
