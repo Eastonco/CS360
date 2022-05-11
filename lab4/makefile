@@ -1,6 +1,6 @@
 
 GCC        	= gcc
-CFLAGS      = -g -m32 -pthread
+CFLAGS      = -g -m32 -pthread -fcommon
 RM          = rm -rf
 BINDIR      = bin
 SRCDIR 		= src

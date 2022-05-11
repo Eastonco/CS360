@@ -1,10 +1,10 @@
 #******************************************************
-# * CS360 Lab5 Server File, server.c
+# * CS360 Lab6 
 # * Connor Easton, Zach Nett
 #******************************************************
 
 GCC        	= gcc
-CFLAGS      = -g -m32 
+CFLAGS      = -g -m32 -fcommon
 RM          = rm -rf
 SRCDIR      = src
 CMD 		= src/cmd

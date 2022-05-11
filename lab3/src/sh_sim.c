@@ -23,14 +23,10 @@ char *head, *tail;
 int pd[2];
 int lpd[2];
 
-
-
 int main(int argc, char *argv[], char *env[])
 {
   fd[0] = dup(stdout);
   fd[1] = dup(stdin);
-
-
 
   printf("************* Welcome to kcsh **************\n");
   i = 0;
@@ -79,7 +75,6 @@ int main(int argc, char *argv[], char *env[])
     printf("\nkcsh $: ");
     fgets(line, 128, stdin);
     line[strlen(line) - 1] = 0; // fgets() has \n at end
-
 
     if (line[0] == 0)
       continue;
@@ -131,10 +126,18 @@ int main(int argc, char *argv[], char *env[])
       // doPipe(line, 0);
       printf("child sh %d begins\n", getpid());
       doPipe(gpath, 0);
-
     }
   }
 }
+
+/******************* 6 ***********************
+ Handle pipe: check pipe symbol | in input line;
+ if so, divide line into head, tail
+
+ create PIPE, fork a child to share the pipe
+ parent write to  pipe and exec head;
+ child  read from pipe and exec tail
+********************************************/
 
 int doPipe(char *cmdLine, int *pd)
 {
@@ -145,27 +148,34 @@ int doPipe(char *cmdLine, int *pd)
     close(pd[1]);
   }
   int hasPipe = scan(cmdLine);
-  if(hasPipe){
+  if (hasPipe)
+  {
     pipe(lpd);
     int pid = fork();
-    if(pid){
+    if (pid)
+    {
       close(lpd[1]);
       dup2(lpd[0], 0);
       close(lpd[0]);
       doCommand(tail);
     }
-    else{
+    else
+    {
       doPipe(head, lpd);
     }
   }
-  else{
+  else
+  {
     doCommand(cmdLine);
   }
 }
 
-int scan(char *cmdLine){
-  for(int i = strlen(cmdLine)-1; i > 0 ; i--){
-    if(cmdLine[i] == '|' ){
+int scan(char *cmdLine)
+{
+  for (int i = strlen(cmdLine) - 1; i > 0; i--)
+  {
+    if (cmdLine[i] == '|')
+    {
       cmdLine[i] = 0;
       tail = cmdLine + i + 1;
       head = cmdLine;
@@ -175,25 +185,23 @@ int scan(char *cmdLine){
   head = cmdLine;
   tail = NULL;
   return 0;
-
 }
-
-
 
 int doCommand(char *cmdLine)
 {
   memset(name, 0, sizeof(name));
-  //resetStreams();
+  // resetStreams();
   tokenizeLine(cmdLine);
   ioRedirection();
   char cmd[64];
-  if(name[0][0] == '.' && name[0][1] =='/'){
+  if (name[0][0] == '.' && name[0][1] == '/')
+  {
     char temp[MAX];
     getcwd(temp, MAX);
     strcat(temp, "/");
     strcat(temp, name[0]);
 
-    execve(temp,name, __environ);
+    execve(temp, name, __environ);
   }
   for (int i = 0; i < ndir; i++)
   {
@@ -201,7 +209,7 @@ int doCommand(char *cmdLine)
     strcpy(cmd, dir[i]);
     strcat(cmd, "/");
     strcat(cmd, name[0]);
-    //printf("i=%d cmd=%s\n", i, cmd);
+    // printf("i=%d cmd=%s\n", i, cmd);
 
     execve(cmd, name, __environ);
   }
@@ -221,15 +229,15 @@ void tokenizeLine(char *line)
 
   for (int i = 0; i < ntoken; i++)
   {
-    //printf("%s\n", name[i]);
+    // printf("%s\n", name[i]);
   }
 }
 
 /*********************** 5 *********************
 Write your code to do I/O redirection:
-Example: check any (name[i] == ">"). 
-         If so, set name[i] = 0; 
-                redirecct stdout to name[i+1] 
+Example: check any (name[i] == ">").
+         If so, set name[i] = 0;
+                redirecct stdout to name[i+1]
 ********************************************/
 
 void ioRedirection()
@@ -265,12 +273,3 @@ void resetStreams()
   dup2(fd[0], stdout);
   dup2(fd[1], stdin);
 }
-
-/******************* 6 ***********************
- Handle pipe: check pipe symbol | in input line;
- if so, divide line into head, tail
-
- create PIPE, fork a child to share the pipe
- parent write to  pipe and exec head;
- child  read from pipe and exec tail
-********************************************/

@@ -15,15 +15,15 @@ extern int fd, dev;
 extern int nblocks, ninodes, bmap, imap, inode_start;
 
 /****************************************************************
-* Function: int make_dir(char *pathname)                        *
-* Date Created: 11/18/2020                                      *
-* Date Last Modified:                                           *
-* Description: creates a directory at a given path              *
-* Input parameters: the pathname/dirname                        *
-* Returns: 0 if success, -1 if fail                             *
-* Preconditions:                                                *
-* Postconditions:                                               *
-*****************************************************************/
+ * Function: int make_dir(char *pathname)                        *
+ * Date Created: 11/18/2020                                      *
+ * Date Last Modified:                                           *
+ * Description: creates a directory at a given path              *
+ * Input parameters: the pathname/dirname                        *
+ * Returns: 0 if success, -1 if fail                             *
+ * Preconditions:                                                *
+ * Postconditions:                                               *
+ *****************************************************************/
 int make_dir(char *pathname)
 {
     MINODE *start;
@@ -43,7 +43,7 @@ int make_dir(char *pathname)
         dev = running->cwd->dev;
     }
 
-    char *parent = dirname(pathcpy1); //dir and basename are distructive to strings
+    char *parent = dirname(pathcpy1); // dir and basename are distructive to strings
     char *child = basename(pathcpy2);
 
     int pino = getino(parent); // get partent inode numbe
@@ -72,20 +72,20 @@ int make_dir(char *pathname)
     pip->INODE.i_links_count++;    // dirs increment link count
     pip->INODE.i_atime = time(0L); // reset the time
     pip->dirty = 1;                // mark as changed
-    iput(pip);                     //writes the changed MINODE to the block
+    iput(pip);                     // writes the changed MINODE to the block
     return 0;
 }
 
 /****************************************************************
-* Function: int mymkdir(MINODE *pip, char *name)                *
-* Date Created: 11/18/2020                                      *
-* Date Last Modified:                                           *
-* Description: creates the dir and default files inside         *
-* Input parameters: minode to parent, new name of child dir     *
-* Returns: 0 on success                                         *
-* Preconditions: called from make_dir(char *pathname)          *
-* Postconditions:                                               *
-*****************************************************************/
+ * Function: int mymkdir(MINODE *pip, char *name)                *
+ * Date Created: 11/18/2020                                      *
+ * Date Last Modified:                                           *
+ * Description: creates the dir and default files inside         *
+ * Input parameters: minode to parent, new name of child dir     *
+ * Returns: 0 on success                                         *
+ * Preconditions: called from make_dir(char *pathname)          *
+ * Postconditions:                                               *
+ *****************************************************************/
 int mymkdir(MINODE *pip, char *name)
 {
     MINODE *mip;
@@ -133,7 +133,7 @@ int mymkdir(MINODE *pip, char *name)
     cp += dp->rec_len; // advancing to end of '.' entry
     dp = (DIR *)cp;
 
-    //making .. entry
+    // making .. entry
     dp->inode = pip->ino;       // setting to parent ino
     dp->rec_len = BLKSIZE - 12; // size is rest of block
     dp->name_len = 2;           // size of the name
@@ -148,15 +148,15 @@ int mymkdir(MINODE *pip, char *name)
 }
 
 /****************************************************************
-* Function: int creat_file(char *pathname)                      *
-* Date Created: 11/12/2020                                      *
-* Date Last Modified:                                           *
-* Description: creates a file with name pathname                *
-* Input parameters: pathname/name of file                       *
-* Returns: 0 if success, -1 if fail                             *
-* Preconditions:                                                *
-* Postconditions:                                               *
-*****************************************************************/
+ * Function: int creat_file(char *pathname)                      *
+ * Date Created: 11/12/2020                                      *
+ * Date Last Modified:                                           *
+ * Description: creates a file with name pathname                *
+ * Input parameters: pathname/name of file                       *
+ * Returns: 0 if success, -1 if fail                             *
+ * Preconditions:                                                *
+ * Postconditions:                                               *
+ *****************************************************************/
 int creat_file(char *pathname)
 {
     MINODE *start;
@@ -176,7 +176,7 @@ int creat_file(char *pathname)
         dev = running->cwd->dev;
     }
 
-    char *parent = dirname(pathcpy1); //dir and basename are distructive to strings
+    char *parent = dirname(pathcpy1); // dir and basename are distructive to strings
     char *child = basename(pathcpy2);
 
     int pino = getino(parent); // get the parent inode number
@@ -204,20 +204,20 @@ int creat_file(char *pathname)
     my_creat(pip, child);          // creates the file
     pip->INODE.i_atime = time(0L); // sets time
     pip->dirty = 1;                // mark as changed
-    iput(pip);                     //writes the changed MINODE to the block
+    iput(pip);                     // writes the changed MINODE to the block
     return 0;
 }
 
 /****************************************************************
-* Function: my_creat(MINODE *pip, char *name)                   *
-* Date Created: 11/12/2020                                      *
-* Date Last Modified:                                           *
-* Description: creates a file with stadard permissions          *
-* Input parameters: parent minode, name of file                 *
-* Returns: 0 if success                                         *
-* Preconditions: called from creat_file(char *pathname)         *
-* Postconditions:                                               *
-*****************************************************************/
+ * Function: my_creat(MINODE *pip, char *name)                   *
+ * Date Created: 11/12/2020                                      *
+ * Date Last Modified:                                           *
+ * Description: creates a file with stadard permissions          *
+ * Input parameters: parent minode, name of file                 *
+ * Returns: 0 if success                                         *
+ * Preconditions: called from creat_file(char *pathname)         *
+ * Postconditions:                                               *
+ *****************************************************************/
 int my_creat(MINODE *pip, char *name)
 {
     MINODE *mip;

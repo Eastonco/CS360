@@ -16,30 +16,30 @@ extern int fd, dev, root_dev;
 extern int nblocks, ninodes, bmap, imap, inode_start;
 
 /****************************************************************
-* Function:                                                     *
-* Date Created:                                                 *
-* Date Last Modified:                                           *
-* Description:                                                  *
-* Input parameters:                                             *
-* Returns:                                                      *
-* Preconditions:                                                *
-* Postconditions:                                               *
-*****************************************************************/
+ * Function:                                                     *
+ * Date Created:                                                 *
+ * Date Last Modified:                                           *
+ * Description:                                                  *
+ * Input parameters:                                             *
+ * Returns:                                                      *
+ * Preconditions:                                                *
+ * Postconditions:                                               *
+ *****************************************************************/
 int tst_bit(char *buf, int bit)
 {
     return buf[bit / 8] & (1 << (bit % 8));
 }
 
 /****************************************************************
-* Function:                                                     *
-* Date Created:                                                 *
-* Date Last Modified:                                           *
-* Description:                                                  *
-* Input parameters:                                             *
-* Returns:                                                      *
-* Preconditions:                                                *
-* Postconditions:                                               *
-*****************************************************************/
+ * Function:                                                     *
+ * Date Created:                                                 *
+ * Date Last Modified:                                           *
+ * Description:                                                  *
+ * Input parameters:                                             *
+ * Returns:                                                      *
+ * Preconditions:                                                *
+ * Postconditions:                                               *
+ *****************************************************************/
 int set_bit(char *buf, int bitnum)
 {
     int bit, byte;
@@ -53,15 +53,15 @@ int set_bit(char *buf, int bitnum)
 }
 
 /****************************************************************
-* Function:                                                     *
-* Date Created:                                                 *
-* Date Last Modified:                                           *
-* Description:                                                  *
-* Input parameters:                                             *
-* Returns:                                                      *
-* Preconditions:                                                *
-* Postconditions:                                               *
-*****************************************************************/
+ * Function:                                                     *
+ * Date Created:                                                 *
+ * Date Last Modified:                                           *
+ * Description:                                                  *
+ * Input parameters:                                             *
+ * Returns:                                                      *
+ * Preconditions:                                                *
+ * Postconditions:                                               *
+ *****************************************************************/
 int clr_bit(char *buf, int bitnum)
 {
     int bit, byte;
@@ -75,15 +75,15 @@ int clr_bit(char *buf, int bitnum)
 }
 
 /****************************************************************
-* Function:                                                     *
-* Date Created:                                                 *
-* Date Last Modified:                                           *
-* Description:                                                  *
-* Input parameters:                                             *
-* Returns:                                                      *
-* Preconditions:                                                *
-* Postconditions:                                               *
-*****************************************************************/
+ * Function:                                                     *
+ * Date Created:                                                 *
+ * Date Last Modified:                                           *
+ * Description:                                                  *
+ * Input parameters:                                             *
+ * Returns:                                                      *
+ * Preconditions:                                                *
+ * Postconditions:                                               *
+ *****************************************************************/
 int decFreeInodes(int dev)
 {
     char buf[BLKSIZE];
@@ -100,15 +100,15 @@ int decFreeInodes(int dev)
 }
 
 /****************************************************************
-* Function:                                                     *
-* Date Created:                                                 *
-* Date Last Modified:                                           *
-* Description:                                                  *
-* Input parameters:                                             *
-* Returns:                                                      *
-* Preconditions:                                                *
-* Postconditions:                                               *
-*****************************************************************/
+ * Function:                                                     *
+ * Date Created:                                                 *
+ * Date Last Modified:                                           *
+ * Description:                                                  *
+ * Input parameters:                                             *
+ * Returns:                                                      *
+ * Preconditions:                                                *
+ * Postconditions:                                               *
+ *****************************************************************/
 int decFreeBlocks(int dev)
 {
     char buf[BLKSIZE];
@@ -125,15 +125,15 @@ int decFreeBlocks(int dev)
 }
 
 /****************************************************************
-* Function:                                                     *
-* Date Created:                                                 *
-* Date Last Modified:                                           *
-* Description:                                                  *
-* Input parameters:                                             *
-* Returns:                                                      *
-* Preconditions:                                                *
-* Postconditions:                                               *
-*****************************************************************/
+ * Function:                                                     *
+ * Date Created:                                                 *
+ * Date Last Modified:                                           *
+ * Description:                                                  *
+ * Input parameters:                                             *
+ * Returns:                                                      *
+ * Preconditions:                                                *
+ * Postconditions:                                               *
+ *****************************************************************/
 int incFreeBlocks(int dev)
 {
     char buf[BLKSIZE];
@@ -150,15 +150,15 @@ int incFreeBlocks(int dev)
 }
 
 /****************************************************************
-* Function:                                                     *
-* Date Created:                                                 *
-* Date Last Modified:                                           *
-* Description:                                                  *
-* Input parameters:                                             *
-* Returns:                                                      *
-* Preconditions:                                                *
-* Postconditions:                                               *
-*****************************************************************/
+ * Function:                                                     *
+ * Date Created:                                                 *
+ * Date Last Modified:                                           *
+ * Description:                                                  *
+ * Input parameters:                                             *
+ * Returns:                                                      *
+ * Preconditions:                                                *
+ * Postconditions:                                               *
+ *****************************************************************/
 int incFreeInodes(int dev)
 {
     char buf[BLKSIZE];
@@ -174,15 +174,15 @@ int incFreeInodes(int dev)
 }
 
 /****************************************************************
-* Function:                                                     *
-* Date Created:                                                 *
-* Date Last Modified:                                           *
-* Description:                                                  *
-* Input parameters:                                             *
-* Returns:                                                      *
-* Preconditions:                                                *
-* Postconditions:                                               *
-*****************************************************************/
+ * Function:                                                     *
+ * Date Created:                                                 *
+ * Date Last Modified:                                           *
+ * Description:                                                  *
+ * Input parameters:                                             *
+ * Returns:                                                      *
+ * Preconditions:                                                *
+ * Postconditions:                                               *
+ *****************************************************************/
 int ialloc(int dev) // allocate an inode number from inode_bitmap
 {
     int i;
@@ -205,17 +205,17 @@ int ialloc(int dev) // allocate an inode number from inode_bitmap
 }
 
 /****************************************************************
-* Function:                                                     *
-* Date Created:                                                 *
-* Date Last Modified:                                           *
-* Description:                                                  *
-* Input parameters:                                             *
-* Returns:                                                      *
-* Preconditions:                                                *
-* Postconditions:                                               *
-*****************************************************************/
+ * Function:                                                     *
+ * Date Created:                                                 *
+ * Date Last Modified:                                           *
+ * Description:                                                  *
+ * Input parameters:                                             *
+ * Returns:                                                      *
+ * Preconditions:                                                *
+ * Postconditions:                                               *
+ *****************************************************************/
 int balloc(int dev)
-{ //returns a FREE disk block number  NOTE: Not 100% sure if this works
+{ // returns a FREE disk block number  NOTE: Not 100% sure if this works
     int i;
     char buf[BLKSIZE];
 
@@ -236,15 +236,15 @@ int balloc(int dev)
 }
 
 /****************************************************************
-* Function:                                                     *
-* Date Created:                                                 *
-* Date Last Modified:                                           *
-* Description:                                                  *
-* Input parameters:                                             *
-* Returns:                                                      *
-* Preconditions:                                                *
-* Postconditions:                                               *
-*****************************************************************/
+ * Function:                                                     *
+ * Date Created:                                                 *
+ * Date Last Modified:                                           *
+ * Description:                                                  *
+ * Input parameters:                                             *
+ * Returns:                                                      *
+ * Preconditions:                                                *
+ * Postconditions:                                               *
+ *****************************************************************/
 int idealloc(int dev, int ino)
 { // deallocating inode (number)
     int i;
@@ -264,15 +264,15 @@ int idealloc(int dev, int ino)
 }
 
 /****************************************************************
-* Function: bdealloc(int dev, int bno)                          *
-* Date Created: 11/18/2020                                      *
-* Date Last Modified:                                           *
-* Description: deallocates a disk block number                  *
-* Input parameters: device id, block numbre                     *
-* Returns: 0 on success                                         *
-* Preconditions:                                                *
-* Postconditions:                                               *
-*****************************************************************/
+ * Function: bdealloc(int dev, int bno)                          *
+ * Date Created: 11/18/2020                                      *
+ * Date Last Modified:                                           *
+ * Description: deallocates a disk block number                  *
+ * Input parameters: device id, block numbre                     *
+ * Returns: 0 on success                                         *
+ * Preconditions:                                                *
+ * Postconditions:                                               *
+ *****************************************************************/
 int bdealloc(int dev, int bno)
 {
     char buf[BLKSIZE]; // a sweet buffer
@@ -285,16 +285,16 @@ int bdealloc(int dev, int bno)
 }
 
 /****************************************************************
-* Function: get_block(int dev, int blk, char *buf)              *
-* Date Created: 10/?/2020                                       *
-* Date Last Modified:                                           *
-* Description: gets memory block from the device                *
-* Input parameters: device id, block number, a buffer to read   *
-*                   into                                        *
-* Returns: a filled buffer via pointer                          *
-* Preconditions:                                                *
-* Postconditions:                                               *
-*****************************************************************/
+ * Function: get_block(int dev, int blk, char *buf)              *
+ * Date Created: 10/?/2020                                       *
+ * Date Last Modified:                                           *
+ * Description: gets memory block from the device                *
+ * Input parameters: device id, block number, a buffer to read   *
+ *                   into                                        *
+ * Returns: a filled buffer via pointer                          *
+ * Preconditions:                                                *
+ * Postconditions:                                               *
+ *****************************************************************/
 int get_block(int dev, int blk, char *buf)
 {
     lseek(dev, (long)blk * BLKSIZE, 0); // seek to block number
@@ -302,16 +302,16 @@ int get_block(int dev, int blk, char *buf)
 }
 
 /****************************************************************
-* Function: put_block(int dev, int blk, char *buf)              *
-* Date Created: 10/?/2020                                       *
-* Date Last Modified:                                           *
-* Description: wries memory block to device                     *
-* Input parameters: device id, block number, a buffer to write  *
-*                   from                                        *
-* Returns: n/a                                                  *
-* Preconditions:                                                *
-* Postconditions:                                               *
-*****************************************************************/
+ * Function: put_block(int dev, int blk, char *buf)              *
+ * Date Created: 10/?/2020                                       *
+ * Date Last Modified:                                           *
+ * Description: wries memory block to device                     *
+ * Input parameters: device id, block number, a buffer to write  *
+ *                   from                                        *
+ * Returns: n/a                                                  *
+ * Preconditions:                                                *
+ * Postconditions:                                               *
+ *****************************************************************/
 int put_block(int dev, int blk, char *buf)
 {
     lseek(dev, (long)blk * BLKSIZE, 0); // seek to block number
@@ -319,17 +319,17 @@ int put_block(int dev, int blk, char *buf)
 }
 
 /****************************************************************
-* Function: tokenize(char *pathname)                            *
-* Date Created: 10/?/2020                                       *
-* Date Last Modified:                                           *
-* Description: copy pathname into gpath[],                      *
-*               tokenize it into name[0] to name[n-1]           *
-* Input parameters: pathname                                    *
-* Returns: number of tokens -> writes to global gpath[]         *
-*                                           and name[]          *
-* Preconditions:                                                *
-* Postconditions:                                               *
-*****************************************************************/
+ * Function: tokenize(char *pathname)                            *
+ * Date Created: 10/?/2020                                       *
+ * Date Last Modified:                                           *
+ * Description: copy pathname into gpath[],                      *
+ *               tokenize it into name[0] to name[n-1]           *
+ * Input parameters: pathname                                    *
+ * Returns: number of tokens -> writes to global gpath[]         *
+ *                                           and name[]          *
+ * Preconditions:                                                *
+ * Postconditions:                                               *
+ *****************************************************************/
 int tokenize(char *pathname)
 {
 
@@ -346,15 +346,15 @@ int tokenize(char *pathname)
 }
 
 /****************************************************************
-* Function: mialloc()                                           *
-* Date Created: 10/?/2020                                       *
-* Date Last Modified:                                           *
-* Description: allocate a FREE minode for use                   *
-* Input parameters: n/a                                         *
-* Returns: newly allocated minode, 0 if fail                    *
-* Preconditions:                                                *
-* Postconditions:                                               *
-*****************************************************************/
+ * Function: mialloc()                                           *
+ * Date Created: 10/?/2020                                       *
+ * Date Last Modified:                                           *
+ * Description: allocate a FREE minode for use                   *
+ * Input parameters: n/a                                         *
+ * Returns: newly allocated minode, 0 if fail                    *
+ * Preconditions:                                                *
+ * Postconditions:                                               *
+ *****************************************************************/
 MINODE *mialloc()
 {
     int i;
@@ -372,15 +372,15 @@ MINODE *mialloc()
 }
 
 /****************************************************************
-* Function:  midalloc(MINODE *mip)                              *
-* Date Created: 10/?/2020                                       *
-* Date Last Modified:                                           *
-* Description: release a used minode                            *
-* Input parameters: minode to be deallocated                    *
-* Returns: 0 on success                                         *
-* Preconditions:                                                *
-* Postconditions:                                               *
-*****************************************************************/
+ * Function:  midalloc(MINODE *mip)                              *
+ * Date Created: 10/?/2020                                       *
+ * Date Last Modified:                                           *
+ * Description: release a used minode                            *
+ * Input parameters: minode to be deallocated                    *
+ * Returns: 0 on success                                         *
+ * Preconditions:                                                *
+ * Postconditions:                                               *
+ *****************************************************************/
 int midalloc(MINODE *mip)
 {
     mip->refCount = 0; // by setting refcount to 0 -> becomes viewed as unclaimed
@@ -388,15 +388,15 @@ int midalloc(MINODE *mip)
 }
 
 /****************************************************************
-* Function: iget(int dev, int ino)                              *
-* Date Created: 10/?/2020                                       *
-* Date Last Modified:                                           *
-* Description: gets the minode from memory via inode nunber     *
-* Input parameters: device id, inode nunber                     *
-* Returns: the minode                                           *
-* Preconditions:                                                *
-* Postconditions:                                               *
-*****************************************************************/
+ * Function: iget(int dev, int ino)                              *
+ * Date Created: 10/?/2020                                       *
+ * Date Last Modified:                                           *
+ * Description: gets the minode from memory via inode nunber     *
+ * Input parameters: device id, inode nunber                     *
+ * Returns: the minode                                           *
+ * Preconditions:                                                *
+ * Postconditions:                                               *
+ *****************************************************************/
 MINODE *iget(int dev, int ino)
 {
     MINODE *mip;
@@ -410,7 +410,7 @@ MINODE *iget(int dev, int ino)
     {
         mip = &minode[i];                                            // set minode to minode at this position
         if (mip->refCount && (mip->dev == dev) && (mip->ino == ino)) // if it has a refcount and it's in the device,
-        {                                                            //and matches our inode numnber
+        {                                                            // and matches our inode numnber
             mip->refCount++;                                         // increment refcount
             return mip;                                              // return the minode
         }
@@ -435,15 +435,15 @@ MINODE *iget(int dev, int ino)
 }
 
 /****************************************************************
-* Function:                                                     *
-* Date Created:                                                 *
-* Date Last Modified:                                           *
-* Description:                                                  *
-* Input parameters:                                             *
-* Returns:                                                      *
-* Preconditions:                                                *
-* Postconditions:                                               *
-*****************************************************************/
+ * Function:                                                     *
+ * Date Created:                                                 *
+ * Date Last Modified:                                           *
+ * Description:                                                  *
+ * Input parameters:                                             *
+ * Returns:                                                      *
+ * Preconditions:                                                *
+ * Postconditions:                                               *
+ *****************************************************************/
 int iput(MINODE *mip)
 {
     INODE *ip;
@@ -467,20 +467,20 @@ int iput(MINODE *mip)
     ip = (INODE *)buf + offset;      // ip points at INODE
     *ip = mip->INODE;                // copy INODE to inode in block
     put_block(mip->dev, block, buf); // write back to disk
-    //midalloc(mip);                   // mip->refCount = 0;
+    // midalloc(mip);                   // mip->refCount = 0;
     return 0;
 }
 
 /****************************************************************
-* Function:                                                     *
-* Date Created:                                                 *
-* Date Last Modified:                                           *
-* Description:                                                  *
-* Input parameters:                                             *
-* Returns:                                                      *
-* Preconditions:                                                *
-* Postconditions:                                               *
-*****************************************************************/
+ * Function:                                                     *
+ * Date Created:                                                 *
+ * Date Last Modified:                                           *
+ * Description:                                                  *
+ * Input parameters:                                             *
+ * Returns:                                                      *
+ * Preconditions:                                                *
+ * Postconditions:                                               *
+ *****************************************************************/
 int search(MINODE *mip, char *lname)
 {
     // search for name in (DIRECT) data blocks of mip->INODE
@@ -490,7 +490,7 @@ int search(MINODE *mip, char *lname)
     char *cp, temp[256], sbuf[BLKSIZE];
     DIR *dp;
     for (i = 0; i < 12; i++)
-    { //Search DIR direct blcoks only
+    { // Search DIR direct blcoks only
         if (mip->INODE.i_block[i] == 0)
             return -1;
         get_block(mip->dev, mip->INODE.i_block[i], sbuf);
@@ -515,15 +515,15 @@ int search(MINODE *mip, char *lname)
 }
 
 /****************************************************************
-* Function:                                                     *
-* Date Created:                                                 *
-* Date Last Modified:                                           *
-* Description:                                                  *
-* Input parameters:                                             *
-* Returns:                                                      *
-* Preconditions:                                                *
-* Postconditions:                                               *
-*****************************************************************/
+ * Function:                                                     *
+ * Date Created:                                                 *
+ * Date Last Modified:                                           *
+ * Description:                                                  *
+ * Input parameters:                                             *
+ * Returns:                                                      *
+ * Preconditions:                                                *
+ * Postconditions:                                               *
+ *****************************************************************/
 int getino(char *pathname)
 {
     // return ino of pathname
@@ -531,14 +531,15 @@ int getino(char *pathname)
     int i, ino;
     if (strcmp(pathname, "/") == 0)
         return 2; // return root ino = 2
-    if (pathname[0] == '/') {
-        //mip = root; // if absolute pathname: start from root
+    if (pathname[0] == '/')
+    {
+        // mip = root; // if absolute pathname: start from root
         dev = root->dev;
         ino = root->ino;
-    } 
+    }
     else
     {
-        //mip = running->cwd; // if relative pathname: start from cwd
+        // mip = running->cwd; // if relative pathname: start from cwd
         dev = running->cwd->dev;
         ino = running->cwd->ino;
     }
@@ -548,7 +549,7 @@ int getino(char *pathname)
     tokenize(pathname); // assume: name[], nname are globals
 
     for (i = 0; i < n; i++)
-    { //search for each component string
+    { // search for each component string
         if (!S_ISDIR(mip->INODE.i_mode))
         {
             printf("%s is not a directory\n", name[i]);
@@ -585,7 +586,7 @@ int getino(char *pathname)
                 }
             }
         }
-        else 
+        else
         {
             mip->dirty = 1;
             iput(mip);
@@ -611,18 +612,18 @@ int getino(char *pathname)
 }
 
 /****************************************************************
-* Function: findmyname(MINODE *parent, u32 myino, char *myname) *
-* Date Created: 11/4/2020                                       *
-* Date Last Modified:                                           *
-* Description: Searches for an inode and returns its name.      *
-* Input parameters: MINODE ptr parent, u32 current dir          *
-*                   myino, return parameter string myname.      *
-* Returns: Name of inode indirectly through myname.             *
-* Preconditions: parent must point to a valid MINODE, myino     *
-*               must be a declared u32 variable, myname is a    *
-*               valid string.                                   *
-* Postconditions:                                               *
-*****************************************************************/
+ * Function: findmyname(MINODE *parent, u32 myino, char *myname) *
+ * Date Created: 11/4/2020                                       *
+ * Date Last Modified:                                           *
+ * Description: Searches for an inode and returns its name.      *
+ * Input parameters: MINODE ptr parent, u32 current dir          *
+ *                   myino, return parameter string myname.      *
+ * Returns: Name of inode indirectly through myname.             *
+ * Preconditions: parent must point to a valid MINODE, myino     *
+ *               must be a declared u32 variable, myname is a    *
+ *               valid string.                                   *
+ * Postconditions:                                               *
+ *****************************************************************/
 // code is *very* similar to search-- just copies to myname instead of returning inode
 int findmyname(MINODE *parent, u32 myino, char *myname)
 {
@@ -635,7 +636,7 @@ int findmyname(MINODE *parent, u32 myino, char *myname)
     MINODE *mip = parent;
 
     for (i = 0; i < 12; i++)
-    { //Search DIR direct blcoks only
+    { // Search DIR direct blcoks only
         if (mip->INODE.i_block[i] == 0)
             return -1;
         get_block(mip->dev, mip->INODE.i_block[i], sbuf);
@@ -660,18 +661,18 @@ int findmyname(MINODE *parent, u32 myino, char *myname)
 }
 
 /************************************************************
-* Function: findino(MINODE *mip, u32 *myino)                *
-* Date Created: 11/4/2020                                   *
-* Date Last Modified:                                       *
-* Description: Finds the inode of current dir (.) and       *
-*                parent dir (..).                           *
-* Input parameters:  myino output parameter, pointer to     *
-*                   MINODE mip.                             *
-* Returns: inode of . indirectly, inode of .. directly.     *
-* Preconditions: mip must point to a valid MINODE, myino    *
-*               must be a declared u32 variable pointer.    *
-* Postconditions:                                           *
-*************************************************************/
+ * Function: findino(MINODE *mip, u32 *myino)                *
+ * Date Created: 11/4/2020                                   *
+ * Date Last Modified:                                       *
+ * Description: Finds the inode of current dir (.) and       *
+ *                parent dir (..).                           *
+ * Input parameters:  myino output parameter, pointer to     *
+ *                   MINODE mip.                             *
+ * Returns: inode of . indirectly, inode of .. directly.     *
+ * Preconditions: mip must point to a valid MINODE, myino    *
+ *               must be a declared u32 variable pointer.    *
+ * Postconditions:                                           *
+ *************************************************************/
 // reads a block of memory in i_block[0] and copies it to a buffer.
 // Uses that buffer to get the inode of '.' (after casting to a DIR *)
 // Then iterates that pointer to the buffer by the length of the directory entry (dp->rec_len)
@@ -691,15 +692,15 @@ int findino(MINODE *mip, u32 *myino) // myino = ino of . return ino of ..
 }
 
 /****************************************************************
-* Function: enter_name(MINODE *pip, int myino, char *myname)    *
-* Date Created: 11/12/2020                                      *
-* Date Last Modified:                                           *
-* Description: adds the name of a dir to the block entry        *
-* Input parameters: parent minode, inode number, name of file   *
-* Returns: 1 if allocating a new block, 0 if adding to block    *
-* Preconditions:                                                *
-* Postconditions:                                               *
-*****************************************************************/
+ * Function: enter_name(MINODE *pip, int myino, char *myname)    *
+ * Date Created: 11/12/2020                                      *
+ * Date Last Modified:                                           *
+ * Description: adds the name of a dir to the block entry        *
+ * Input parameters: parent minode, inode number, name of file   *
+ * Returns: 1 if allocating a new block, 0 if adding to block    *
+ * Preconditions:                                                *
+ * Postconditions:                                               *
+ *****************************************************************/
 int enter_name(MINODE *pip, int myino, char *myname)
 {
     char buf[BLKSIZE], *cp;
@@ -707,7 +708,7 @@ int enter_name(MINODE *pip, int myino, char *myname)
     INODE *ip;
     DIR *dp;
 
-    int need_len = 4 * ((8 + strlen(myname) + 3) / 4); //ideal length of entry
+    int need_len = 4 * ((8 + strlen(myname) + 3) / 4); // ideal length of entry
 
     ip = &pip->INODE; // get the inode
 
@@ -737,7 +738,7 @@ int enter_name(MINODE *pip, int myino, char *myname)
 
         if (remainder >= need_len)
         {                            // space available for new netry
-            dp->rec_len = ideal_len; //trim current entry to ideal len
+            dp->rec_len = ideal_len; // trim current entry to ideal len
             cp += dp->rec_len;       // advance to end
             dp = (DIR *)cp;          // point to new open entry space
 
@@ -765,22 +766,22 @@ int enter_name(MINODE *pip, int myino, char *myname)
             dp->inode = myino;             // inode
             dp->rec_len = BLKSIZE;         // only entry so full size
 
-            put_block(dev, bno, buf); //save
+            put_block(dev, bno, buf); // save
             return 1;
         }
     }
 }
 
 /****************************************************************
-* Function: rm_child(MINODE *parent, char *name)                *
-* Date Created: 11/18/2020                                      *
-* Date Last Modified:                                           *
-* Description: removes the child from the parents child list    *
-* Input parameters: parent Minode, name of child to be removed  *
-* Returns: 0 if success, -1 if fail                             *
-* Preconditions:                                                *
-* Postconditions:                                               *
-*****************************************************************/
+ * Function: rm_child(MINODE *parent, char *name)                *
+ * Date Created: 11/18/2020                                      *
+ * Date Last Modified:                                           *
+ * Description: removes the child from the parents child list    *
+ * Input parameters: parent Minode, name of child to be removed  *
+ * Returns: 0 if success, -1 if fail                             *
+ * Preconditions:                                                *
+ * Postconditions:                                               *
+ *****************************************************************/
 int rm_child(MINODE *parent, char *name)
 {
     DIR *dp, *prevdp, *lastdp;
@@ -856,12 +857,14 @@ int rm_child(MINODE *parent, char *name)
     return -1;
 }
 
-// use inodes in block, go to address, free them (memset), 
-int inode_truncate(MINODE *mip) {
+// use inodes in block, go to address, free them (memset),
+int inode_truncate(MINODE *mip)
+{
     char buf[BLKSIZE];
     INODE *ip = &mip->INODE;
     // 12 direct blocks
-    for (int i = 0; i < 12; i++) {
+    for (int i = 0; i < 12; i++)
+    {
         if (ip->i_block[i] == 0)
             break;
         // now deallocate block
@@ -871,11 +874,13 @@ int inode_truncate(MINODE *mip) {
     // now worry about indirect blocks and doubly indirect blocks
     // (see pp. 762 in ULK for visualization of data blocks)
     // indirect blocks:
-    if (ip->i_block[12] != NULL) {
+    if (ip->i_block[12] != NULL)
+    {
         get_block(dev, ip->i_block[12], buf); // follow the ptr to the block
-        int *ip_indirect = (int *)buf; // reference to indirect block via integer ptr
+        int *ip_indirect = (int *)buf;        // reference to indirect block via integer ptr
         int indirect_count = 0;
-        while (indirect_count < BLKSIZE / sizeof(int)) { // split blksize into int sized chunks (4 bytes at a time)
+        while (indirect_count < BLKSIZE / sizeof(int))
+        { // split blksize into int sized chunks (4 bytes at a time)
             if (ip_indirect[indirect_count] == 0)
                 break;
             // deallocate indirect block
@@ -889,11 +894,13 @@ int inode_truncate(MINODE *mip) {
     }
 
     // doubly indirect blocks (same code as above, different variables):
-    if (ip->i_block[13] != NULL) {
+    if (ip->i_block[13] != NULL)
+    {
         get_block(dev, ip->i_block[13], buf);
         int *ip_doubly_indirect = (int *)buf;
         int doubly_indirect_count = 0;
-        while (doubly_indirect_count < BLKSIZE / sizeof(int)) {
+        while (doubly_indirect_count < BLKSIZE / sizeof(int))
+        {
             if (ip_doubly_indirect[doubly_indirect_count] == 0)
                 break;
             // deallocate doubly indirect block

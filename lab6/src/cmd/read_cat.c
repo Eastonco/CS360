@@ -13,20 +13,23 @@ extern int n;           // number of component strings
 extern int fd, dev;
 extern int nblocks, ninodes, bmap, imap, inode_start;
 
-int read_file() {
+int read_file()
+{
     int fd = 0, n_bytes = 0;
     printf("Enter a file descriptor: ");
     scanf("%d", &fd);
     printf("Enter the number of bytes to read: ");
     scanf("%d", &n_bytes);
 
-    if (is_invalid_fd(fd)) {
+    if (is_invalid_fd(fd))
+    {
         printf("error: invalid provided fd\n");
         return -1;
     }
 
     // verify fd is open for RD or RW
-    if (running->fd[fd]->mode != READ && running->fd[fd]->mode != READ_WRITE) {
+    if (running->fd[fd]->mode != READ && running->fd[fd]->mode != READ_WRITE)
+    {
         printf("error: provided fd is not open for read or write\n");
         return -1;
     }
@@ -35,12 +38,13 @@ int read_file() {
     return myread(fd, buf, n_bytes);
 }
 
-int myread(int fd, char *buf, int n_bytes) {
+int myread(int fd, char *buf, int n_bytes)
+{
     OFT *oftp = running->fd[fd];
     MINODE *mip = oftp->mptr;
     int count = 0, lbk, startByte, blk;
-    int ibuf[BLKSIZE] = { 0 };
-    int doubly_ibuf[BLKSIZE] = { 0 };
+    int ibuf[BLKSIZE] = {0};
+    int doubly_ibuf[BLKSIZE] = {0};
 
     int avil = mip->INODE.i_size - oftp->offset;
     char *cq = buf;
@@ -48,22 +52,28 @@ int myread(int fd, char *buf, int n_bytes) {
     if (n_bytes > avil)
         n_bytes = avil;
 
-    while (n_bytes && avil) {
+    while (n_bytes && avil)
+    {
         lbk = oftp->offset / BLKSIZE;
         startByte = oftp->offset % BLKSIZE;
 
-        if (lbk < 12) {                             // direct blocks
+        if (lbk < 12)
+        { // direct blocks
             blk = mip->INODE.i_block[lbk];
-        } else if (lbk >= 12 && lbk < 256 + 12) {   // indirect blocks
+        }
+        else if (lbk >= 12 && lbk < 256 + 12)
+        { // indirect blocks
             // read block from i_block[12], pp. 348
             get_block(mip->dev, mip->INODE.i_block[12], ibuf);
             blk = ibuf[lbk - 12]; // offset of 12
-        } else {                                    // doubly indirect blocks
+        }
+        else
+        { // doubly indirect blocks
             // read block from i_block[13]
             get_block(mip->dev, mip->INODE.i_block[13], (char *)ibuf);
             // use mailman's algorithm to reset blk to the correct doubly indirect block
             int chunk_size = (BLKSIZE / sizeof(int));
-            lbk = lbk - chunk_size - 12; // reset lbk to 0 relatively
+            lbk = lbk - chunk_size - 12;  // reset lbk to 0 relatively
             blk = ibuf[lbk / chunk_size]; // divide 'addresses'/indices by 256
             get_block(mip->dev, blk, doubly_ibuf);
             // now modulus to get the correct mapping
@@ -79,23 +89,26 @@ int myread(int fd, char *buf, int n_bytes) {
         int remainder = BLKSIZE - startByte;
 
         // copy entire BLKSIZE at a time
-        if (n_bytes <= remainder) {
+        if (n_bytes <= remainder)
+        {
             memcpy(cq, cp, n_bytes);
             cq += n_bytes;
             cp += n_bytes;
             count += n_bytes;
             oftp->offset += n_bytes;
-            avil -= n_bytes; 
+            avil -= n_bytes;
             remainder -= n_bytes;
             n_bytes = 0;
-        } else {
+        }
+        else
+        {
             memcpy(cq, cp, remainder);
             cq += remainder;
             cp += remainder;
             count += remainder;
             oftp->offset += remainder;
             avil -= remainder;
-            n_bytes -= remainder; 
+            n_bytes -= remainder;
             remainder = 0;
         }
     }
@@ -103,30 +116,37 @@ int myread(int fd, char *buf, int n_bytes) {
     return count;
 }
 
-int my_cat(char *filename) {
+int my_cat(char *filename)
+{
     printf("CAT: running->cwd->ino, address: %d\t%x\n", running->cwd->ino, running->cwd);
     int n;
     char mybuf[BLKSIZE];
     int fd = open_file(filename, READ);
-    if (is_invalid_fd(fd)) {
+    if (is_invalid_fd(fd))
+    {
         printf("error, invalid fd to cat\n");
         close_file(fd);
         return -1;
     }
-    while (n = myread(fd, mybuf, BLKSIZE)) {
+    while (n = myread(fd, mybuf, BLKSIZE))
+    {
         mybuf[n] = 0;
         char *cp = mybuf;
-        while (*cp != '\0') {
-            if (*cp == '\n') {
+        while (*cp != '\0')
+        {
+            if (*cp == '\n')
+            {
                 printf("\n");
-            } else {
+            }
+            else
+            {
                 printf("%c", *cp);
             }
             cp++;
         }
-        //printf("%s", mybuf); // to be fixed
+        // printf("%s", mybuf); // to be fixed
     }
-    //putchar('\n');
+    // putchar('\n');
     close_file(fd);
 
     printf("END OF CAT: running->cwd->ino, address: %d\t%x\n", running->cwd->ino, running->cwd);

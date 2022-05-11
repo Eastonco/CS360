@@ -11,32 +11,31 @@
 #include <unistd.h>
 #include <stdbool.h>
 
-
-
 #define DIRECTORY_TYPE 'D'
 #define FILE_TYPE 'F'
-#define SET_TEXT_BLUE "\033[1;36m"
+#define SET_TEXT_BLUE "\e[36;1m" /*For more info on ANSI excape codes: http://jafrog.com/2013/11/23/colors-in-terminal.html*/
 #define RESET_TEXT "\033[0m"
 
-
-typedef struct node {
-
-    char * name[64];
-    char type;
+typedef struct node
+{
+    char *name[64];
+    char type; /* D | F -> Directory | File */
     struct node *parentPtr;
     struct node *siblingPtr;
     struct node *childPtr;
 
-}NODE;
+} NODE;
 
 NODE *root, *cwd;
-char line[128], command[16], pathname[64],dname[64], bname[64], savefile[64];
-
+char line[128], command[16], pathname[64], dname[64], bname[64], savefile[64];
 bool debug;
 
-// pathname = "/this/that/hello"
-// dname = "/this/that"
-// bname = "hello"
+/*
+Example:
+    pathname = "/this/that/hello"
+    dname = "/this/that"
+    bname = "hello"
+*/
 
 void initialize(void);
 int find_command(char *command);
@@ -45,7 +44,8 @@ void dbname(char *pathname);
 void print_node(NODE *pcur);
 void save(char *filename);
 void pwd();
-void pwdhelper(NODE * pcur);
+void reload(char *filename);
+void pwdhelper(NODE *pcur);
 void quit();
 void menu();
 
@@ -54,20 +54,19 @@ NODE *insert_node(NODE *parent, char *name, char type);
 NODE *find_node(NODE *pcur, char *pathname);
 NODE *find_helper(NODE *pcur, char *target, char file_type);
 
-void rprint(NODE * pcur, FILE *fd);
-void print_filesystem(FILE * fd);
-void fpwd(NODE *pcur, FILE * fd);
+void rprint(NODE *pcur, FILE *fd);
+void print_filesystem(FILE *fd);
+void fpwd(NODE *pcur, FILE *fd);
 
-void ls(char * pathname);
-void rm(char * pathname);
+void ls(char *pathname);
+void rm(char *pathname);
 
-NODE * parse_pathname(char *pathname);
+NODE *parse_pathname(char *pathname);
 
-void create(char * pathname);
+void create(char *pathname);
 void cd(char *pathname);
 
 void delete_node(NODE *pcur);
 void removedir(char *pathname);
-
 
 #endif
