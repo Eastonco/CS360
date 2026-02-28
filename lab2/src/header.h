@@ -12,30 +12,56 @@
 #include <stdbool.h>
 
 #define DIRECTORY_TYPE 'D'
-#define FILE_TYPE 'F'
-#define SET_TEXT_BLUE "\e[36;1m" /*For more info on ANSI excape codes: http://jafrog.com/2013/11/23/colors-in-terminal.html*/
-#define RESET_TEXT "\033[0m"
+#define FILE_TYPE      'F'
+#define SET_TEXT_BLUE  "\e[36;1m"  /* ANSI escape: bold cyan for directories */
+#define RESET_TEXT     "\033[0m"
 
+/*
+ * NODE: one entry in the in-memory filesystem tree.
+ *
+ * The tree uses a "left-child / right-sibling" (LC-RS) representation,
+ * which allows an arbitrary number of children per node using only two
+ * pointers. Instead of storing a list of children, each node stores:
+ *   - childPtr:   the FIRST child of this node
+ *   - siblingPtr: the NEXT sibling (another child of the same parent)
+ *
+ * Example tree for:  / → (a, b, c) where a → (x, y)
+ *
+ *     root
+ *      |
+ *      a ——> b ——> c        (siblings: follow siblingPtr)
+ *      |
+ *      x ——> y              (children of 'a': follow childPtr then siblingPtr)
+ *
+ * To list all children of a node: start at node->childPtr, then walk siblingPtr.
+ */
 typedef struct node
 {
-    char *name[64];
-    char type; /* D | F -> Directory | File */
-    struct node *parentPtr;
-    struct node *siblingPtr;
-    struct node *childPtr;
+    char name[64];           /* node name (directory or file); BUG FIX: was char *name[64]
+                                which declared an array of 64 pointers, not a 64-byte string */
+    char type;               /* DIRECTORY_TYPE ('D') or FILE_TYPE ('F') */
+    struct node *parentPtr;  /* pointer to parent node (NULL for root) */
+    struct node *siblingPtr; /* pointer to next sibling in parent's child list */
+    struct node *childPtr;   /* pointer to first child of this node */
 
 } NODE;
 
-NODE *root, *cwd;
+/*
+ * Global filesystem state.
+ * These are defined here (in the header) — which works because -fcommon allows
+ * multiple definitions of the same global symbol. Normally globals in headers
+ * should be declared `extern` with one definition in a .c file.
+ */
+NODE *root, *cwd;  /* root of the tree; cwd = current working directory */
 char line[128], command[16], pathname[64], dname[64], bname[64], savefile[64];
 bool debug;
 
 /*
-Example:
-    pathname = "/this/that/hello"
-    dname = "/this/that"
-    bname = "hello"
-*/
+ * Example of dirname/basename split:
+ *   pathname = "/this/that/hello"
+ *   dname = "/this/that"
+ *   bname = "hello"
+ */
 
 void initialize(void);
 int find_command(char *command);

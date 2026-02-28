@@ -5,32 +5,49 @@
 #include "util.h"
 #include "cmd.h"
 
-// globals
-MINODE minode[NMINODE]; // in memory INODEs
-MINODE *root;           // root of the file system
+/*
+ * Global definitions: these are declared extern in type.h and util.h,
+ * and defined exactly once here in main.c.
+ *
+ * BUG FIX: type.h originally defined sp/gp/ip/dp directly (not extern),
+ * causing multiple-definition errors without -fcommon. Now they are extern
+ * in the header and defined here.
+ *
+ * BUG FIX: name[] was char *name[32] here but declared extern char *name[64]
+ * in util.c. Fixed to 64 everywhere for consistency.
+ */
 
-PROC proc[NPROC]; // PROC structures
-PROC *running;    // current executing PROC
+/* In-memory inode cache and root pointer */
+MINODE minode[NMINODE];
+MINODE *root;
 
-MTABLE mount_table[NMOUNT]; // MOUNT table
+/* Process table */
+PROC proc[NPROC];
+PROC *running;
 
-char gpath[128]; // global for tokenized components
-char *name[32];  // assume at most 32 components in pathname
-int n;           // number of component strings
+/* Mount table */
+MTABLE mount_table[NMOUNT];
+
+/* Path tokenization globals */
+char  gpath[128]; /* storage for strtok to carve up pathnames */
+char *name[64];   /* BUG FIX: was [32]; util.c declared extern name[64] */
+int   n;          /* number of path components after tokenize() */
+
+/* On-disk structure pointers (defined here, extern in type.h) */
+SUPER *sp;
+GD    *gp;
+INODE *ip;
+DIR   *dp;
 
 int fd, dev, root_dev;
 int nblocks, ninodes, bmap, imap, inode_start;
 
-/****************************************************************
- * Function:                                                     *
- * Date Created:                                                 *
- * Date Last Modified:                                           *
- * Description:                                                  *
- * Input parameters:                                             *
- * Returns:                                                      *
- * Preconditions:                                                *
- * Postconditions:                                               *
- *****************************************************************/
+/*
+ * init: zero-initialize all in-memory filesystem data structures.
+ *
+ * Called once at startup before mounting. Sets all minode refCounts to 0
+ * (marking them free), clears all PROC fd tables, and zeroes mount table devs.
+ */
 int init()
 {
     int i, j;
@@ -64,17 +81,25 @@ int init()
         mtptr->dev = 0;
     }
 
-    // ensure circular process linking
+    /* Circular process list for round-robin scheduling simulation */
     proc[0].next = &proc[1];
     proc[1].next = &proc[0];
     root = NULL;
+    return 0;
 }
 
-// load root INODE and set root pointer to it
-int mount_root()
+/*
+ * mount_root: load the root inode (inode 2) into the minode cache.
+ *
+ * In ext2, inode 2 is always the root directory. We iget() it so it
+ * stays pinned in the cache (refCount > 0) for the lifetime of the process.
+ * All absolute path traversals start here.
+ */
+int mount_root(void)
 {
     printf("mount_root()\n");
     root = iget(dev, 2);
+    return 0;
 }
 
 char *disk = "disk2";
@@ -159,83 +184,88 @@ int main(int argc, char *argv[])
         sscanf(line, "%s %s", cmd, pathname);
         printf("cmd=%s pathname=%s\n", cmd, pathname);
 
+        /*
+         * BUG FIX: was a chain of independent `if` statements — every branch
+         * was evaluated even after a match was found. Changed to `else if` so
+         * we stop checking once the first match is found. This is both more
+         * correct (avoids accidentally triggering multiple handlers if cmd
+         * somehow matched multiple strings) and more efficient.
+         */
         if (!strcmp(cmd, "ls"))
             my_ls(pathname);
-        if (!strcmp(cmd, "cd"))
+        else if (!strcmp(cmd, "cd"))
             my_chdir(pathname);
-        if (!strcmp(cmd, "pwd"))
+        else if (!strcmp(cmd, "pwd"))
             my_pwd(running->cwd);
-        if (!strcmp(cmd, "quit"))
+        else if (!strcmp(cmd, "quit"))
             quit();
-        if (!strcmp(cmd, "mkdir"))
+        else if (!strcmp(cmd, "mkdir"))
             make_dir(pathname);
-        if (!strcmp(cmd, "link"))
+        else if (!strcmp(cmd, "link"))
         {
             sscanf(line, "%s %s %s", cmd, pathname, pathname_two);
             link_wrapper(pathname, pathname_two);
         }
-        if (!strcmp(cmd, "unlink"))
+        else if (!strcmp(cmd, "unlink"))
             my_unlink(pathname);
-        if (!strcmp(cmd, "symlink"))
+        else if (!strcmp(cmd, "symlink"))
         {
             sscanf(line, "%s %s %s", cmd, pathname, pathname_two);
             my_symlink(pathname, pathname_two);
         }
-        if (!strcmp(cmd, "creat"))
+        else if (!strcmp(cmd, "creat"))
             creat_file(pathname);
-        if (!strcmp(cmd, "rmdir"))
+        else if (!strcmp(cmd, "rmdir"))
             myrmdir(pathname);
-        if (!strcmp(cmd, "chmod"))
+        else if (!strcmp(cmd, "chmod"))
             mychmod(pathname);
-        if (!strcmp(cmd, "cat"))
+        else if (!strcmp(cmd, "cat"))
             my_cat(pathname);
-        if (!strcmp(cmd, "open"))
+        else if (!strcmp(cmd, "open"))
         {
             int mode = -1;
             sscanf(line, "%s %s %d", cmd, pathname, &mode);
             open_file(pathname, mode);
         }
-        if (!strcmp(cmd, "read"))
+        else if (!strcmp(cmd, "read"))
         {
             int fd = -1;
             sscanf(line, "%s %d %s", cmd, &fd, pathname);
             myread(fd, pathname, sizeof(pathname));
         }
-        if (!strcmp(cmd, "write"))
+        else if (!strcmp(cmd, "write"))
         {
             int fd = -1;
             sscanf(line, "%s %d %s", cmd, &fd, pathname);
             mywrite(fd, pathname, sizeof(pathname));
         }
-        if (!strcmp(cmd, "close"))
+        else if (!strcmp(cmd, "close"))
         {
             int fd = -1;
             sscanf(line, "%s %d", cmd, &fd);
             close_file(fd);
         }
-        if (!strcmp(cmd, "cp"))
+        else if (!strcmp(cmd, "cp"))
         {
             sscanf(line, "%s %s %s", cmd, pathname, pathname_two);
             my_cp(pathname, pathname_two);
         }
-        if (!strcmp(cmd, "mount"))
+        else if (!strcmp(cmd, "mount"))
         {
             sscanf(line, "%s %s %s", cmd, pathname, pathname_two);
             if (!strcmp(pathname, "") || !strcmp(pathname_two, ""))
-            {
                 list_mount();
-            }
             else
-            {
                 my_mount(pathname, pathname_two);
-            }
         }
-        if (!strcmp(cmd, "umount"))
+        else if (!strcmp(cmd, "umount"))
             my_umount(pathname);
-        if (!strcmp(cmd, "pfd"))
+        else if (!strcmp(cmd, "pfd"))
             pfd();
-        if (!strcmp(cmd, "switch"))
+        else if (!strcmp(cmd, "switch"))
             my_switch();
+        else
+            printf("unknown command: %s\n", cmd);
     }
 }
 

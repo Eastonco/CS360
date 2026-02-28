@@ -145,6 +145,56 @@ to generate `a.out`.
 - What do you see?
 - Why?
 
+## Key Concepts
+
+### Stack Frame Layout (32-bit x86)
+
+When a function is called, the CPU builds a **stack frame**:
+
+```
+High addresses (older frames)
++------------------+
+|   arguments      |  pushed by caller before CALL
++------------------+
+|   return address |  pushed by CALL instruction (where to go after ret)
++------------------+
+|   saved EBP      |  <-- EBP points here (pushed by PUSH %ebp in prologue)
++------------------+
+|   local vars     |  allocated by SUB $N, %esp in prologue
++------------------+
+Low addresses (current frame)
+```
+
+### The Frame Pointer Linked List
+
+`EBP` always points to the **saved EBP of the caller**. That means stack frames form a singly-linked list from the innermost function back to `main()`. Walking the list:
+
+```c
+int *p = (int *)getebp();   // p = EBP of current function
+while (p) {
+    p = (int *)*p;          // *p = saved EBP = start of caller's frame
+}
+```
+
+### The `getebp()` Assembly Stub
+
+Standard C has no way to read the EBP register directly. The tiny `ts.s` file solves this:
+
+```asm
+movl %ebp, %eax   // copy EBP into EAX (the return-value register)
+ret               // return; caller gets the EBP value as the function result
+```
+
+### BSS vs DATA vs TEXT Sections
+
+| Section | Contents | In `a.out`? |
+|---------|----------|-------------|
+| TEXT    | Machine code | Yes |
+| DATA    | Initialized globals/statics | Yes |
+| BSS     | Uninitialized globals/statics | No — just a size in the header |
+
+BSS is not stored in the binary; the OS zero-fills it at load time, saving disk space.
+
 ## Part 2
 
 Given the following `t.c` and `ts.s` files

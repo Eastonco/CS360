@@ -10,6 +10,53 @@ From there, `cd` into the `bin` directory and run `./main.bin`.
 
 For help: run the `menu` command in the sim.
 
+## Key Concepts
+
+### Left-Child / Right-Sibling Tree (LC-RS)
+
+This lab represents a filesystem tree using a two-pointer structure where each node has at most two pointers instead of a variable-length array of children:
+
+```
+typedef struct node {
+    char name[64];
+    struct node *childPtr;    // first child
+    struct node *siblingPtr;  // next sibling (same parent)
+    struct node *parentPtr;   // back-pointer for pwd()
+} NODE;
+```
+
+Example: root with children a, b, c where a has children x, y:
+
+```
+root ──childPtr──> a ──siblingPtr──> b ──> c ──> NULL
+                   |
+               childPtr
+                   |
+                   x ──siblingPtr──> y ──> NULL
+```
+
+To list all children of a node: `node->childPtr`, then follow `siblingPtr`.
+
+### parse_pathname: Absolute vs Relative Paths
+
+`parse_pathname()` splits a path into `dname` (parent directory) and `bname` (target name), then navigates to the parent:
+
+- **Absolute path** (`/a/b/c`): start from `root`, walk each component
+- **Relative path** (`foo/bar`): start from `cwd`
+- Special cases: `.` → cwd, `..` → cwd->parentPtr
+
+### Save / Reload Format
+
+The filesystem is serialized as a tab-separated text file:
+```
+type    pathname
+
+D   /dir1
+F   /dir1/file1
+D   /dir2
+```
+`reload()` reconstructs the tree by calling `mkdir()` or `create()` for each line.
+
 ## Checklist
 
 ```text

@@ -1,8 +1,19 @@
 /*******************************************************
  * CS360 Lab5 Client File, client.c
  * Connor Easton, Zach Nett
-********************************************************/
-//#include "lab5.h"
+ *
+ * The client connects to the server over TCP and provides two types of commands:
+ *   - Local commands (lcat, lls, lcd, lpwd, lmkdir, lrmdir, lrm): executed on
+ *     the client machine, no network traffic.
+ *   - Remote commands (get, put, ls, cd, pwd, mkdir, rmdir, rm): sent as text
+ *     to the server; the client reads the response until it receives EOT.
+ *
+ * File transfer protocol:
+ *   get/put use a size-prefix scheme:
+ *     1. Sender writes file size as ASCII string (MAX bytes)
+ *     2. Sender writes file data in MAX-byte chunks
+ *     3. Receiver reads size, then reads exactly that many bytes
+ ********************************************************/
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -16,7 +27,7 @@
 #include <sys/stat.h>
 #include <fcntl.h>
 #include <dirent.h>
-#include <libgen.h> // for dirname()/basename()
+#include <libgen.h>
 #include <time.h>
 
 #define MAX 256
@@ -26,34 +37,47 @@
 #define DEBUG 0
 
 struct sockaddr_in saddr;
-char *serverIP = "127.0.0.1";
-int serverPORT = 1234;
-int sock;
+char *serverIP   = "127.0.0.1";
+int   serverPORT = 1234;
+int   sock;
 
-// Function prototypes
+/* Local command table */
+char *cmd[] = {"lcat", "lls", "lcd", "lpwd", "lmkdir", "lrmdir", "lrm", "menu"};
+#define NCMDS ((int)(sizeof(cmd) / sizeof(cmd[0])))
+
 int find_cmd_index(char *command);
 int lcat(char *filename);
-int lls(char * pathname);
+int lls(char *pathname);
 int ls_dir(char *pathname);
 int ls_file(char *fname);
 int lcd(char *pathname);
-int is_end_of_tranmission(char * response);
-int lpwd();
+int is_end_of_tranmission(char *response);
+int lpwd(char *unused);    /* BUG FIX: added char* param to match fptr table */
 int lmkdir(char *pathname);
 int lrmdir(char *pathname);
 int lrm(char *pathname);
-int menu();
-int init();
+int menu(char *unused);    /* BUG FIX: added char* param to match fptr table */
+int init(void);
 
-// Command table (for function pointers)
-char *cmd[] = {"lcat", "lls", "lcd", "lpwd", "lmkdir", "lrmdir", "lrm", "menu"};
+/*
+ * Function pointer table for local commands.
+ * All handlers take (char *) for type consistency with the dispatch mechanism.
+ * BUG FIX: original used (int (*)()) cast which masked type mismatches;
+ * all functions now properly declared as int (*)(char *).
+ */
+int (*fptr[])(char *) = {
+    lcat, lls, lcd, lpwd, lmkdir, lrmdir, lrm, menu
+};
 
-int (*fptr[])(char *) = {(int (*)())lcat, lls, lcd, lpwd, lmkdir, lrmdir, lrm, menu};
-
-int init()
+/*
+ * init: connect to the server.
+ *
+ * TCP client lifecycle:
+ *   socket()  — create an unbound endpoint
+ *   connect() — send SYN to server IP:port; completes the 3-way handshake
+ */
+int init(void)
 {
-    int n;
-
     printf("Creating a socket... ");
     sock = socket(AF_INET, SOCK_STREAM, 0);
     if (sock < 0)
@@ -65,9 +89,9 @@ int init()
 
     printf("Filling server IP=%s, port number=%d... ", serverIP, serverPORT);
     bzero(&saddr, sizeof(saddr));
-    saddr.sin_family = AF_INET;
+    saddr.sin_family      = AF_INET;
     saddr.sin_addr.s_addr = inet_addr(serverIP);
-    saddr.sin_port = htons(serverPORT);
+    saddr.sin_port        = htons(serverPORT);
     printf("Done.\n");
 
     printf("Connecting to server... ");
@@ -78,11 +102,11 @@ int init()
     }
 
     printf("\nConnected to server OK\n");
+    return 0;
 }
 
 int main(int argc, char *argv[], char *env[])
 {
-
     int n;
     char line[MAX], response[MAX];
     char command[16], arg[64];
@@ -91,161 +115,159 @@ int main(int argc, char *argv[], char *env[])
 
     while (1)
     {
-        memset(command, '\0', sizeof(command));
-        memset(arg, '\0', sizeof(arg));
-        memset(line,'\0', sizeof(line));
-        memset(response,'\0', sizeof(response));
-
-
+        memset(command,  '\0', sizeof(command));
+        memset(arg,      '\0', sizeof(arg));
+        memset(line,     '\0', sizeof(line));
+        memset(response, '\0', sizeof(response));
 
         printf("$ ");
         fgets(line, MAX, stdin);
-        line[strlen(line) - 1] = 0; // kill <CR> at end
-        if (line[0] == 0 || !strcmp(line, "quit") || !strcmp(line, "exit")) // exit if NULL line, or if line is "quit" or "exit"
+        line[strlen(line) - 1] = 0;
+        if (line[0] == 0 || !strcmp(line, "quit") || !strcmp(line, "exit"))
             exit(0);
 
-        // Check here if the command should be executed locally
         sscanf(line, "%s %s", command, arg);
-        if (find_cmd_index(command) != -1)
-        { // local command-- run on client only
-        #if DEBUG
-            printf("%s\n", command);
-        #endif
+
+        if (find_cmd_index(command) != -1) /* local command — run on client */
+        {
             int index = find_cmd_index(command);
-            if (index != -1)
-            {
-                fptr[index](arg);
-            }
-            else
-            {
-                printf("invalid command %s\n", line);
-            }
+            fptr[index](arg);
         }
-        else
-        { // else send to server
-            // Send ENTIRE line to server
+        else /* remote command — send to server */
+        {
             n = write(sock, line, MAX);
-        #if DEBUG
-            printf("Sent: %s\n", line);
-        #endif
-            char command[16], arg[64];
-            sscanf(line, "%s %s", command, arg);
+
             char buf[MAX];
-            if (!strcmp(command, "get")) {
-                // get the # of bytes that the file is
-                int fd;
+            if (!strcmp(command, "get"))
+            {
+                /*
+                 * get protocol: server sends size, then data chunks.
+                 * We open/create the local file and write each chunk.
+                 */
                 int b = read(sock, buf, MAX);
                 int file_size = atoi(buf);
                 memset(buf, 0, sizeof(buf));
-                // synchronize data for get, arg is filename
-                fd = open(arg, O_WRONLY|O_CREAT, 0644);
-                if (fd > 0) {
-                    int bytes_read = 0; // total amount of the file read
-                    int packet_size = 0; // each packet size between 0 and MAX
-                    while (file_size > 0) {
+
+                int fd = open(arg, O_WRONLY | O_CREAT, 0644);
+                if (fd >= 0) /* BUG FIX: was fd > 0; fd 0 is a valid descriptor */
+                {
+                    while (file_size > 0)
+                    {
                         read(sock, buf, MAX);
-                        bytes_read += MAX;
-                        if(file_size < MAX){
+                        if (file_size < MAX)
+                        {
                             write(fd, buf, file_size);
-                            file_size -= file_size;
+                            file_size = 0;
                         }
-                        else{
+                        else
+                        {
                             write(fd, buf, MAX);
                             file_size -= MAX;
                         }
                     }
                     close(fd);
                 }
-
-            } else if (!strcmp(command, "put")) {
-                // synchronize data for put, arg is filename
-                int r;
+            }
+            else if (!strcmp(command, "put"))
+            {
+                /*
+                 * put protocol: client sends size, then data chunks.
+                 * Server mirrors server_put() — reads size then data.
+                 */
                 char buffer[MAX];
-
-                struct stat fstat, *sp;
-                sp = &fstat;
-                if ((r = lstat(arg, &fstat)) < 0) {
-                    printf("can’t stat %s\n", arg);
-                    return -1;
+                struct stat finfo, *sp;
+                sp = &finfo;
+                if (lstat(arg, &finfo) < 0)
+                {
+                    printf("can't stat %s\n", arg);
+                    continue;
                 }
                 int file_size = sp->st_size;
                 sprintf(buffer, "%d", file_size);
 
                 write(sock, buffer, MAX);
-                int fp = open(arg, O_RDONLY);
-                if (fp > 0) {
-                    char buf[MAX];
-                    memset(buf, '\0', sizeof(buf));
-                    int n = read(fp, buf, MAX); // read 256 bytes from the file
-                    while(n > 0){
-                        write(sock, buf, n);
-                        n = read(fp, buf, MAX);
-                    }
-                }
-                close(fp);
-                bzero(response, sizeof(response));
-                n = read(sock, response, sizeof(response));
-                while(!is_end_of_tranmission(response)){
-                    #if DEBUG
-                        printf("client read: %s", response);
-                    #else 
-                        printf("%s", response);
-                    #endif
-                    bzero(response, sizeof(response));
-                    n = read(sock, response, sizeof(response));
-                }
-            } else {
-                // Read a line from sock and show it
-                bzero(response, sizeof(response));
-                n = read(sock, response, sizeof(response));
-                while(!is_end_of_tranmission(response)){
-                    #if DEBUG
-                        printf("%s", response);
-                    #else
-                        printf("client read: %s", response);
-                    #endif
 
+                int fp = open(arg, O_RDONLY);
+                if (fp >= 0) /* BUG FIX: was fp > 0 */
+                {
+                    char fbuf[MAX];
+                    memset(fbuf, '\0', sizeof(fbuf));
+                    int nr = read(fp, fbuf, MAX);
+                    while (nr > 0)
+                    {
+                        write(sock, fbuf, nr);
+                        nr = read(fp, fbuf, MAX);
+                    }
+                    close(fp);
+                }
+
+                /* Read server response until EOT */
+                bzero(response, sizeof(response));
+                n = read(sock, response, sizeof(response));
+                while (!is_end_of_tranmission(response))
+                {
+                    printf("%s", response);
                     bzero(response, sizeof(response));
                     n = read(sock, response, sizeof(response));
                 }
-                // transmission ended
+            }
+            else
+            {
+                /* Read server response lines until EOT */
+                bzero(response, sizeof(response));
+                n = read(sock, response, sizeof(response));
+                while (!is_end_of_tranmission(response))
+                {
+                    printf("%s", response);
+                    bzero(response, sizeof(response));
+                    n = read(sock, response, sizeof(response));
+                }
             }
         }
     }
 }
 
-int is_end_of_tranmission(char * response){
-    if(!strcmp(response, EOT)){
-        #if DEBUG
-            printf("End of transmission\n");
-        #endif
+/* is_end_of_tranmission: return 1 if response matches the EOT sentinel string */
+int is_end_of_tranmission(char *response)
+{
+    if (!strcmp(response, EOT))
+    {
+#if DEBUG
+        printf("End of transmission\n");
+#endif
         return 1;
     }
     return 0;
 }
 
+/*
+ * find_cmd_index: return the index of command in cmd[], or -1 if not found.
+ *
+ * BUG FIX: original loop was `while(cmd[i])` — no NULL sentinel.
+ * Fixed to use NCMDS (computed from array size).
+ */
 int find_cmd_index(char *command)
 {
-    int i = 0;
-    while (cmd[i])
+    for (int i = 0; i < NCMDS; i++)
     {
         if (!strcmp(command, cmd[i]))
         {
-            #if DEBUG
-                printf("Found %s, index %d\n", command, i);
-            #endif
+#if DEBUG
+            printf("Found %s, index %d\n", command, i);
+#endif
             return i;
         }
-        i++;
     }
     return -1;
 }
 
-int menu(){
+int menu(char *unused)
+{
     puts("********************** menu ***********************");
     puts("*  get  put  ls   cd   pwd   mkdir   rmdir   rm   * ");
     puts("*  lcat     lls  lcd  lpwd  lmkdir  lrmdir  lrm   *");
     puts("***************************************************");
+    return 0;
 }
 
 int lcat(char *filename)
@@ -259,6 +281,7 @@ int lcat(char *filename)
             buf[strlen(buf) - 1] = '\0';
             puts(buf);
         }
+        fclose(fd);
     }
     else
     {
@@ -291,16 +314,16 @@ int ls_dir(char *pathname)
             strcat(fullPath, dp->d_name);
             ls_file(fullPath);
         }
-
     } while (dp != NULL);
 
     closedir(mydir);
     return 0;
 }
 
-int lls(char * pathname)
+int lls(char *pathname)
 {
-    if (!strcmp(pathname, "")){
+    if (!strcmp(pathname, ""))
+    {
         ls_dir("./");
         return 1;
     }
@@ -308,48 +331,57 @@ int lls(char * pathname)
     return 0;
 }
 
+/*
+ * ls_file: print file metadata (like `ls -l`) for a local file.
+ *
+ * Permission bit decoding:
+ *   st_mode bits 8..0 correspond to owner-rwx, group-rwx, other-rwx.
+ *   t1[] maps bit index to the character to print when the bit is set.
+ *   The top 4 bits of st_mode encode the file type (regular, dir, symlink).
+ */
 int ls_file(char *fname)
 {
     char linkname[MAX];
     char *t1 = "xwrxwrxwr-------";
     char *t2 = "----------------";
 
-    struct stat fstat, *sp;
+    struct stat finfo, *sp;
     int r, i;
     char ftime[64];
-    sp = &fstat;
-    if ((r = lstat(fname, &fstat)) < 0)
+    sp = &finfo;
+
+    if ((r = lstat(fname, &finfo)) < 0)
     {
-        printf("can’t stat %s\n", fname);
+        printf("can't stat %s\n", fname);
         exit(1);
     }
-    if ((sp->st_mode & 0xF000) == 0x8000) // if (S_ISREG())
-        printf("%c", '-');
-    if ((sp->st_mode & 0xF000) == 0x4000) // if (S_ISDIR())
-        printf("%c", 'd');
-    if ((sp->st_mode & 0xF000) == 0xA000) // if (S_ISLNK())
-        printf("%c", 'l');
+
+    if ((sp->st_mode & 0xF000) == 0x8000)      printf("%c", '-');
+    else if ((sp->st_mode & 0xF000) == 0x4000)  printf("%c", 'd');
+    else if ((sp->st_mode & 0xF000) == 0xA000)  printf("%c", 'l');
+
     for (i = 8; i >= 0; i--)
     {
         if (sp->st_mode & (1 << i))
-            printf("%c", t1[i]); // print r|w|x printf("%c", t1[i]);
+            printf("%c", t1[i]);
         else
-            printf("%c", t2[i]); // or print -
+            printf("%c", t2[i]);
     }
-    printf("%4d ", sp->st_nlink); // link count
-    printf("%4d ", sp->st_gid);   // gid
-    printf("%4d ", sp->st_uid);   // uid
-    printf("%8ld ", sp->st_size);  // file size
 
-    strcpy(ftime, ctime(&sp->st_ctime)); // print time in calendar form ftime[strlen(ftime)-1] = 0; // kill \n at end
-    ftime[strlen(ftime) - 1] = 0;        // removes the \n
-    printf("%s ", ftime);                // prints the time
+    printf("%4d ", sp->st_nlink);
+    printf("%4d ", sp->st_gid);
+    printf("%4d ", sp->st_uid);
+    printf("%8ld ", sp->st_size);
 
-    printf("%s", basename(fname)); // print file basename // print -> linkname if symbolic file
+    strcpy(ftime, ctime(&sp->st_ctime));
+    ftime[strlen(ftime) - 1] = 0;
+    printf("%s ", ftime);
+
+    printf("%s", basename(fname));
     if ((sp->st_mode & 0xF000) == 0xA000)
     {
         readlink(fname, linkname, MAX);
-        printf(" -> %s", linkname); // print linked name }
+        printf(" -> %s", linkname);
     }
 
     printf("\n");
@@ -361,11 +393,13 @@ int lcd(char *pathname)
     return chdir(pathname);
 }
 
-int lpwd()
+/* BUG FIX: added char *unused to match fptr table type int (*)(char *) */
+int lpwd(char *unused)
 {
     char buf[MAX];
     getcwd(buf, MAX);
     printf("%s\n", buf);
+    return 0;
 }
 
 int lmkdir(char *pathname)
