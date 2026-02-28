@@ -13,7 +13,8 @@ extern int n;           // number of component strings in name[]
 extern int fd, dev;
 extern int nblocks, ninodes, bmap, imap, inode_start;
 
-int link_wrapper(char *old, char *new) {
+int link_wrapper(char *old, char *new)
+{
     // tokenize pathname into 'old' and 'new' delimited by a space
     printf("old = %s\nnew = %s\n", old, new);
     my_link(old, new);
@@ -36,7 +37,8 @@ int my_link(char *oldname, char *newname)
     }
 
     inode_old = getino(oldname);
-    if (inode_old == -1) {
+    if (inode_old == -1)
+    {
         // file doesn't exist
         printf("error - file linking to doesn't exist\n");
         return -1;
@@ -44,7 +46,8 @@ int my_link(char *oldname, char *newname)
 
     mip = iget(dev, inode_old);
 
-    if (S_ISDIR(mip->INODE.i_mode)) {
+    if (S_ISDIR(mip->INODE.i_mode))
+    {
         printf("is directory, not allowed\n");
         return -1;
     }
@@ -61,13 +64,15 @@ int my_link(char *oldname, char *newname)
         dev = running->cwd->dev;
     }
 
-    if (olddev != dev) {
+    if (olddev != dev)
+    {
         printf("cannot link two files on different devices\n");
         return -1;
     }
 
     int fileino = getino(newname);
-    if (fileino != -1) {
+    if (fileino != -1)
+    {
         printf("link or file already exists, %s, ino=%d\n", newname, fileino);
         return -1;
     }
@@ -79,7 +84,8 @@ int my_link(char *oldname, char *newname)
 
     printf("parent = %s\nchild = %s\n", parent, child);
     inode_new = getino(parent);
-    if (inode_new == -1) {
+    if (inode_new == -1)
+    {
         printf("can't create link in parent dir %s\n", parent);
         return -1;
     }
@@ -88,7 +94,7 @@ int my_link(char *oldname, char *newname)
 
     enter_name(mip_new, mip->ino, child);
 
-    //print_parent_mode(mip_new);
+    // print_parent_mode(mip_new);
 
     mip->INODE.i_links_count++;
     mip->dirty = 1;
@@ -98,7 +104,8 @@ int my_link(char *oldname, char *newname)
     iput(mip_new);
 }
 
-int my_unlink(char *pathname) {
+int my_unlink(char *pathname)
+{
     int inode;
     MINODE *mip;
 
@@ -117,14 +124,16 @@ int my_unlink(char *pathname) {
 
     // link MIP
     inode = getino(pathname);
-    if (inode == -1) {
+    if (inode == -1)
+    {
         printf("error getting link inode\n");
         return -1;
     }
     mip = iget(dev, inode);
 
     // check link mip is not a dir
-    if (S_ISDIR(mip->INODE.i_mode)) {
+    if (S_ISDIR(mip->INODE.i_mode))
+    {
         printf("dir cannot be link; cannot unlink %s\n", pathname);
         return -1;
     }
@@ -141,16 +150,19 @@ int my_unlink(char *pathname) {
         return -1;
     }
 
-    if (running->uid != mip->INODE.i_uid && running->uid != SUPER_USER) {
+    if (running->uid != mip->INODE.i_uid && running->uid != SUPER_USER)
+    {
         printf("ERROR: uid mismatch, no permission\n");
         return -1;
     }
 
     // decrement link's link count
     mip->INODE.i_links_count--;
-    if (mip->INODE.i_links_count == 0) {
+    if (mip->INODE.i_links_count == 0)
+    {
         // deallocate data blocks with truncate() function
-        if (!S_ISLNK(mip->INODE.i_mode)) {
+        if (!S_ISLNK(mip->INODE.i_mode))
+        {
             inode_truncate(mip);
         }
     }
@@ -160,7 +172,8 @@ int my_unlink(char *pathname) {
     // now remove child - same function as rm (to be implemented)
     // parent MIP
     int pino = getino(parent);
-    if (pino == -1) {
+    if (pino == -1)
+    {
         printf("error getting parent ino (link)\n");
         return -1;
     }
@@ -168,9 +181,10 @@ int my_unlink(char *pathname) {
     rm_child(pip, child);
 }
 
-void print_parent_mode(MINODE *pip) {
+void print_parent_mode(MINODE *pip)
+{
     printf("parent mode ");
-    if (S_ISREG(pip->INODE.i_mode)) 
+    if (S_ISREG(pip->INODE.i_mode))
         printf("%c", '-\n');
     if (S_ISDIR(pip->INODE.i_mode))
         printf("%c", 'd\n');

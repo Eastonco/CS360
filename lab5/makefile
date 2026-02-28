@@ -4,7 +4,7 @@
 #******************************************************
 
 GCC        	= gcc
-CFLAGS      = -g -m32 
+CFLAGS      = -g -m32 -fcommon
 RM          = rm -rf
 BINDIR      = bin
 SRCDIR 		= src

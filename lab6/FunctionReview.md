@@ -5,32 +5,28 @@
 “Get the parent index node and search in the parent for child to ensure it does not exist yet. Allocate a new block and inode, get the new allocated inode and set directory settings, set the first i_block to the allocated bno. Get the bno block into memory and create . and .. entries, write the block back. Then enter_name to add the name to the parent block.”
 
 Sub-question: how to enter_name?
-*   Get the inode of the provided parent and traverse to the last entry of the block-- once you’re at the last entry, ensure there’s enough space for the name, and then strcpy the name and the inode into the block and save it (put_block).
 
+* Get the inode of the provided parent and traverse to the last entry of the block-- once you’re at the last entry, ensure there’s enough space for the name, and then strcpy the name and the inode into the block and save it (put_block).
 
 ## creat  pathname
 
 Same as mkdir, except;
 
-*   Mode of the index node is a FILE type and permissions (0x81A4) instead of DIR
-*   Links count is initially 1 as it’s a file
-*   No creation of . and .. necessary, thus get_block and set_block aren’t necessary in creat.
-
+* Mode of the index node is a FILE type and permissions (0x81A4) instead of DIR
+* Links count is initially 1 as it’s a file
+* No creation of . and .. necessary, thus get_block and set_block aren’t necessary in creat.
 
 ## link   f1 f2
 
 Get the index node of f1 (oldname) into memory, check that it’s not a DIR and is a REG or LNK file, check both f1 and f2 are on the same device (same dev), add an entry to the data block of f2 which has the same inode number as f1 by enter_name.
 
-
 ## Unlink
 
 Get index node into memory, decrement links count by 1 and check if it’s link count is 0, if so then truncate the inode by deallocating all the data blocks of the inode (function truncate_inode). Remove the child name from the base directory with rm_child given the parent inode (MINODE *) and the child basename.
 
-
 ## Symlink
 
 Gets index node into memory of the ‘old' (first argument), creates a file for ‘new’ (second argument) and get ino, set mode of that new ino to link, copy the old string into the new’s i_block (84 bytes available, 60 chars + 24 after), write inode of new back to disk. (iput)
-
 
 ## open  file for R of W
 
@@ -50,8 +46,6 @@ Doubly indirect needs to do that above process twice (so you need to get_block()
 
 After you’ve gotten the block, optimization of READ or WRITE copies the entire BLKSIZE at a time (either reads n_bytes at a time or remainder at a time). This is done via memcpy(). This is opposed to a single character at a time.
 
-      
-      
 ## mount: what does it do?
 
 how to cross mounting points DOWNward? UPward?
@@ -70,23 +64,19 @@ If the inode number is root (2), but the device number differs from the root dev
 
 WHAT WORKS IN OUR CODE (level 3)
 
-
-
-*   mount; mount disk3.2 /mnt; mount
-    *   Displays no mounted filesystems, then disk3.2 as mounted
-*   cd /mnt; ls
-    *   Downwards, Displays disk3.2 contents
-*   cd ..; ls
-    *   Upwards, Displays disk3.1 contents, BUT lose track of mounted disk3.2 (not visible in mount)
-*   Switch; rmdir dir1; unlink file1
-    *   Switches process to P1 from P0 (superuser), cannot rmdir (uid mismatch), cannot unlink (no permissions)
+* mount; mount disk3.2 /mnt; mount
+  * Displays no mounted filesystems, then disk3.2 as mounted
+* cd /mnt; ls
+  * Downwards, Displays disk3.2 contents
+* cd ..; ls
+  * Upwards, Displays disk3.1 contents, BUT lose track of mounted disk3.2 (not visible in mount)
+* Switch; rmdir dir1; unlink file1
+  * Switches process to P1 from P0 (superuser), cannot rmdir (uid mismatch), cannot unlink (no permissions)
 
 WHAT DOESN’T WORK IN OUR CODE (level 3)
 
-
-
-*   Pwd (unmodified, so crashes upon use in a mounted filesystem)
-*   Moving upward through a mounting point unmounts the filesystem you moved out of
+* Pwd (unmodified, so crashes upon use in a mounted filesystem)
+* Moving upward through a mounting point unmounts the filesystem you moved out of
 
 BE READY TO SHOW CODE:
 

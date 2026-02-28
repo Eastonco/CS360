@@ -25,11 +25,11 @@ int enter_name(MINODE *pip, int myino, char *myname);
 int link_wrapper(char *old, char *new);
 int my_link(char *oldname, char *newname);
 
-//creat
+// creat
 int my_creat(MINODE *pip, char *name);
 int creat_file(char *pathname);
 
-//rmdir
+// rmdir
 int rm_child(MINODE *parent, char *name);
 int myrmdir(char *pathname);
 
@@ -44,10 +44,10 @@ int my_symlink(char *old, char *new);
 int myrmdir(char *pathname);
 int is_empty(MINODE *mip);
 
-//misclvl1
+// misclvl1
 int mychmod(char *pathname);
 
-//open_close_lseek
+// open_close_lseek
 int open_file(char *pathname, int mode);
 int mode_is_invalid(int mode);
 int close_file(int fd);
@@ -57,10 +57,9 @@ int pfd(void);
 int dup(int fd);
 int dup2(int fd, int gd);
 
-//write cp
+// write cp
 int my_cp(char *src, char *dest);
 int mywrite(int fd, char *buf, int n_bytes);
 int write_file();
-
 
 #endif

@@ -8,13 +8,13 @@
 - [CS360 Pre-LAB1 Assignment](#cs360-pre-lab1-assignment)
   - [Table Of Contents](#table-of-contents)
   - [Intro](#intro)
-  - [Part 1:](#part-1)
+  - [Part 1](#part-1)
     - [Part A](#part-a)
-      - [Answer These Questions:](#answer-these-questions)
+      - [Answer These Questions](#answer-these-questions)
     - [Part B](#part-b)
-      - [Answer These Questions:](#answer-these-questions-1)
+      - [Answer These Questions](#answer-these-questions-1)
   - [Part 2](#part-2)
-    - [Do the requirements 1 to 7 as specified below:](#do-the-requirements-1-to-7-as-specified-below)
+    - [Do the requirements 1 to 7 as specified below](#do-the-requirements-1-to-7-as-specified-below)
 
 ## Intro
 
@@ -30,7 +30,7 @@ to get and install
 gcc-multilib
 ```
 
-## Part 1:
+## Part 1
 
 A binary executable file, `a.out`, consists of
 
@@ -62,7 +62,7 @@ main()
 
 `t2.c`: Change the global variable `g` to `int g=3;`
 `t3.c`: Change the global variable `g` to `int g[10000];`
-`t4.c`: Change the global variable `g` to ` int g[10000] = {4};`
+`t4.c`: Change the global variable `g` to `int g[10000] = {4};`
 `t5.c`: Change the local variables `of main()` to
 
 ```c
@@ -108,9 +108,9 @@ to get its section sizes. After that, record the observed sizes in a table:
 
 ---
 
-#### Answer These Questions:
+#### Answer These Questions
 
-1.  Variables in C may be classified as
+1. Variables in C may be classified as
 
 ```
 globals ---|--- UNINITIALIZED  globals;
@@ -139,11 +139,61 @@ cc -m32 -static t.c
 
 to generate `a.out`.
 
-#### Answer These Questions:
+#### Answer These Questions
 
 - Record the sizes again and compare them with the sizes in (A).
 - What do you see?
 - Why?
+
+## Key Concepts
+
+### Stack Frame Layout (32-bit x86)
+
+When a function is called, the CPU builds a **stack frame**:
+
+```
+High addresses (older frames)
++------------------+
+|   arguments      |  pushed by caller before CALL
++------------------+
+|   return address |  pushed by CALL instruction (where to go after ret)
++------------------+
+|   saved EBP      |  <-- EBP points here (pushed by PUSH %ebp in prologue)
++------------------+
+|   local vars     |  allocated by SUB $N, %esp in prologue
++------------------+
+Low addresses (current frame)
+```
+
+### The Frame Pointer Linked List
+
+`EBP` always points to the **saved EBP of the caller**. That means stack frames form a singly-linked list from the innermost function back to `main()`. Walking the list:
+
+```c
+int *p = (int *)getebp();   // p = EBP of current function
+while (p) {
+    p = (int *)*p;          // *p = saved EBP = start of caller's frame
+}
+```
+
+### The `getebp()` Assembly Stub
+
+Standard C has no way to read the EBP register directly. The tiny `ts.s` file solves this:
+
+```asm
+movl %ebp, %eax   // copy EBP into EAX (the return-value register)
+ret               // return; caller gets the EBP value as the function result
+```
+
+### BSS vs DATA vs TEXT Sections
+
+| Section | Contents | In `a.out`? |
+|---------|----------|-------------|
+| TEXT    | Machine code | Yes |
+| DATA    | Initialized globals/statics | Yes |
+| BSS     | Uninitialized globals/statics | No — just a size in the header |
+
+BSS is not stored in the binary; the OS zero-fills it at load time, saving disk space.
 
 ## Part 2
 
@@ -160,7 +210,7 @@ to generate an `a.out`. Then, run a.out with
 a.out one two three > outfile
 ```
 
-### Do the requirements 1 to 7 as specified below:
+### Do the requirements 1 to 7 as specified below
 
 ```
 # ts.s file:
